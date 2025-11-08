@@ -16,11 +16,10 @@ bool AttachFire::FireCustomWeapon(TechnoClass* pAttacker, AbstractClass* pTarget
 	WeaponTypeClass* pWeapon, WeaponTypeExt::TypeData weaponTypeData,
 	CoordStruct flh, bool isOnBody, bool isOnTarget, FireBulletToTarget callback)
 {
-	bool isFire = false;
 	// 不允许朝这个目标发射
 	if (!weaponTypeData.CanFireToTarget(pTarget, dynamic_cast<ObjectClass*>(pObject), pAttacker, pAttackingHouse, pWeapon))
 	{
-		return isFire;
+		return false;
 	}
 	int burst = pWeapon->Burst;
 	int minRange = pWeapon->MinimumRange;
@@ -31,7 +30,7 @@ bool AttachFire::FireCustomWeapon(TechnoClass* pAttacker, AbstractClass* pTarget
 		if (weaponTypeData.CheckAA && !pWeapon->Projectile->AA)
 		{
 			// 抛射体没有AA，终止发射
-			return isFire;
+			return false;
 		}
 		if (pTechno)
 		{
@@ -61,7 +60,6 @@ bool AttachFire::FireCustomWeapon(TechnoClass* pAttacker, AbstractClass* pTarget
 			SimulateBurstFire(newBurst);
 			// 入队
 			_simulateBurst.emplace_back(newBurst);
-			isFire = true;
 		}
 		else
 		{
@@ -100,8 +98,9 @@ bool AttachFire::FireCustomWeapon(TechnoClass* pAttacker, AbstractClass* pTarget
 				}
 			}
 		}
+		return true;
 	}
-	return isFire;
+	return false;
 }
 
 bool AttachFire::FireCustomWeapon(TechnoClass* pAttacker, AbstractClass* pTarget, HouseClass* pAttackingHouse,
