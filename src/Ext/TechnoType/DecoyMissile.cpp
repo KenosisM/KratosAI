@@ -7,6 +7,7 @@
 #include <Ext/Helper/MathEx.h>
 #include <Ext/Helper/Scripts.h>
 #include <Ext/Helper/Status.h>
+#include <Ext/Helper/Weapon.h>
 
 #include <Ext/BulletType/Trajectory/MissileTrajectory.h>
 
@@ -228,6 +229,10 @@ void DecoyMissile::OnUpdate()
 					pBullet->WeaponType = pWeapon;
 					pBullet->MoveTo(port, v);
 					AddDecoy(pBullet, port, data->Life);
+					// Play report sound
+					PlayReportSound(pWeapon, port);
+					// Draw weapon anim
+					DrawWeaponAnim(pTechno, pTechno, pTechno->Owner, pWeapon, port, initTarget);
 				}
 			}
 			// 将来袭导弹目标设定到最近的诱饵上
