@@ -17,7 +17,7 @@
 DEFINE_HOOK(0x5194EF, InfantryClass_DrawIt_InAir_Shadow_Skip, 0x5)
 {
 	GET(InfantryClass*, pInf, EBP);
-	if (pInf->Type->NoShadow)
+	if (pInf->Type->NoShadow || pInf->CloakState != CloakState::Uncloaked)
 	{
 		return 0x51958A;
 	}

@@ -41,9 +41,16 @@ DEFINE_HOOK(0x73C47A, UnitClass_DrawAsVXL_Shadow_SkipPhobos, 0x5)
 {
 	if (AudioVisual::Data()->AllowTakeoverPhobosShadowMaker)
 	{
-		GET(TechnoClass*, pThis, EBP);
+		GET(UnitClass*, pThis, EBP);
 		int height = pThis->GetHeight();
 		R->EAX(height);
+		ILocomotion* pLoco = pThis->Locomotor.get();
+		if (pThis->CloakState != CloakState::Uncloaked || pThis->Type->NoShadow || !pLoco->Is_To_Have_Shadow())
+		{
+			// 彻底跳过阴影绘制过程，不论是Phobos还是原版
+			return 0x73C5C9;
+		}
+		// 只跳过Phobos的Hook, 继续下一步
 		return 0x73C485;
 	}
 	return 0;
@@ -57,6 +64,12 @@ DEFINE_HOOK(0x4147F9, AircraftClass_Draw_Shadow_SkipPhobos, 0x6)
 		GET(AircraftClass*, pThis, EBP);
 		ILocomotion* pLoco = pThis->Locomotor.get();
 		R->EAX(pLoco);
+		if (pThis->Type->NoShadow || pThis->CloakState != CloakState::Uncloaked || pThis->IsSinking || !pLoco->Is_To_Have_Shadow())
+		{
+			// 彻底跳过阴影绘制过程，不论是Phobos还是原版
+			return 0x4148A5;
+		}
+		// 只跳过Phobos的Hook, 继续下一步
 		return 0x4147FF;
 	}
 	return 0;
