@@ -19,12 +19,12 @@
 #define VERSION_REVISION 0
 
 // Indicates Kratos-related bugfixes only
-#define VERSION_PATCH 1
+#define VERSION_PATCH 2
 
 #pragma endregion
 
 // Build number. Incremented on each released build.
-#define BUILD_NUMBER 2
+#define BUILD_NUMBER 1
 
 // Helper macros for version string formatting
 #ifdef DEBUG
