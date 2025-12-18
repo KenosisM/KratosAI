@@ -295,8 +295,7 @@ public:
 			if (maxLevel < 0 || nextLevel < maxLevel)
 			{
 				// 执行子模块
-				std::vector<Component*> childrenCopy = _children; // 复制一份，防止遍历过程中修改_children导致问题
-				for (Component* c : childrenCopy)
+				for (Component* c : _children)
 				{
 					if (!c) continue;
 					c->ForeachLevel(action, nextLevel, maxLevel);
@@ -314,16 +313,16 @@ public:
 
 	/// <summary>
 	/// execute action for each child (exclude child's child)
+	/// AE专用，无条件执行子组件，不检查active状态，只检查disable状态
 	/// </summary>
 	/// <param name="action"></param>
 	template<typename F>
 	void ForeachChild(F action, bool force = false)
 	{
-		std::vector<Component*> childrenCopy = _children; // 复制一份，防止遍历过程中修改_children导致问题
-		for (Component* c : childrenCopy)
+		for (Component* c : _children)
 		{
 			if (!c) continue;
-			if (c->IsAwaked() && c->IsActive())
+			if (c->IsAwaked() and c->IsEnable())
 			{
 				action(c);
 				if (!force)
@@ -380,6 +379,7 @@ public:
 	{
 	public:
 		std::string Name;
+		bool Enable;
 		bool Active;
 	};
 	void GetComponentInfos(std::vector<ComponentInfo>& infos, int& level)
@@ -402,7 +402,7 @@ public:
 		{
 			name.append("#").append(this->Tag);
 		}
-		ComponentInfo info{ name, IsActive() };
+		ComponentInfo info{ name, IsEnable(), IsActive() };
 		infos.push_back(info);
 		ForeachChild([&infos, &level](Component* c) {
 			int l = level + 1;

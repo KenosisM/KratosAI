@@ -24,7 +24,7 @@
 #pragma endregion
 
 // Build number. Incremented on each released build.
-#define BUILD_NUMBER 1
+#define BUILD_NUMBER 2
 
 // Helper macros for version string formatting
 #ifdef DEBUG

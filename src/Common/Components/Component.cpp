@@ -91,14 +91,20 @@ void Component::EnsureAwaked()
 
 void Component::EnsureDestroy()
 {
-	// 如果已经在Disabling状态，直接返回
-	if (IsDisabling())
-	{
+    // 不再检查IsDisabling()，允许从Disabling状态进入销毁流程
+#ifdef DEBUG_COMPONENT
+	static std::set<Component*> destroyingSet;
+	if (destroyingSet.find(this) != destroyingSet.end()) {
+		LOG_COMPONENT("Warning: EnsureDestroy recursion for %s\n",
+			thisName.c_str());
 		return;
 	}
+	destroyingSet.insert(this);
 
-	LOG_COMPONENT("Component %s - EnsureDestroy START, children=%zu\n", thisName.c_str(), _children.size());
+	LOG_COMPONENT("Component %s - EnsureDestroy START, state: Disable=%d, Awaked=%d, children=%zu\n", thisName.c_str(), _disable, _awaked, _children.size());
+#endif
 
+	// 标记为Disabling状态，可以回收
 	_disable = true;
 
 	// 从父组件移除自己
@@ -135,15 +141,24 @@ void Component::EnsureDestroy()
 	// 释放自己到对象池
 	FreeComponent();
 
-	LOG_COMPONENT("Component %s - EnsureDestroy END\n", thisName.c_str());
+#ifdef DEBUG_COMPONENT
+    destroyingSet.erase(this);
+    LOG_COMPONENT("Component %s - EnsureDestroy END\n", thisName.c_str());
+#endif
 }
 
 void Component::Disable()
 {
+	// 对于Disabling状态，什么都不做（已经在销毁过程中）
 	if (_disable) return;
 
+	// 关闭自己
 	_disable = true;
-	// 对于Disabling状态，什么都不做（已经在销毁过程中）
+	// 下属所有子组件也一并Disable
+	for (Component* c : _children)
+	{
+		c->Disable();
+	}
 }
 
 /// <summary>
@@ -215,36 +230,53 @@ void Component::RemoveComponent(Component* component, bool disable)
 
 /// <summary>
 /// 在结束循环后需要从_children中清理已经标记为disable的component
+/// 由GameObject调用，逐层清理
+/// 当一个父节点失效时，其子组件会被强制失效并回收
 /// </summary>
 void Component::ClearDisableComponent()
 {
-	std::vector<Component*> disabledChildren;
-
-	// 收集需要清理的组件（Disabling状态）
-	for (auto it = _children.begin(); it != _children.end(); ++it)
+// #ifdef DEBUG_COMPONENT
+// 	size_t initialChildren = _children.size();
+// 	LOG_COMPONENT("ClearDisableComponent START for %s, children: %zu\n", thisName.c_str(), initialChildren);
+// #endif
+	size_t i = 0;
+	while (i < _children.size())
 	{
-		Component* child = *it;
-		if (child && child->IsDisabling())
-		{
-			disabledChildren.push_back(child);
-		}
-	}
+		Component* child = _children[i];
 
-	// 再处理
-	for (Component* child : disabledChildren)
-	{
-		// 从_children中移除
-		auto it = std::find(_children.begin(), _children.end(), child);
-		if (it != _children.end())
+		if (!child)
 		{
-			_children.erase(it);
+			// 移除空指针
+			Debug::Log("Warning: ClearDisableComponent found null child in %s, removing.\n", thisName.c_str());
+			_children.erase(_children.begin() + i);
+			continue;
 		}
 
-		LOG_COMPONENT("Clear disable Component %s from %s.\n", child->thisName.c_str(), this->thisName.c_str());
+		// 先递归清理子组件的子组件
+		child->ClearDisableComponent();
 
-		child->_parent = nullptr;
-		child->EnsureDestroy();
+		if (child->IsDisabling())
+		{
+			LOG_COMPONENT("Clear disable Component %s from %s.\n", child->thisName.c_str(), this->thisName.c_str());
+
+			// 移除父子关系
+			child->_parent = nullptr;
+
+			// 从向量中移除
+			_children.erase(_children.begin() + i);
+
+			// 销毁组件
+			child->EnsureDestroy();
+			// 不增加i，因为移除了一个元素，下一个元素会移动到当前位置
+		}
+		else
+		{
+			++i;  // 移动到下一个元素
+		}
 	}
+// #ifdef DEBUG_COMPONENT
+// 	LOG_COMPONENT("ClearDisableComponent END for %s, remaining children: %zu\n", thisName.c_str(), _children.size());
+// #endif
 }
 
 
@@ -456,11 +488,16 @@ void Component::FreeComponent()
 	// 检查是否已经通过EnsureDestroy释放
 	if (!_disable)
 	{
-		Debug::Log("Warning: FreeComponent called without EnsureDestroy for %s\n",
-			Name.c_str());
-		// 直接调用 EnsureDestroy
-		EnsureDestroy();
-		return;
+		// 这是严重的编程错误，但为了程序稳定性，我们仍然处理
+		Debug::Log("Error: FreeComponent called on active component %s. Forcing disable.\n", Name.c_str());
+		_disable = true;
+
+		// 紧急调用Destroy()，但不递归调用EnsureDestroy
+		try {
+			Destroy();
+		} catch (...) {
+			Debug::Log("Error in emergency Destroy() for %s\n", Name.c_str());
+		}
 	}
 	ComponentPool::GetInstance().Release(this);
 }

@@ -23,10 +23,6 @@ public:
 	// 特别处理 GameObject 的销毁
 	void EnsureDestroy()
 	{
-		if (IsDisabling()) {
-			return;
-		}
-
 #ifdef DEBUG_COMPONENT
 		LOG_COMPONENT("=== GameObject::EnsureDestroy START ===\n");
 		LOG_COMPONENT("GameObject %s has %d children:\n", thisName.c_str(), _children.size());
