@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <functional>
 #include <typeinfo>
@@ -147,10 +147,7 @@ public:
 		// - Destroyed状态由_disable和对象池管理
 	};
 
-	Component()
-	{
-		GenerateInstanceId();
-	}
+	Component() {}
 
 	virtual ~Component() override
 	{
@@ -205,6 +202,17 @@ public:
 			sprintf_s(buffer, "%llu", id);
 			InstanceId = buffer;
 		}
+	}
+
+	// 重置组件以供复用
+	void ResetForReuse()
+	{
+		// 重新生成实例ID
+		InstanceId.clear();
+		GenerateInstanceId();
+
+		// 重置状态
+		Clean();
 	}
 
 	std::string GetThisName() const
@@ -294,10 +302,34 @@ public:
 			int nextLevel = level + 1;
 			if (maxLevel < 0 || nextLevel < maxLevel)
 			{
-				// 执行子模块
-				for (Component* c : _children)
+
+				std::string s1 = "ForeachLevel _childrenInstanceIds: \n";
+#ifdef DEBUG_COMPONENT
+				std::vector<Component*> childrenCopy = _children;
+				for (Component* c : childrenCopy)
 				{
+					s1.append("    - ").append(c->thisName.c_str()).append(", \n");
+				}
+#endif
+
+				for (size_t i = 0; i < _children.size(); ++i)
+				{
+					Component* c = _children[i];
 					if (!c) continue;
+					// 检查组件是否仍在列表中，可能被移除
+					if (i >= _children.size())
+					{
+						Debug::Log("Error: Component %s child [<%zu>] is removed during ForeachLevel!\n", thisName.c_str(), i);
+						LOG_COMPONENT(s1.c_str());
+						break;
+					}
+					if (_children[i] != c)
+					{
+						Debug::Log("Error: Component %s child [<%zu>] has changed during ForeachLevel!\n", thisName.c_str(), i);
+						LOG_COMPONENT(s1.c_str());
+						continue;
+					}
+					// 执行子组件
 					c->ForeachLevel(action, nextLevel, maxLevel);
 					if (c->IsBreak())
 					{
@@ -626,10 +658,6 @@ public:
 		LOG_COMPONENT("Component::Clean called for %p\n", this);
 
 		Tag.clear();
-		// 重新生成实例ID
-		InstanceId.clear();
-		GenerateInstanceId();
-
 
 		// Ext由ScriptFactory传入
 		_extData = nullptr;

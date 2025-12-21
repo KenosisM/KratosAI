@@ -29,8 +29,7 @@ void* ComponentPool::AllocateRaw(const std::type_info& type, size_t size)
 		pool.objects.pop();
 		pool.totalReused++;
 
-		LOG_COMPONENT("ComponentPool: Reused [%s], pool size = %zu, created = %zu, reused = %zu\n",
-			type.name(), pool.objects.size(), pool.totalCreated, pool.totalReused);
+		LOG_COMPONENT("ComponentPool: Reused [%s], pool size = %zu, created = %zu, reused = %zu\n", type.name(), pool.objects.size(), pool.totalCreated, pool.totalReused);
 		return ptr;
 	}
 
@@ -40,14 +39,12 @@ void* ComponentPool::AllocateRaw(const std::type_info& type, size_t size)
 	{
 		pool.totalCreated++;
 
-		LOG_COMPONENT("ComponentPool: Created new [%s], total created = %zu\n",
-			type.name(), pool.totalCreated);
+		LOG_COMPONENT("ComponentPool: Created new [%s], total created = %zu\n", type.name(), pool.totalCreated);
 	}
 	else
 	{
 		// 内存不足
-		LOG_COMPONENT("ERROR: ComponentPool failed to allocate %zu bytes for %s\n",
-			size, type.name());
+		LOG_COMPONENT("ERROR: ComponentPool failed to allocate %zu bytes for %s\n", size, type.name());
 	}
 
 	return ptr;
@@ -59,24 +56,38 @@ void ComponentPool::DeallocateRaw(const std::type_info& type, void* ptr)
 
 	std::lock_guard<std::mutex> lock(m_poolMutex);
 
+#ifdef DEBUG_COMPONENT
+	const char* typeName = type.name();
+	size_t typeHash = std::type_index(type).hash_code();
+
+	LOG_COMPONENT("DeallocateRaw: type=%s, hash=%zu, ptr=%p\n", typeName, typeHash, ptr);
+#endif
+
+	// 检查是否已有池存在，并添加到池中或直接释放内存
 	auto it = m_pools.find(std::type_index(type));
 	if (it != m_pools.end())
 	{
+		LOG_COMPONENT("Found pool: size=%zu, created=%zu, reused=%zu\n", it->second.objects.size(), it->second.totalCreated, it->second.totalReused);
+
 		constexpr size_t MAX_POOL_SIZE = 1000;
 		if (it->second.objects.size() < MAX_POOL_SIZE)
 		{
 			it->second.objects.push(ptr);
 			// 添加监控日志
-			LOG_COMPONENT("ComponentPool: Type [%s] pool size = %zu\n",
-				type.name(), it->second.objects.size());
+			LOG_COMPONENT("ComponentPool: Type [%s] pool size = %zu\n", type.name(), it->second.objects.size());
 			return;
 		}
 		else
 		{
-			LOG_COMPONENT("ComponentPool: Type [%s] pool full (%zu), freeing memory\n",
-				type.name(), MAX_POOL_SIZE);
+			LOG_COMPONENT("ComponentPool: Type [%s] pool full (%zu), freeing memory\n", type.name(), MAX_POOL_SIZE);
 		}
 	}
+#ifdef DEBUG_COMPONENT
+	else
+	{
+        LOG_COMPONENT("Warning: No pool found for type %s (hash %zu)\n", typeName, typeHash);
+	}
+#endif
 
 	// 池已满，直接释放
 	std::free(ptr);

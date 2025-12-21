@@ -4,6 +4,7 @@
 #include <mutex>
 #include <unordered_map>
 #include <map>
+#include <set>
 #include <typeindex>
 
 #include <Common/EventSystems/EventSystem.h>
@@ -41,6 +42,22 @@ public:
 		// 添加内存状态检查
 		// Debug::Log("  - sizeof(T) = %zu\n", sizeof(T));
 		// Debug::Log("  - alignof(T) = %zu\n", alignof(T));
+
+			// 添加类型验证
+		static_assert(std::has_virtual_destructor<T>::value, "Component must have virtual destructor");
+
+		const char* typeName = typeid(T).name();
+		size_t typeHash = typeid(T).hash_code();
+
+		Debug::Log("Acquire: name=%s, hash=%zu\n", typeName, typeHash);
+
+		// 记录已分配类型
+		static std::set<size_t> allocatedTypes;
+		if (allocatedTypes.find(typeHash) == allocatedTypes.end())
+		{
+			allocatedTypes.insert(typeHash);
+			Debug::Log("First allocation for type hash %zu\n", typeHash);
+		}
 #endif
 
 		void* memory = AllocateRaw(typeid(T), sizeof(T));
@@ -73,7 +90,8 @@ public:
 			// Debug::Log("  - vtable ptr = %p\n", *(void**)obj);  // 检查虚函数表
 #endif
 
-			obj->Clean();  // 重置状态
+			// 重置组件以供复用，清理实例ID
+			obj->ResetForReuse();
 		}
 		catch (const std::exception& e)
 		{
