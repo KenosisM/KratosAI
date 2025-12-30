@@ -827,11 +827,16 @@ void AttachEffect::CheckDurationAndDisable(bool silence)
 #endif // DEBUG_AE
 					if (!ae->SkipNext)
 					{
-						// 添加NextAE
-						std::string nextAE = data.Next;
-						if (IsNotNone(nextAE) && !IsDeadOrInvisible(pObject))
+						// 添加NextAE，Next升级为清单
+						if (!IsDeadOrInvisible(pObject) && !data.Next.empty())
 						{
-							Attach(nextAE, false, ae->pSource, ae->pSourceHouse);
+							for (std::string nextAE : data.Next)
+							{
+								if (IsNotNone(nextAE))
+								{
+									Attach(nextAE, false, ae->pSource, ae->pSourceHouse);
+								}
+							}
 						}
 					}
 				}

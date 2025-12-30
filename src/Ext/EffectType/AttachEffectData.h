@@ -134,7 +134,7 @@ public:
 	bool ResetDurationOnReapply = false; // 不可叠加时，重复获得时是否重置计时器
 	std::string Group = { "" }; // 分组，同一个分组的效果互相影响，削减或增加持续时间
 	bool OverrideSameGroup = false; // 是否覆盖同一个分组
-	std::string Next{ "" }; // 结束后播放下一个AE
+	std::vector<std::string> Next{}; // 结束后附加下一个AE
 
 	std::vector<std::string> AttachWithOutTypes{}; // 有这些AE存在则不可赋予
 	bool AttachOnceInTechnoType = false; // 写在TechnoType上只在创建时赋予一次
@@ -346,7 +346,7 @@ public:
 			ResetDurationOnReapply = reader->Get("ResetDurationOnReapply", ResetDurationOnReapply);
 			Group = reader->Get("Group", Group);
 			OverrideSameGroup = reader->Get("OverrideSameGroup", OverrideSameGroup);
-			Next = reader->Get("Next", Next);
+			Next = reader->GetList("Next", Next);
 
 			AttachWithOutTypes = reader->GetList("AttachWithOutTypes", AttachWithOutTypes);
 

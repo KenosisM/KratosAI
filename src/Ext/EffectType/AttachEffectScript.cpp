@@ -547,8 +547,8 @@ bool AttachEffectScript::CheckHealthPercent()
 	if (pTechno && AEData.CheckHealthPrecent)
 	{
 		double healthPrecent = pTechno->GetHealthPercentage();
-		double min = AEData.DeactiveWhenHealthPrecent;
-		double max = AEData.ActiveWhenHealthPrecent;
+		double min = AEData.DeactiveWhenHealthPercent;
+		double max = AEData.ActiveWhenHealthPercent;
 		if (max <= min)
 		{
 			Debug::Log("Warning: AE [%s] Active when health precent setup error.\n", AEData.Name.c_str());

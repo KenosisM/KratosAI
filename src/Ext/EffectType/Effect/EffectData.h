@@ -53,8 +53,8 @@ public:
 	bool Powered = false; // 建筑需要使用电力
 
 	bool CheckHealthPrecent = false; // 需要检查血量
-	double ActiveWhenHealthPrecent = 1; // 血量低于这个比例再触发
-	double DeactiveWhenHealthPrecent = 0; // 血量高于这个比例触发
+	double ActiveWhenHealthPercent = 1; // 血量低于这个比例再触发
+	double DeactiveWhenHealthPercent = 0; // 血量高于这个比例触发
 
 	int TriggeredTimes = -1; // 触发次数
 	AffectWho AffectWho = AffectWho::MASTER;
@@ -73,11 +73,14 @@ public:
 		Enable = reader->Get(title + "Enable", Enable);
 
 		Powered = reader->Get(title + "Powered", Powered);
-		ActiveWhenHealthPrecent = reader->GetPercent(title + "ActiveWhenHealthPrecent", ActiveWhenHealthPrecent);
-		DeactiveWhenHealthPrecent = reader->GetPercent(title + "DeactiveWhenHealthPrecent", DeactiveWhenHealthPrecent);
+		ActiveWhenHealthPercent = reader->GetPercent(title + "ActiveWhenHealthPrecent", ActiveWhenHealthPercent); // 兼容拼写错误
+		DeactiveWhenHealthPercent = reader->GetPercent(title + "DeactiveWhenHealthPrecent", DeactiveWhenHealthPercent); // 兼容拼写错误
+		ActiveWhenHealthPercent = reader->GetPercent(title + "ActiveWhenHealthPercent", ActiveWhenHealthPercent); // 正确拼写
+		DeactiveWhenHealthPercent = reader->GetPercent(title + "DeactiveWhenHealthPercent", DeactiveWhenHealthPercent); // 正确拼写
 
-		CheckHealthPrecent = (ActiveWhenHealthPrecent > 0.0 && ActiveWhenHealthPrecent < 1.0)
-			|| (DeactiveWhenHealthPrecent > 0.0 && DeactiveWhenHealthPrecent < 1.0);
+
+		CheckHealthPrecent = (ActiveWhenHealthPercent > 0.0 && ActiveWhenHealthPercent < 1.0)
+			|| (DeactiveWhenHealthPercent > 0.0 && DeactiveWhenHealthPercent < 1.0);
 
 		TriggeredTimes = reader->Get(title + "TriggeredTimes", TriggeredTimes);
 		AffectWho = reader->Get(title + "AffectWho", AffectWho);
@@ -92,8 +95,8 @@ public:
 			.Process(this->Powered)
 
 			.Process(this->CheckHealthPrecent)
-			.Process(this->ActiveWhenHealthPrecent)
-			.Process(this->DeactiveWhenHealthPrecent)
+			.Process(this->ActiveWhenHealthPercent)
+			.Process(this->DeactiveWhenHealthPercent)
 
 			.Process(this->TriggeredTimes)
 			.Process(this->AffectWho)
