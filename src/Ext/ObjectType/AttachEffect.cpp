@@ -956,16 +956,22 @@ bool AttachEffect::StackNotFull(AttachEffectData data)
 }
 
 CoordStruct AttachEffect::StackOffset(AttachEffectData aeData, OffsetData offsetData,
-	std::map<std::string, CoordStruct>& offsetMarks,
-	std::map<std::string, CoordStruct>& groupMarks,
-	std::map<std::string, CoordStruct>& groupFirstMarks)
+	StackOffsetMap<std::string, CoordStruct>& offsetMarks,
+	StackOffsetMap<std::string, CoordStruct>& groupMarks,
+	StackOffsetMap<std::string, CoordStruct>& groupFirstMarks)
 {
 	CoordStruct offset = offsetData.Offset;
+
 	if (IsNotNone(offsetData.StackGroup))
 	{
 		// 分组堆叠
 		std::string stackGroup = offsetData.StackGroup;
-		auto it = groupMarks.find(stackGroup);
+
+		// 线性查找
+		auto it = std::find_if(groupMarks.begin(), groupMarks.end(),
+			[&stackGroup](const std::pair<std::string, CoordStruct>& pair) {
+				return pair.first == stackGroup;
+			});
 		if (it != groupMarks.end())
 		{
 			// 有记录，往上堆叠
@@ -978,20 +984,23 @@ CoordStruct AttachEffect::StackOffset(AttachEffectData aeData, OffsetData offset
 			// 没有记录，取最后一个组的初始偏移位置，加上组偏移
 			if (!groupFirstMarks.empty())
 			{
-				auto ite = groupFirstMarks.end();
-				ite--;
-				offset = ite->second + offsetData.StackGroupOffset;
+				offset = groupFirstMarks.back().second + offsetData.StackGroupOffset;
 			}
 			// 创建新的分组
-			groupMarks[stackGroup] = offset;
-			groupFirstMarks[stackGroup] = offset;
+			groupMarks.emplace_back(stackGroup, offset);
+			groupFirstMarks.emplace_back(stackGroup, offset);
 		}
 	}
 	else if (!offsetData.StackOffset.IsEmpty())
 	{
 		// 无分组堆叠
 		std::string aeName = aeData.Name;
-		auto it = offsetMarks.find(aeName);
+
+		// 线性查找
+		auto it = std::find_if(offsetMarks.begin(), offsetMarks.end(),
+			[&aeName](const std::pair<std::string, CoordStruct>& pair) {
+				return pair.first == aeName;
+			});
 		if (it != offsetMarks.end())
 		{
 			// 需要进行偏移
@@ -1001,9 +1010,8 @@ CoordStruct AttachEffect::StackOffset(AttachEffectData aeData, OffsetData offset
 		}
 		else
 		{
-			offsetMarks[aeName] = offset;
+			offsetMarks.emplace_back(aeName, offset);
 		}
-
 	}
 	return offset;
 }
@@ -1222,17 +1230,28 @@ void AttachEffect::OnGScreenRender(EventSystem* sender, Event e, void* args)
 	{
 		// BeginRender
 		// 替身的定位偏移
-		std::map<std::string, CoordStruct> standMarks{};
-		std::map<std::string, CoordStruct> standGroupMarks{};
-		std::map<std::string, CoordStruct> standGroupFirstMarks{};
+		static StackOffsetMap<std::string, CoordStruct> standMarks{};
+		static StackOffsetMap<std::string, CoordStruct> standGroupMarks{};
+		static StackOffsetMap<std::string, CoordStruct> standGroupFirstMarks{};
 		// 动画的定位偏移
-		std::map<std::string, CoordStruct> animMarks{};
-		std::map<std::string, CoordStruct> animGroupMarks{};
-		std::map<std::string, CoordStruct> animGroupFirstMarks{};
+		static StackOffsetMap<std::string, CoordStruct> animMarks{};
+		static StackOffsetMap<std::string, CoordStruct> animGroupMarks{};
+		static StackOffsetMap<std::string, CoordStruct> animGroupFirstMarks{};
 		// 叠层信息
-		std::map<std::string, CoordStruct> stackMarks{};
-		std::map<std::string, CoordStruct> stackGroupMarks{};
-		std::map<std::string, CoordStruct> stackGroupFirstMarks{};
+		static StackOffsetMap<std::string, CoordStruct> stackMarks{};
+		static StackOffsetMap<std::string, CoordStruct> stackGroupMarks{};
+		static StackOffsetMap<std::string, CoordStruct> stackGroupFirstMarks{};
+
+		// 清空偏移记录
+		standMarks.clear();
+		standGroupMarks.clear();
+		standGroupFirstMarks.clear();
+		animMarks.clear();
+		animGroupMarks.clear();
+		animGroupFirstMarks.clear();
+		stackMarks.clear();
+		stackGroupMarks.clear();
+		stackGroupFirstMarks.clear();
 
 		// 火车的位置索引
 		int markIndex = 0;

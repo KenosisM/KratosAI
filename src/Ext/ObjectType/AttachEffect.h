@@ -21,6 +21,10 @@ class AttachEffectScript;
 class BulletStatus;
 class TechnoStatus;
 
+/// @brief 快速查找的map，使用vector代替map，以达到更快的查找速度
+template<typename K, typename V>
+using StackOffsetMap = std::vector<std::pair<K, V>>;
+
 /// @brief AEManager, sub-component is AttachEffectScript, and AttachEffectScript 's sub-component is EffectScript
 /// GameObject
 ///		|__ AttachEffect
@@ -323,9 +327,9 @@ private:
 	 * @return Offset 当前AE的偏移值
 	 */
 	CoordStruct StackOffset(AttachEffectData aeData, OffsetData offsetData,
-		std::map<std::string, CoordStruct>& offsetMarks,
-		std::map<std::string, CoordStruct>& groupMarks,
-		std::map<std::string, CoordStruct>& groupFirstMarks);
+		StackOffsetMap<std::string, CoordStruct>& offsetMarks,
+		StackOffsetMap<std::string, CoordStruct>& groupMarks,
+		StackOffsetMap<std::string, CoordStruct>& groupFirstMarks);
 
 	/**
 	 *@brief 根据火车的位置，获取插入的序号
