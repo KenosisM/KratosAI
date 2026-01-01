@@ -59,8 +59,8 @@ void HealthText::PrintHealthText(int barLength, Point2D* pPos, RectangleStruct* 
 	}
 	// 调整锚点
 	Point2D pos = *pPos;
-	int xOffset = data.Offset.X; // 锚点向右的偏移值
-	int yOffset = data.Offset.Y; // 锚点向下的偏移值
+	int xOffset = data.PrintOffset.X; // 锚点向右的偏移值
+	int yOffset = data.PrintOffset.Y; // 锚点向下的偏移值
 	int barWidth = barLength * 2; // 血条显示的个数，单位是半条，建筑是满条
 
 	// Point2D fountSize = data.FontSize; // 使用shp则按照shp图案大小来偏移锚点

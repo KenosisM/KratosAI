@@ -74,7 +74,7 @@ inline bool Parser<SHPDrawStyle>::TryParse(const char* pValue, SHPDrawStyle* out
 class PrintTextData : public INIConfig
 {
 public:
-	Point2D Offset{ 0, 0 };
+	Point2D PrintOffset{ 0, 0 };
 	Point2D ShadowOffset{ 1, 1 };
 	ColorStruct Color{ 252, 252, 252 };
 	ColorStruct ShadowColor{ 82,85,82 };
@@ -110,7 +110,7 @@ public:
 
 	virtual void Read(INIBufferReader* reader, std::string title)
 	{
-		Offset = reader->Get(title + "Offset", Offset);
+		PrintOffset = reader->Get(title + "PrintOffset", PrintOffset);
 		ShadowOffset = reader->Get(title + "ShadowOffset", ShadowOffset);
 		Color = reader->Get(title + "Color", Color);
 		ShadowColor = reader->Get(title + "ShadowColor", ShadowColor);
@@ -144,7 +144,7 @@ public:
 	bool Serialize(T& stream)
 	{
 		return stream
-			.Process(this->Offset)
+			.Process(this->PrintOffset)
 			.Process(this->ShadowOffset)
 			.Process(this->Color)
 			.Process(this->ShadowColor)

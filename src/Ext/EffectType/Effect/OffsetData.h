@@ -10,7 +10,7 @@ public:
 	CoordStruct Offset = CoordStruct::Empty; // 偏移FLH
 
 	CoordStruct StackOffset = CoordStruct::Empty; // 堆叠偏移
-	int StackGroup = -1; // 分组堆叠
+	std::string StackGroup = { "" }; // 分组堆叠
 	CoordStruct StackGroupOffset = CoordStruct::Empty; // 分组堆叠偏移
 
 	bool IsOnTurret = false; // 相对炮塔或者身体

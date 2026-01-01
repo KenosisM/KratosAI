@@ -18,6 +18,38 @@ void DrawLaser(LaserType laser, CoordStruct sourcePos, CoordStruct targetPos, Co
 	{
 		outerColor = Colors::Empty;
 	}
+	if (laser.RandomColor || laser.ColorListRandom)
+	{
+		int count = laser.ColorList.size();
+		if (count > 0)
+		{
+			// 随机颜色列表中的颜色
+			int index = Random::RandomRanged(0, count - 1);
+			innerColor = laser.ColorList[index];
+			if (!laser.IsSingleColor)
+			{
+				int r = innerColor.R / 2;
+				int g = innerColor.G / 2;
+				int b = innerColor.B / 2;
+				outerColor = ColorStruct{ static_cast<BYTE>(r), static_cast<BYTE>(g), static_cast<BYTE>(b) };
+			}
+		}
+		else
+		{
+			// 随机产生一个颜色
+			int r = Random::RandomRanged(1, 255);
+			int g = Random::RandomRanged(1, 255);
+			int b = Random::RandomRanged(1, 255);
+			innerColor = ColorStruct{ static_cast<BYTE>(r), static_cast<BYTE>(g), static_cast<BYTE>(b) };
+			if (!laser.IsSingleColor)
+			{
+				int r2 = r / 2;
+				int g2 = g / 2;
+				int b2 = b / 2;
+				outerColor = ColorStruct{ static_cast<BYTE>(r2), static_cast<BYTE>(g2), static_cast<BYTE>(b2) };
+			}
+		}
+	}
 	LaserDrawClass* pLaser = GameCreate<LaserDrawClass>(
 		sourcePos, targetPos,
 		innerColor, outerColor, laser.OuterSpread,

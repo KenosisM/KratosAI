@@ -392,6 +392,8 @@ void DrawBulletEffect(WeaponTypeClass* pWeapon, CoordStruct sourcePos, CoordStru
 		laser.IsSupported = data->IsSupported || laser.Thickness > 3;
 		// 单一颜色
 		laser.IsSingleColor = data->IsSingleColor;
+		// 随机颜色
+		laser.RandomColor = data->LaserRandomColor;
 		// draw the laser
 		DrawLaser(laser, sourcePos, targetPos, houseColor);
 	}

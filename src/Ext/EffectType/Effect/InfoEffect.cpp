@@ -10,6 +10,11 @@
 
 #include <Ext/Common/PrintTextManager.h>
 
+void InfoEffect::UpdateLocationOffset(CoordStruct offset)
+{
+	_offset = offset;
+}
+
 void InfoEffect::OnGScreenRenderEnd(CoordStruct location)
 {
 	if (!pObject->InLimbo)
@@ -21,6 +26,7 @@ void InfoEffect::OnGScreenRenderEnd(CoordStruct location)
 		bool isSelected = pObject->IsSelected;
 
 		CoordStruct sourcePos = location;
+		sourcePos += _offset;
 		Point2D pos = ToClientPos(sourcePos);
 
 		// 需要遍历读取具体的AE状态的信息的部分统一读取
@@ -353,8 +359,8 @@ void InfoEffect::PrintInfoNumber(int number, ColorStruct houseColor, Point2D loc
 {
 	// 调整锚点
 	Point2D pos = location;
-	pos.X += data.Offset.X; // 锚点向右的偏移值
-	pos.Y += data.Offset.Y; // 锚点向下的偏移值
+	pos.X += data.PrintOffset.X; // 锚点向右的偏移值
+	pos.Y += data.PrintOffset.Y; // 锚点向下的偏移值
 
 	// 修正锚点
 	if (!data.UseSHP)
@@ -369,8 +375,8 @@ void InfoEffect::PrintInfoText(std::string text, ColorStruct houseColor, Point2D
 {
 	// 调整锚点
 	Point2D pos = location;
-	pos.X += data.Offset.X; // 锚点向右的偏移值
-	pos.Y += data.Offset.Y; // 锚点向下的偏移值
+	pos.X += data.PrintOffset.X; // 锚点向右的偏移值
+	pos.Y += data.PrintOffset.Y; // 锚点向下的偏移值
 
 	// 修正锚点
 	if (!data.UseSHP)

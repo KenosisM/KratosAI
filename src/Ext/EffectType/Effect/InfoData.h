@@ -84,6 +84,7 @@ class InfoEntity : public PrintTextData
 {
 public:
 	std::string Watch{ "" };
+	OffsetData Offset{}; // 动画相对位置
 
 	InfoMode Mode = InfoMode::NONE;
 	bool ShowEnemy = true;
@@ -107,6 +108,9 @@ public:
 		PrintTextData::Read(reader, title);
 
 		Watch = reader->Get(title + "Watch", watch); // 默认值由外部传入
+
+		Offset.Read(reader, title);
+
 		Mode = reader->Get(title + "Mode", Mode);
 		switch (Mode)
 		{
@@ -122,6 +126,8 @@ public:
 		OnlySelected = reader->Get(title + "OnlySelected", OnlySelected);
 
 		Sort = reader->Get(title + "Sort", Sort);
+
+		Enable = Mode != InfoMode::NONE;
 	}
 
 #pragma region save/load
@@ -130,6 +136,7 @@ public:
 	{
 		return stream
 			.Process(this->Watch)
+			.Process(this->Offset)
 			.Process(this->Mode)
 			.Process(this->ShowEnemy)
 			.Process(this->OnlySelected)

@@ -25,6 +25,8 @@ class InfoEffect : public EffectScript
 public:
 	EFFECT_SCRIPT(Info);
 
+	void UpdateLocationOffset(CoordStruct offset);
+
 	virtual void Clean() override
 	{
 		EffectScript::Clean();
@@ -36,6 +38,7 @@ public:
 	template <typename T>
 	bool Serialize(T& stream) {
 		return stream
+			.Process(this->_offset)
 			.Success();
 	};
 
@@ -55,4 +58,6 @@ private:
 	void PrintInfoText(std::string text, ColorStruct houseColor, Point2D pos, InfoEntity data);
 
 	void OffsetAlign(Point2D& pos, std::wstring text, InfoEntity data);
+
+	CoordStruct _offset; // 偏移量
 };

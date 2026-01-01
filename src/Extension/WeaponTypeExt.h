@@ -41,6 +41,8 @@ public:
 		int NoMoneyNoTalk = 0;
 		bool DontNeedMoney = false;
 
+		bool LaserRandomColor = false;
+
 		virtual void Read(INIBufferReader* reader) override
 		{
 			AttachFireData::Read(reader);
@@ -50,6 +52,7 @@ public:
 			LaserThickness = reader->Get("LaserThickness", LaserThickness);
 			LaserFade = reader->Get("LaserFade", LaserFade);
 			IsSupported = reader->Get("IsSupported", IsSupported);
+			LaserRandomColor = reader->Get("LaserRandomColor", LaserRandomColor);
 
 			BoltArcCount = reader->Get("Bolt.Arcs", BoltArcCount);
 
@@ -84,6 +87,7 @@ public:
 				.Process(this->LaserThickness)
 				.Process(this->LaserFade)
 				.Process(this->IsSupported)
+				.Process(this->LaserRandomColor)
 
 				.Process(this->BoltArcCount)
 				.Process(this->BoltColor1)

@@ -324,8 +324,8 @@ private:
 	 */
 	CoordStruct StackOffset(AttachEffectData aeData, OffsetData offsetData,
 		std::map<std::string, CoordStruct>& offsetMarks,
-		std::map<int, CoordStruct>& groupMarks,
-		std::map<int, CoordStruct>& groupFirstMarks);
+		std::map<std::string, CoordStruct>& groupMarks,
+		std::map<std::string, CoordStruct>& groupFirstMarks);
 
 	/**
 	 *@brief 根据火车的位置，获取插入的序号

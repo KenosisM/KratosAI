@@ -82,6 +82,7 @@ public:
 
 	void UpdateStandLocation(LocationMark locationMark);
 	void UpdateAnimOffset(CoordStruct offset);
+	void UpdateInfoOffset(CoordStruct offset);
 
 	TechnoClass* GetStand();
 	bool TryGetStand(TechnoClass*& pStand);

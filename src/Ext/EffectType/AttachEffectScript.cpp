@@ -6,6 +6,7 @@
 #include "EffectScript.h"
 #include "Effect/AnimationEffect.h"
 #include "Effect/StandEffect.h"
+#include "Effect/InfoEffect.h"
 
 int AttachEffectScript::GetDuration()
 {
@@ -187,6 +188,14 @@ void AttachEffectScript::UpdateStandLocation(LocationMark locationMark)
 void AttachEffectScript::UpdateAnimOffset(CoordStruct offset)
 {
 	if (AnimationEffect* c = GetComponent<AnimationEffect>())
+	{
+		c->UpdateLocationOffset(offset);
+	}
+}
+
+void AttachEffectScript::UpdateInfoOffset(CoordStruct offset)
+{
+	if (InfoEffect* c = GetComponent<InfoEffect>())
 	{
 		c->UpdateLocationOffset(offset);
 	}

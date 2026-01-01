@@ -97,6 +97,7 @@ public:
 			LaserType.ColorList = colorList;
 		}
 		LaserType.ColorListRandom = reader->Get("Laser.ColorListRandom", LaserType.ColorListRandom);
+		LaserType.RandomColor = reader->Get("Laser.RandomColor", LaserType.RandomColor);
 
 		// 电弧尾巴
 		BoltType.IsAlternateColor = reader->Get("Electric.IsAlternateColor", BoltType.IsAlternateColor);

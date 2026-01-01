@@ -411,7 +411,7 @@ void AttachEffect::Attach(AttachEffectData data,
 	if (!add)
 	{
 		// 不同攻击者是否叠加
-		bool isAttackMark = fromPassenger || data.Cumulative == CumulativeMode::ATTACKER && pAttacker && pAttacker->IsAlive;
+		bool isAttackMark = fromPassenger && data.Cumulative != CumulativeMode::NO || data.Cumulative == CumulativeMode::ATTACKER && pAttacker && pAttacker->IsAlive;
 		// 不同所属是否叠加
 		bool isHouseMark = data.Cumulative == CumulativeMode::HOUSE;
 		// 攻击者标记AE名称相同，但可以来自不同的攻击者，可以叠加，不检查Delay
@@ -957,14 +957,14 @@ bool AttachEffect::StackNotFull(AttachEffectData data)
 
 CoordStruct AttachEffect::StackOffset(AttachEffectData aeData, OffsetData offsetData,
 	std::map<std::string, CoordStruct>& offsetMarks,
-	std::map<int, CoordStruct>& groupMarks,
-	std::map<int, CoordStruct>& groupFirstMarks)
+	std::map<std::string, CoordStruct>& groupMarks,
+	std::map<std::string, CoordStruct>& groupFirstMarks)
 {
 	CoordStruct offset = offsetData.Offset;
-	if (offsetData.StackGroup > -1)
+	if (IsNotNone(offsetData.StackGroup))
 	{
 		// 分组堆叠
-		int stackGroup = offsetData.StackGroup;
+		std::string stackGroup = offsetData.StackGroup;
 		auto it = groupMarks.find(stackGroup);
 		if (it != groupMarks.end())
 		{
@@ -1223,12 +1223,16 @@ void AttachEffect::OnGScreenRender(EventSystem* sender, Event e, void* args)
 		// BeginRender
 		// 替身的定位偏移
 		std::map<std::string, CoordStruct> standMarks{};
-		std::map<int, CoordStruct> standGroupMarks{};
-		std::map<int, CoordStruct> standGroupFirstMarks{};
+		std::map<std::string, CoordStruct> standGroupMarks{};
+		std::map<std::string, CoordStruct> standGroupFirstMarks{};
 		// 动画的定位偏移
 		std::map<std::string, CoordStruct> animMarks{};
-		std::map<int, CoordStruct> animGroupMarks{};
-		std::map<int, CoordStruct> animGroupFirstMarks{};
+		std::map<std::string, CoordStruct> animGroupMarks{};
+		std::map<std::string, CoordStruct> animGroupFirstMarks{};
+		// 叠层信息
+		std::map<std::string, CoordStruct> stackMarks{};
+		std::map<std::string, CoordStruct> stackGroupMarks{};
+		std::map<std::string, CoordStruct> stackGroupFirstMarks{};
 
 		// 火车的位置索引
 		int markIndex = 0;
@@ -1257,6 +1261,13 @@ void AttachEffect::OnGScreenRender(EventSystem* sender, Event e, void* args)
 						OffsetData offsetData = aeData.Animation.IdleAnim.Offset;
 						CoordStruct animOffset = this->StackOffset(aeData, offsetData, animMarks, animGroupMarks, animGroupFirstMarks);
 						ae->UpdateAnimOffset(animOffset);
+					}
+					// 调整Info.Stack的位置
+					if (aeData.Info.Enable && aeData.Info.Stack.Enable)
+					{
+						OffsetData offsetData = aeData.Info.Stack.Offset;
+						CoordStruct infoOffset = this->StackOffset(aeData, offsetData, stackMarks, stackGroupMarks, stackGroupFirstMarks);
+						ae->UpdateInfoOffset(infoOffset);
 					}
 					ae->OnGScreenRender(location);
 				}

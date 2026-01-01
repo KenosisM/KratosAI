@@ -125,6 +125,10 @@ void AnimationEffect::End(CoordStruct location)
 					SetAnimCreater(pAnim, pTechno);
 				}
 			}
+			else
+			{
+				SetAnimOwner(pAnim, AE->pSourceHouse);
+			}
 		}
 	}
 }
