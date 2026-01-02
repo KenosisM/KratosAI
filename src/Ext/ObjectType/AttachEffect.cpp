@@ -432,6 +432,29 @@ void AttachEffect::Attach(AttachEffectData data,
 			auto temp = dynamic_cast<AttachEffectScript*>(c);
 			if (temp && temp->IsAlive())
 			{
+				// 增减计数器
+				if (checkCounter)
+				{
+					bool findCounter = false;
+					// 查找同名计数器
+					temp->ForeachChild([&findCounter, &data](Component* cc) {
+						if (CounterEffect* counterEffect = dynamic_cast<CounterEffect*>(cc))
+						{
+							if (counterEffect->AEData.Counter.Mark == data.Counter.Mark)
+							{
+								findCounter = true;
+								// 找到计数器，执行增减操作，跳出循环
+								counterEffect->ModifyCount(data.Counter);
+								cc->Break();
+							}
+						}
+						});
+					if (findCounter)
+					{
+						modifyCounter = true;
+					}
+				}
+
 				// 增减Duration
 				if (!hasGroup)
 				{
@@ -516,29 +539,6 @@ void AttachEffect::Attach(AttachEffectData data,
 							temp->MergeDuration(data.Duration);
 							// 继续循环直至全部调整完
 						}
-					}
-				}
-
-				// 增减计数器
-				if (checkCounter)
-				{
-					bool findCounter = false;
-					// 查找同名计数器
-					temp->ForeachChild([&findCounter, &data](Component* cc) {
-						if (CounterEffect* counterEffect = dynamic_cast<CounterEffect*>(cc))
-						{
-							if (counterEffect->AEData.Counter.Mark == data.Counter.Mark)
-							{
-								findCounter = true;
-								// 找到计数器，执行增减操作，跳出循环
-								counterEffect->ModifyCount(data.Counter);
-								cc->Break();
-							}
-						}
-						});
-					if (findCounter)
-					{
-						modifyCounter = true;
 					}
 				}
 			}
