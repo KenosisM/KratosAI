@@ -407,8 +407,10 @@ void AttachEffect::Attach(AttachEffectData data,
 			return;
 		}
 	}
+
 	// 检查叠加
 	bool add = data.Cumulative == CumulativeMode::YES;
+	bool counterFound = false; // 是否找到匹配的计数器
 	if (!add)
 	{
 		// 不同攻击者是否叠加
@@ -421,130 +423,175 @@ void AttachEffect::Attach(AttachEffectData data,
 		{
 			return;
 		}
-		bool find = false;
-		CoordStruct location = _location;
+
+		bool findSameAE = false; // 是否找到同名AE
+		bool findSameGroup = false; // 是否找到同组AE
+		bool overrideSameGroup = false; // 是否覆盖同组AE
+		bool needToAddAE = true; // 是否需要添加AE
+
+		CounterEffect* targetCounter = nullptr; // 目标计数器
+
 		std::string group = data.Group;
 		bool hasGroup = IsNotNone(group);
 		bool checkCounter = data.Counter.Enable;
-		bool modifyCounter = false;
+
 		// 检查持续时间，增减Duration；检查Counter，增减计数器
-		ForeachChild([&find, &add, &isAttackMark, &isHouseMark, &hasGroup, &group, &checkCounter, &modifyCounter, &data, &pAttacker, &pAttackingHouse, &location](Component* c) {
-			auto temp = dynamic_cast<AttachEffectScript*>(c);
-			if (temp && temp->IsAlive())
-			{
-				// 增减计数器
-				if (checkCounter)
+		ForeachChild([&](Component* c) {
+				auto temp = dynamic_cast<AttachEffectScript*>(c);
+				if (!temp || !temp->IsAlive())
 				{
-					bool findCounter = false;
-					// 查找同名计数器
-					temp->ForeachChild([&findCounter, &data](Component* cc) {
-						if (CounterEffect* counterEffect = dynamic_cast<CounterEffect*>(cc))
-						{
-							if (counterEffect->AEData.Counter.Mark == data.Counter.Mark)
-							{
-								findCounter = true;
-								// 找到计数器，执行增减操作，跳出循环
-								counterEffect->ModifyCount(data.Counter);
-								cc->Break();
-							}
-						}
-						});
-					if (findCounter)
-					{
-						modifyCounter = true;
-					}
+					return;
 				}
 
-				// 增减Duration
+				// 检查AE匹配
 				if (!hasGroup)
 				{
 					// 无分组，攻击者标记叠加，或同名重置计时器
-					if (temp->AEData.Name == data.Name)
+					if (!findSameAE && temp->AEData.Name == data.Name)
 					{
-						find = true;
-						if (isAttackMark)
+						// 检查标记匹配
+						bool markMatched = false;
+						if (!isAttackMark && !isHouseMark)
 						{
-							if (temp->pSource == pAttacker)
-							{
-								// 相同的攻击者，重置持续时间，并跳出循环
-								if (temp->AEData.ResetDurationOnReapply)
-								{
-									temp->ResetDuration();
-								}
-								c->Break();
-								return;
-							}
-							else
-							{
-								// 当前条的攻击者不同，设置标记后，继续循环，直到检查完所有的AE
-								find = false;
-							}
+							markMatched = true;
 						}
-						else if (isHouseMark)
+						else if (isAttackMark && temp->pSource == pAttacker)
 						{
-							if (temp->pSourceHouse == pAttackingHouse)
-							{
-								// 是所属标记，且所属相同，重置持续时间，并跳出循环
-								if (temp->AEData.ResetDurationOnReapply)
-								{
-									temp->ResetDuration();
-								}
-								c->Break();
-								return;
-							}
-							else
-							{
-								// 当前条的攻击者不同，设置标记后，继续循环，直到检查完所有的AE
-								find = false;
-							}
+							markMatched = true;
 						}
-						else
+						else if (isHouseMark && temp->pSourceHouse == pAttackingHouse)
 						{
-							// 不是标记，重置已存在的AE的持续时间，跳出循环
+							markMatched = true;
+						}
+						if (markMatched)
+						{
+							findSameAE = true;
+							// 重置持续时间，并跳出循环
 							if (temp->AEData.ResetDurationOnReapply)
 							{
 								temp->ResetDuration();
 							}
-							c->Break();
-							return;
+
+							// 检查这个匹配AE的计数器
+							if (checkCounter && !targetCounter)
+							{
+								targetCounter = temp->GetComponent<CounterEffect>();
+								if (targetCounter && targetCounter->Data->Mark != data.Counter.Mark)
+								{
+									targetCounter = nullptr;
+								}
+							}
 						}
 					}
 				}
 				else
 				{
-					// 有分组，替换或者调整持续时间
+					// 有分组，检查同组AE，调整持续时间
 					std::string tempGroup = temp->AEData.Group;
 					if (IsNotNone(tempGroup) && group == tempGroup)
 					{
-						// 找到了同组
-						find = true;
+						findSameGroup = true;
 						if (data.OverrideSameGroup)
 						{
 							// 与自己不同名的，替换
 							if (temp->AEData.Name != data.Name)
 							{
-								// 执行替换操作，关闭所有的同组AE
+								// 不同名同组，执行替换操作，关闭所有的同组AE
 								temp->TimeToDie();
-								add = true;
+								overrideSameGroup = true;
 							}
 							else if (temp->AEData.ResetDurationOnReapply)
 							{
+								// 同名且同组，重置持续时间
 								temp->ResetDuration();
+								findSameAE = true;
 							}
-							// 继续循环直至全部关闭
 						}
 						else
 						{
-							// 调整持续时间
+							// 不进行覆盖，同组调整持续时间
 							temp->MergeDuration(data.Duration);
-							// 继续循环直至全部调整完
+							findSameAE = true;
+
+							// 检查这个匹配AE的计数器
+							if (!targetCounter && checkCounter)
+							{
+								targetCounter = temp->GetComponent<CounterEffect>();
+								if (targetCounter && targetCounter->Data->Mark != data.Counter.Mark)
+								{
+									targetCounter = nullptr;
+								}
+							}
 						}
 					}
 				}
-			}
+
+				// 同名或同组计数器都没找到，单独查找计数器
+				if (checkCounter && !targetCounter)
+				{
+					if (CounterEffect* counterEffect = temp->GetComponent<CounterEffect>())
+					{
+						// 找到计数器
+						if (counterEffect->Data->Mark == data.Counter.Mark)
+						{
+							targetCounter = counterEffect;
+						}
+					}
+				}
+
 			});
-		// 没找到同类或同组，可以添加新的实例
-		add = (add || !find) && (!hasGroup || data.HoldDuration || data.GetDuration() > 0) && (!checkCounter || (!modifyCounter && data.Counter.CanAttach()));
+
+		// 确定是否需要添加这个AE
+		if (hasGroup)
+		{
+			// 有分组的情况
+			needToAddAE = add || !findSameGroup || overrideSameGroup;
+			// 检查持续时间要求
+			if (!data.HoldDuration && data.GetDuration() <= 0) {
+				needToAddAE = false;
+			}
+		}
+		else
+		{
+			// 无分组的情况
+			needToAddAE = add || !findSameAE;
+		}
+
+		// 处理计数器
+		if (checkCounter)
+		{
+			if (targetCounter)
+			{
+				if (needToAddAE)
+				{
+					// 找到计数器，且AE应该被添加时，执行计数操作
+					targetCounter->ModifyCount(data.Counter);
+					add = false;
+				}
+				else
+				{
+					add = false;
+				}
+			}
+			else
+			{
+				// 没有找到计数器
+				if (needToAddAE)
+				{
+					// 允许添加新的AE实例
+					add = data.Counter.CanAttach();
+				}
+				else
+				{
+					add = false;
+				}
+			}
+		}
+		else
+		{
+			// 没有计数器，直接添加AE
+			add = needToAddAE;
+		}
 	}
 	// 可以添加AE，开始执行添加动作
 	if (add && data.GetDuration() != 0 && StackNotFull(data))

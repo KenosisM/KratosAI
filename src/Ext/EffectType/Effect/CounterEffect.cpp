@@ -150,6 +150,9 @@ void CounterEffect::OnWarpUpdate()
 
 void CounterEffect::ModifyCount(CounterData delta)
 {
+	// Debug::Log("CounterEffect[%s]::ModifyCount - Before: CountNum=%d\n", Data->Mark.c_str(), CountNum);
+	// Debug::Log("  Operation: Action=%d, Num=%d\n", (int)delta.Action, delta.Num);
+
 	switch (delta.Action)
 	{
 	case CounterAction::INIT:
@@ -165,12 +168,19 @@ void CounterEffect::ModifyCount(CounterData delta)
 		CountNum *= delta.Num;
 		break;
 	}
-	if (CountNum < Data.Min)
+
+	// Debug::Log("  After calculation: CountNum=%d\n", CountNum);
+
+	if (CountNum < Data->Min)
 	{
-		CountNum = Data.Min;
+		// Debug::Log("  Clamped to Min=%d\n", Data->Min);
+		CountNum = Data->Min;
 	}
-	if (Data.Max >= 0 && CountNum > Data.Max)
+	if (Data->Max >= 0 && CountNum > Data->Max)
 	{
-		CountNum = Data.Max;
+		// Debug::Log("  Clamped to Max=%d\n", Data->Max);
+		CountNum = Data->Max;
 	}
+
+	// Debug::Log("  Final: CountNum=%d\n", CountNum);
 }
