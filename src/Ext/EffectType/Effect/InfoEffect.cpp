@@ -10,6 +10,8 @@
 
 #include <Ext/Common/PrintTextManager.h>
 
+#include "CounterEffect.h"
+
 void InfoEffect::UpdateLocationOffset(CoordStruct offset)
 {
 	_offset = offset;
@@ -33,13 +35,16 @@ void InfoEffect::OnGScreenRenderEnd(CoordStruct location)
 		// 显示Duration和InitDelay
 		bool checkDuration = Data->Duration.Mode != InfoMode::NONE && IsNotNone(Data->Duration.Watch) && (Data->Duration.ShowEnemy || isPlayerControl) && (!Data->Duration.OnlySelected || isSelected);
 		bool checkInitDelay = Data->InitDelay.Mode != InfoMode::NONE && IsNotNone(Data->InitDelay.Watch) && (Data->InitDelay.ShowEnemy || isPlayerControl) && (!Data->InitDelay.OnlySelected || isSelected);
-		if (checkDuration || checkInitDelay)
+		bool checkCounter = Data->Counter.Mode != InfoMode::NONE && IsNotNone(Data->Counter.Watch) && (Data->Counter.ShowEnemy || isPlayerControl) && (!Data->Counter.OnlySelected || isSelected);
+
+		if (checkDuration || checkInitDelay || checkCounter)
 		{
 			// 循环遍历AE
 			int duration = -1;
 			int initDelay = -1;
+			int counter = 0;
 			auto data = Data;
-			aem->ForeachChild([&checkDuration, &checkInitDelay, &duration, &initDelay, &data](Component* c) {
+			aem->ForeachChild([&checkDuration, &checkInitDelay, &checkCounter, &duration, &initDelay, &counter, &data](Component* c) {
 				if (AttachEffectScript* ae = dynamic_cast<AttachEffectScript*>(c))
 				{
 					std::string aeName = ae->AEData.Name;
@@ -99,10 +104,21 @@ void InfoEffect::OnGScreenRenderEnd(CoordStruct location)
 							initDelay = delayLeft;
 						}
 					}
-					// 都不需要继续查找，跳出AE遍历
-					if (!checkDuration && !checkInitDelay)
+					// 读取Counter
+					if (checkCounter && aeName == data->Counter.Watch && ae->AEData.Counter.Enable)
 					{
-						ae->IsBreak();
+						ae->ForeachChild([&counter](Component* cc) {
+							if (CounterEffect* counterEffect = dynamic_cast<CounterEffect*>(cc))
+							{
+								counter = counterEffect->CountNum;
+								counterEffect->Break();
+							}
+							});
+					}
+					// 都不需要继续查找，跳出AE遍历
+					if (!checkDuration && !checkInitDelay && !checkCounter)
+					{
+						ae->Break();
 					}
 				}
 				});
@@ -117,6 +133,11 @@ void InfoEffect::OnGScreenRenderEnd(CoordStruct location)
 			{
 				// 显示InitDelay
 				PrintInfoNumber(duration, houseColor, pos, Data->InitDelay);
+			}
+			if (checkCounter)
+			{
+				// 显示Counter
+				PrintInfoNumber(counter, houseColor, pos, Data->Counter);
 			}
 		}
 

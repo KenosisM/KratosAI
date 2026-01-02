@@ -164,6 +164,7 @@ public:
 	InfoEntity Delay{};
 	InfoEntity InitDelay{};
 	InfoEntity Stack{};
+	InfoEntity Counter{};
 
 	InfoEntity Health{};
 	InfoEntity Ammo{};
@@ -207,6 +208,7 @@ public:
 		Delay.Read(reader, title + "Delay.", watch);
 		InitDelay.Read(reader, title + "InitDelay.", watch);
 		Stack.Read(reader, title + "Stack.", watch);
+		Counter.Read(reader, title + "Counter.", watch);
 
 		Health.Read(reader, title + "Health.", watch);
 		Ammo.Read(reader, title + "Ammo.", watch);
@@ -228,6 +230,7 @@ public:
 			|| Delay.Mode != InfoMode::NONE
 			|| InitDelay.Mode != InfoMode::NONE
 			|| Stack.Mode != InfoMode::NONE
+			|| Counter.Mode != InfoMode::NONE
 
 			|| Health.Mode != InfoMode::NONE
 			|| Ammo.Mode != InfoMode::NONE
@@ -256,6 +259,7 @@ public:
 			.Process(this->Delay)
 			.Process(this->InitDelay)
 			.Process(this->Stack)
+			.Process(this->Counter)
 
 			.Process(this->Health)
 			.Process(this->Ammo)

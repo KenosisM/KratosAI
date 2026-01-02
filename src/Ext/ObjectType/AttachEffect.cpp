@@ -15,6 +15,7 @@
 
 #include <Ext/EffectType/AttachEffectScript.h>
 #include <Ext/EffectType/Effect/AttackBeaconEffect.h>
+#include <Ext/EffectType/Effect/CounterEffect.h>
 #include <Ext/EffectType/Effect/StandEffect.h>
 #include <Ext/BulletType/BulletStatus.h>
 #include <Ext/TechnoType/TechnoStatus.h>
@@ -424,11 +425,14 @@ void AttachEffect::Attach(AttachEffectData data,
 		CoordStruct location = _location;
 		std::string group = data.Group;
 		bool hasGroup = IsNotNone(group);
-		// 检查持续时间，增减Duration
-		ForeachChild([&find, &add, &isAttackMark, &isHouseMark, &hasGroup, &group, &data, &pAttacker, &pAttackingHouse, &location](Component* c) {
+		bool checkCounter = data.Counter.Enable;
+		bool modifyCounter = false;
+		// 检查持续时间，增减Duration；检查Counter，增减计数器
+		ForeachChild([&find, &add, &isAttackMark, &isHouseMark, &hasGroup, &group, &checkCounter, &modifyCounter, &data, &pAttacker, &pAttackingHouse, &location](Component* c) {
 			auto temp = dynamic_cast<AttachEffectScript*>(c);
 			if (temp && temp->IsAlive())
 			{
+				// 增减Duration
 				if (!hasGroup)
 				{
 					// 无分组，攻击者标记叠加，或同名重置计时器
@@ -514,10 +518,33 @@ void AttachEffect::Attach(AttachEffectData data,
 						}
 					}
 				}
+
+				// 增减计数器
+				if (checkCounter)
+				{
+					bool findCounter = false;
+					// 查找同名计数器
+					temp->ForeachChild([&findCounter, &data](Component* cc) {
+						if (CounterEffect* counterEffect = dynamic_cast<CounterEffect*>(cc))
+						{
+							if (counterEffect->AEData.Counter.Mark == data.Counter.Mark)
+							{
+								findCounter = true;
+								// 找到计数器，执行增减操作，跳出循环
+								counterEffect->ModifyCount(data.Counter);
+								cc->Break();
+							}
+						}
+						});
+					if (findCounter)
+					{
+						modifyCounter = true;
+					}
+				}
 			}
 			});
 		// 没找到同类或同组，可以添加新的实例
-		add = (add || !find) && (!hasGroup || data.HoldDuration || data.GetDuration() > 0);
+		add = (add || !find) && (!hasGroup || data.HoldDuration || data.GetDuration() > 0) && (!checkCounter || (!modifyCounter && data.Counter.CanAttach()));
 	}
 	// 可以添加AE，开始执行添加动作
 	if (add && data.GetDuration() != 0 && StackNotFull(data))
