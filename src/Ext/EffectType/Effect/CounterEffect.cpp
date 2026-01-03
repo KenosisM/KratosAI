@@ -5,131 +5,57 @@
 #include <Ext/Helper/Scripts.h>
 #include <Ext/Helper/Status.h>
 
-bool CounterEffect::CanActive(int num, int level, Condition condition)
-{
-	if (level >= 0)
-	{
-		switch (condition)
-		{
-		case Condition::EQ:
-			return num == level;
-		case Condition::NE:
-			return num != level;
-		case Condition::GT:
-			return num > level;
-		case Condition::LT:
-			return num < level;
-		case Condition::GE:
-			return num >= level;
-		case Condition::LE:
-			return num <= level;
-		}
-	}
-	return true;
-}
-
 void CounterEffect::Watch()
 {
-	if (CanActive(CountNum, Data->Level, Data->Condition))
+	// 计数器归零时移除
+	for (CounterEntity& entity : Data->RemoveWhenNums)
 	{
-		_count++;
-		// 添加AE
-		if (Data->Attach)
+		if (entity.RemoveWhenNum.Y >= entity.RemoveWhenNum.X)
 		{
-			AttachEffect* aeManager = AE->AEManager;
-			TechnoClass* pSource = AE->pSource;
-			HouseClass* pSourceHouse = AE->pSourceHouse;
-			if (Data->AttachToSource)
+			if (CountNum >= entity.RemoveWhenNum.X && (entity.RemoveWhenNum.Y < 0 || CountNum <= entity.RemoveWhenNum.Y))
 			{
-				aeManager = GetAEManager<TechnoExt>(AE->pSource);
-				if (pTechno)
-				{
-					pSource = pTechno;
-					pSourceHouse = pTechno->Owner;
-				}
-				else if (pBullet)
-				{
-					pSource = pBullet->Owner;
-					pSourceHouse = GetHouse(pBullet);
-				}
-				else
-				{
-					aeManager = nullptr;
-				}
+				Deactivate();
+				AE->TimeToDie();
+				return;
 			}
-			if (aeManager)
-			{
-				aeManager->Attach(Data->AttachEffects, Data->AttachChances, false, pSource, pSourceHouse);
-			}
-		}
-		// 移除AE
-		if (Data->Remove)
-		{
-			AttachEffect* aeManager = AE->AEManager;
-			if (Data->RemoveToSource)
-			{
-				aeManager = GetAEManager<TechnoExt>(AE->pSource);
-			}
-			if (aeManager)
-			{
-				if (!Data->RemoveEffects.empty())
-				{
-					if (!Data->RemoveEffectsLevel.empty())
-					{
-						// 移除指定的层数
-						std::map<std::string, int> aeTypes;
-						int idx = 0;
-						int count = Data->RemoveEffects.size();
-						for (std::string removeAE : Data->RemoveEffects)
-						{
-							int level = -1;
-							if (idx < count)
-							{
-								level = Data->RemoveEffectsLevel[idx];
-							}
-							if (level > 0)
-							{
-								aeTypes[removeAE] = level;
-							}
-						}
-						if (!aeTypes.empty())
-						{
-							aeManager->DetachByName(aeTypes, Data->RemoveEffectsSkipNext);
-						}
-					}
-					else
-					{
-						aeManager->DetachByName(Data->RemoveEffects, Data->RemoveEffectsSkipNext);
-					}
-				}
-				if (!Data->RemoveEffectsWithMarks.empty())
-				{
-					aeManager->DetachByMarks(Data->RemoveEffectsWithMarks, Data->RemoveEffectsSkipNext);
-				}
-			}
-		}
-		// 检查触发次数
-		if (Data->TriggeredTimes > 0 && ++_count >= Data->TriggeredTimes)
-		{
-			Deactivate();
-			AE->TimeToDie();
-		}
-		else if(Data->ResetNum)
-		{
-			CountNum = Data->Num;
 		}
 	}
-	// 计数器归零时移除
-	if (Data->RemoveWhenZero && CountNum <= 0)
+}
+
+void CounterEffect::AddSelfToManager()
+{
+	if (_started && !_pause && AE->AEManager)
 	{
-		Deactivate();
-		AE->TimeToDie();
+		AE->AEManager->AddCounter(AEData, this);
+		// Debug::Log("CounterEffect::AddSelfToManager(), Mark: %s, AE: %s\n", AEData.Counter.Mark.c_str(), AEData.Name.c_str());
+	}
+}
+
+void CounterEffect::RemoveSelfFromManager()
+{
+	if (AE->AEManager)
+	{
+		AE->AEManager->RemoveCounter(AEData);
 	}
 }
 
 void CounterEffect::OnStart()
 {
 	CountNum = Data->Num;
+	// 向AE管理器注册自己
+	AddSelfToManager();
+}
+
+void CounterEffect::OnPause()
+{
+	// 向AE管理器注销自己
+	RemoveSelfFromManager();
+}
+
+void CounterEffect::OnRecover()
+{
+	// 向AE管理器注册自己
+	AddSelfToManager();
 }
 
 void CounterEffect::OnUpdate()
@@ -148,39 +74,42 @@ void CounterEffect::OnWarpUpdate()
 	}
 }
 
-void CounterEffect::ModifyCount(CounterData delta)
+void CounterEffect::ModifyCount(CounterAction action, int num)
 {
-	// Debug::Log("CounterEffect[%s]::ModifyCount - Before: CountNum=%d\n", Data->Mark.c_str(), CountNum);
-	// Debug::Log("  Operation: Action=%d, Num=%d\n", (int)delta.Action, delta.Num);
-
-	switch (delta.Action)
+	switch (action)
 	{
 	case CounterAction::INIT:
-		CountNum = delta.Num;
+		CountNum = num;
 		break;
 	case CounterAction::ADD:
-		CountNum += delta.Num;
+		CountNum += num;
 		break;
 	case CounterAction::SUB:
-		CountNum -= delta.Num;
+		CountNum -= num;
 		break;
 	case CounterAction::MUL:
-		CountNum *= delta.Num;
+		CountNum *= num;
 		break;
 	}
 
-	// Debug::Log("  After calculation: CountNum=%d\n", CountNum);
-
 	if (CountNum < Data->Min)
 	{
-		// Debug::Log("  Clamped to Min=%d\n", Data->Min);
 		CountNum = Data->Min;
 	}
 	if (Data->Max >= 0 && CountNum > Data->Max)
 	{
-		// Debug::Log("  Clamped to Max=%d\n", Data->Max);
 		CountNum = Data->Max;
 	}
+}
 
-	// Debug::Log("  Final: CountNum=%d\n", CountNum);
+void CounterEffect::ResetNum()
+{
+	CountNum = Data->Num;
+}
+
+void CounterEffect::RemoveCounter()
+{
+	RemoveSelfFromManager();
+	Deactivate();
+	AE->TimeToDie();
 }

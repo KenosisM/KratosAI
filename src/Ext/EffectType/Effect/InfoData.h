@@ -146,10 +146,12 @@ public:
 
 	virtual bool Load(ExStreamReader& stream, bool registerForChange)
 	{
+		PrintTextData::Load(stream, registerForChange);
 		return this->Serialize(stream);
 	}
 	virtual bool Save(ExStreamWriter& stream) const
 	{
+		PrintTextData::Save(stream);
 		return const_cast<InfoEntity*>(this)->Serialize(stream);
 	}
 #pragma endregion

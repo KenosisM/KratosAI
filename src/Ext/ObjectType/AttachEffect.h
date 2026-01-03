@@ -21,6 +21,8 @@ class AttachEffectScript;
 class BulletStatus;
 class TechnoStatus;
 
+class CounterEffect;
+
 /// @brief 快速查找的map，使用vector代替map，以达到更快的查找速度
 template<typename K, typename V>
 using StackOffsetMap = std::vector<std::pair<K, V>>;
@@ -49,6 +51,9 @@ public:
 	 * @return int AE数量
 	 */
 	int Count();
+
+	bool AddCounter(AttachEffectData data, CounterEffect* counter);
+	void RemoveCounter(AttachEffectData data);
 
 	void GetMarks(std::vector<std::string>& marks);
 	std::vector<std::string> GetMarks();
@@ -254,6 +259,7 @@ public:
 	std::vector<int> PassengerIds{}; // 乘客持有的AEMode ID
 	std::map<std::string, CDTimerClass> DisableDelayTimers{};
 	std::map<std::string, int> AEStacks{};
+	std::map<std::string, CounterEffect*> Counters{}; // 计数器
 
 #pragma region Save/Load
 	template <typename T>

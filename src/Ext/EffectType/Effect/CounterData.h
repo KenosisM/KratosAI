@@ -57,6 +57,40 @@ inline bool Parser<CounterAction>::TryParse(const char* pValue, CounterAction* o
 	}
 }
 
+class CounterEntity
+{
+public:
+	bool Enable = false;
+	Point2D RemoveWhenNum = { 0, -1 };
+
+	virtual void Read(INIBufferReader* reader, std::string title)
+	{
+		RemoveWhenNum = reader->Get(title + "RemoveWhenNum", RemoveWhenNum);
+		Enable = RemoveWhenNum.Y > 0 && RemoveWhenNum.Y >= RemoveWhenNum.X;
+	}
+
+#pragma region save/load
+	template <typename T>
+	bool Serialize(T& stream)
+	{
+		return stream
+			.Process(this->Enable)
+			.Process(this->RemoveWhenNum)
+
+			.Success();
+	};
+
+	virtual bool Load(ExStreamReader& stream, bool registerForChange)
+	{
+		return this->Serialize(stream);
+	}
+	virtual bool Save(ExStreamWriter& stream) const
+	{
+		return const_cast<CounterEntity*>(this)->Serialize(stream);
+	}
+#pragma endregion
+};
+
 class CounterData : public EffectData
 {
 public:
@@ -67,27 +101,7 @@ public:
 	int Min = 0;
 	int Max = -1;
 	CounterAction Action = CounterAction::ADD;
-	bool RemoveWhenZero = true;
-	bool ResetNum = false;
-
-	Condition Condition = Condition::EQ;
-	int Level = 0;
-
-	bool Attach = false;
-	std::vector<std::string> AttachEffects{};
-	std::vector<double> AttachChances{};
-	bool AttachToSource = false;
-
-	bool Remove = false;
-	std::vector<std::string> RemoveEffects{};
-	std::vector<int> RemoveEffectsLevel{};
-	std::vector<std::string> RemoveEffectsWithMarks{};
-	bool RemoveEffectsSkipNext = false;
-	bool RemoveToSource = false;
-
-	std::vector<int> RemoveLevel{};
-	bool RemoveAll = true;
-	bool RemoveSkipNext = false;
+	std::vector<CounterEntity> RemoveWhenNums{}; // 触发效果列表
 
 	virtual void Read(INIBufferReader* reader) override
 	{
@@ -103,32 +117,26 @@ public:
 		Min = reader->Get(title + "Min", Min);
 		Max = reader->Get(title + "Max", Max);
 		Action = reader->Get(title + "Action", Action);
-		RemoveWhenZero = reader->Get(title + "RemoveWhenZero", RemoveWhenZero);
-		ResetNum = reader->Get(title + "ResetNum", ResetNum);
 
-		Condition = reader->Get(title + "Condition", Condition);
-		Level = reader->Get(title + "Level", Level);
+		// 读取无序号的
+		CounterEntity defaultEntity;
+		defaultEntity.Read(reader, title);
+		if (defaultEntity.Enable)
+		{
+			RemoveWhenNums.push_back(defaultEntity);
+		}
+		// 读取有序号的
+		for (int i = 0; i < 128; i++)
+		{
+			CounterEntity entity{};
+			entity.Read(reader, "Counter" + std::to_string(i) + ".");
+			if (entity.Enable)
+			{
+				RemoveWhenNums.push_back(entity);
+			}
+		}
 
-		AttachEffects = reader->GetList(title + "AttachEffects", AttachEffects);
-		ClearIfGetNone(AttachEffects);
-		AttachChances = reader->GetChanceList(title + "AttachChances", AttachChances);
-		Attach = !AttachEffects.empty();
-		AttachToSource = reader->Get(title + "AttachToSource", AttachToSource);
-
-		RemoveEffects = reader->GetList(title + "RemoveEffects", RemoveEffects);
-		ClearIfGetNone(RemoveEffects);
-		RemoveEffectsLevel = reader->GetList(title + "RemoveEffectsLevel", RemoveEffectsLevel);
-		RemoveEffectsWithMarks = reader->GetList(title + "RemoveEffectsWithMarks", RemoveEffectsWithMarks);
-		ClearIfGetNone(RemoveEffectsWithMarks);
-		Remove = !RemoveEffects.empty() || !RemoveEffectsWithMarks.empty();
-		RemoveEffectsSkipNext = reader->Get(title + "RemoveEffectsSkipNext", RemoveEffectsSkipNext);
-		RemoveToSource = reader->Get(title + "RemoveToSource", RemoveToSource);
-
-		RemoveLevel = reader->GetList(title + "RemoveLevel", RemoveLevel);
-		RemoveAll = reader->Get(title + "RemoveAll", RemoveAll);
-		RemoveSkipNext = reader->Get(title + "RemoveSkipNext", RemoveSkipNext);
-
-		Enable = !Mark.empty();
+		Enable = IsNotNone(Mark);
 	}
 
 	bool CanAttach()
@@ -146,27 +154,8 @@ public:
 			.Process(this->Min)
 			.Process(this->Max)
 			.Process(this->Action)
-			.Process(this->RemoveWhenZero)
-			.Process(this->ResetNum)
+			.Process(this->RemoveWhenNums)
 
-			.Process(this->Condition)
-			.Process(this->Level)
-
-			.Process(this->Attach)
-			.Process(this->AttachEffects)
-			.Process(this->AttachChances)
-			.Process(this->AttachToSource)
-
-			.Process(this->Remove)
-			.Process(this->RemoveEffects)
-			.Process(this->RemoveEffectsLevel)
-			.Process(this->RemoveEffectsWithMarks)
-			.Process(this->RemoveEffectsSkipNext)
-			.Process(this->RemoveToSource)
-
-			.Process(this->RemoveLevel)
-			.Process(this->RemoveAll)
-			.Process(this->RemoveSkipNext)
 			.Success();
 	};
 

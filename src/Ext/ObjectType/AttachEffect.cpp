@@ -76,6 +76,28 @@ int AttachEffect::Count()
 	return _children.size();
 }
 
+bool AttachEffect::AddCounter(AttachEffectData data, CounterEffect* counter)
+{
+	std::string mark = data.Counter.Mark;
+	auto it = Counters.find(mark);
+	if (it == Counters.end())
+	{
+		Counters[mark] = counter;
+		return true;
+	}
+	return false;
+}
+
+void AttachEffect::RemoveCounter(AttachEffectData data)
+{
+	std::string mark = data.Counter.Mark;
+	auto it = Counters.find(mark);
+	if (it != Counters.end())
+	{
+		Counters.erase(it);
+	}
+}
+
 void AttachEffect::GetMarks(std::vector<std::string>& marks)
 {
 	ForeachChild([&marks](Component* c) {
@@ -565,7 +587,7 @@ void AttachEffect::Attach(AttachEffectData data,
 				if (needToAddAE)
 				{
 					// 找到计数器，且AE应该被添加时，执行计数操作
-					targetCounter->ModifyCount(data.Counter);
+					targetCounter->ModifyCount(data.Counter.Action, data.Counter.Num);
 					add = false;
 				}
 				else
@@ -914,7 +936,13 @@ void AttachEffect::CheckDurationAndDisable(bool silence)
 						}
 					}
 				}
+				// 减少堆叠计数
 				ReduceStackCount(data);
+				// 移除计数器
+				if (data.Counter.Enable)
+				{
+					RemoveCounter(data);
+				}
 				// Deactivate的组件不会再执行Foreach事件，标记为失效，以便父组件将其删除
 				ae->Disable();
 #ifdef DEBUG_AE

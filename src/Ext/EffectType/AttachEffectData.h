@@ -13,6 +13,7 @@
 #include "Effect/BroadcastData.h"
 #include "Effect/CrateBuffData.h"
 #include "Effect/CounterData.h"
+#include "Effect/CountTriggerData.h"
 #include "Effect/DamageSelfData.h"
 #include "Effect/ExtraFireData.h"
 #include "Effect/FireSuperData.h"
@@ -150,6 +151,7 @@ public:
 	EFFECT_VAR_DEFINE(Broadcast);
 	EFFECT_VAR_DEFINE(CrateBuff);
 	EFFECT_VAR_DEFINE(Counter);
+	EFFECT_VAR_DEFINE(CountTrigger);
 	EFFECT_VAR_DEFINE(DamageSelf);
 	EFFECT_VAR_DEFINE(ExtraFire);
 	EFFECT_VAR_DEFINE(FireSuper);
@@ -188,6 +190,7 @@ public:
 		EFFECT_VAR_READ(Broadcast);
 		EFFECT_VAR_READ(CrateBuff);
 		EFFECT_VAR_READ(Counter);
+		EFFECT_VAR_READ(CountTrigger);
 		EFFECT_VAR_READ(DamageSelf);
 		EFFECT_VAR_READ(ExtraFire);
 		EFFECT_VAR_READ(FireSuper);
@@ -231,6 +234,7 @@ public:
 		EFFECT_VAR_SCRIPT_NAME(Broadcast);
 		EFFECT_VAR_SCRIPT_NAME(CrateBuff);
 		EFFECT_VAR_SCRIPT_NAME(Counter);
+		EFFECT_VAR_SCRIPT_NAME(CountTrigger);
 		EFFECT_VAR_SCRIPT_NAME(DamageSelf);
 		EFFECT_VAR_SCRIPT_NAME(ExtraFire);
 		EFFECT_VAR_SCRIPT_NAME(FireSuper);
@@ -273,6 +277,7 @@ public:
 			EFFECT_VAR_PROCESS(Broadcast)
 			EFFECT_VAR_PROCESS(CrateBuff)
 			EFFECT_VAR_PROCESS(Counter)
+			EFFECT_VAR_PROCESS(CountTrigger)
 			EFFECT_VAR_PROCESS(DamageSelf)
 			EFFECT_VAR_PROCESS(ExtraFire)
 			EFFECT_VAR_PROCESS(FireSuper)

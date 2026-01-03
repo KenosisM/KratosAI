@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <string>
 #include <vector>
@@ -7,7 +7,7 @@
 #include <AnimClass.h>
 
 #include "../EffectScript.h"
-#include "CounterData.h"
+#include "CountTriggerData.h"
 
 
 /// @brief EffectScript
@@ -20,56 +20,44 @@
 ///						|__ EffectScript#0
 ///						|__ EffectScript#1
 ///						|__ EffectScript#2
-class CounterEffect : public EffectScript
+class CountTriggerEffect : public EffectScript
 {
 public:
-	EFFECT_SCRIPT(Counter);
+	EFFECT_SCRIPT(CountTrigger);
 
 	virtual void Clean() override
 	{
 		EffectScript::Clean();
-		CountNum = 0;
-	}
 
-	virtual void OnStart() override;
-	virtual void OnPause() override;
-	virtual void OnRecover() override;
+		_count.clear();
+	}
 
 	virtual void OnUpdate() override;
 	virtual void OnWarpUpdate() override;
-
-	void ModifyCount(CounterAction action, int num);
-	void ResetNum();
-	void RemoveCounter();
-
-	// 计数器
-	int CountNum = 0;
 
 #pragma region Save/Load
 	template <typename T>
 	bool Serialize(T& stream) {
 		return stream
-			.Process(this->CountNum)
+			.Process(this->_count)
 			.Success();
 	};
 
 	virtual bool Load(ExStreamReader& stream, bool registerForChange) override
 	{
 		EffectScript::Load(stream, registerForChange);
-		bool result = this->Serialize(stream);
-		// 向AE管理器注册自己
-		AddSelfToManager();
-		return result;
+		return this->Serialize(stream);
 	}
 	virtual bool Save(ExStreamWriter& stream) const override
 	{
 		EffectScript::Save(stream);
-		return const_cast<CounterEffect*>(this)->Serialize(stream);
+		return const_cast<CountTriggerEffect*>(this)->Serialize(stream);
 	}
 #pragma endregion
 private:
 	void Watch();
+	bool CanActive(int num, Point2D range);
 
-	void AddSelfToManager();
-	void RemoveSelfFromManager();
+	// 计数器触发次数
+	std::map<int, int> _count{};
 };
