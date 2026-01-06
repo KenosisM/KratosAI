@@ -11,6 +11,39 @@
 #include <Ext/Helper/MathEx.h>
 #include "CounterData.h"
 
+enum class CountTriggerWho : int
+{
+	ME = 0,
+	SOURCE = 1,
+	COUNTER = 2,
+};
+
+template <>
+inline bool Parser<CountTriggerWho>::TryParse(const char* pValue, CountTriggerWho* outValue)
+{
+	switch (toupper(static_cast<unsigned char>(*pValue)))
+	{
+	case 'S':
+		if (outValue)
+		{
+			*outValue = CountTriggerWho::SOURCE;
+		}
+		return true;
+	case 'C':
+		if (outValue)
+		{
+			*outValue = CountTriggerWho::COUNTER;
+		}
+		return true;
+	default:
+		if (outValue)
+		{
+			*outValue = CountTriggerWho::ME;
+		}
+		return true;
+	}
+}
+
 class CountTriggerEntity
 {
 public:
@@ -20,7 +53,9 @@ public:
 	int TriggeredTimes = -1; // 触发次数
 
 	// 触发计数操作
-	int Num = 0;
+	double Num = 0;
+	CounterType NumType = CounterType::Number;
+	CountTriggerWho NumFrom = CountTriggerWho::ME;
 	CounterAction Action = CounterAction::ADD;
 	bool ResetNum = false;
 	bool RemoveCounter = false;
@@ -29,24 +64,54 @@ public:
 	bool Attach = false;
 	std::vector<std::string> AttachEffects{};
 	std::vector<double> AttachChances{};
-	bool AttachToSource = false;
-	bool AttachToCounterSource = false;
-	bool AttachFromCounterSource = false;
+	CountTriggerWho AttachTo = CountTriggerWho::ME;
+	CountTriggerWho AttachFrom = CountTriggerWho::SOURCE;
 
 	bool Remove = false;
 	std::vector<std::string> RemoveEffects{};
 	std::vector<int> RemoveEffectsLevel{};
 	std::vector<std::string> RemoveEffectsWithMarks{};
 	bool RemoveEffectsSkipNext = false;
-	bool RemoveToSource = false;
-	bool RemoveToCounterSource = false;
+	CountTriggerWho RemoveWho = CountTriggerWho::ME;
 
 	virtual void Read(INIBufferReader* reader, std::string title)
 	{
 		Range = reader->Get(title + "Range", Range);
 		TriggeredTimes = reader->Get(title + "TriggeredTimes", TriggeredTimes);
 
-		Num = reader->Get(title + "Num", Num);
+		// 初始数字特殊格式
+		std::string numStr{ "" };
+		numStr = reader->Get(title + "Num", numStr);
+		if (IsNotNone(numStr))
+		{
+			if (std::regex_match(numStr, INIReader::Number))
+			{
+				int buffer = 0;
+				const char* pFmt = "%d";
+				if (sscanf_s(numStr.c_str(), pFmt, &buffer) == 1)
+				{
+					Num = buffer;
+					NumType = CounterType::Number;
+				}
+			}
+			else
+			{
+				const char v = *uppercase(numStr).substr(0, 1).c_str();
+				switch (v)
+				{
+				case 'H': // HP
+					Num = 0;
+					NumType = CounterType::HP;
+					break;
+				case 'M': // MAXHP
+					Num = 0;
+					NumType = CounterType::MaxHP;
+					break;
+				}
+			}
+		}
+		NumFrom = reader->Get(title + "NumFrom", NumFrom);
+
 		Action = reader->Get(title + "Action", Action);
 		ResetNum = reader->Get(title + "ResetNum", ResetNum);
 		RemoveCounter = reader->Get(title + "RemoveCounter", RemoveCounter);
@@ -55,18 +120,8 @@ public:
 		ClearIfGetNone(AttachEffects);
 		AttachChances = reader->GetChanceList(title + "AttachChances", AttachChances);
 		Attach = !AttachEffects.empty();
-		AttachToSource = reader->Get(title + "AttachToSource", AttachToSource);
-		AttachToCounterSource = reader->Get(title + "AttachToCounterSource", AttachToCounterSource);
-		AttachFromCounterSource = reader->Get(title + "AttachFromCounterSource", AttachFromCounterSource);
-		if (AttachFromCounterSource)
-		{
-			AttachToSource = false;
-			AttachToCounterSource = false;
-		}
-		else if (AttachToCounterSource)
-		{
-			AttachToSource = false;
-		}
+		AttachTo = reader->Get(title + "AttachTo", AttachTo);
+		AttachFrom = reader->Get(title + "AttachFrom", AttachFrom);
 
 		RemoveEffects = reader->GetList(title + "RemoveEffects", RemoveEffects);
 		ClearIfGetNone(RemoveEffects);
@@ -75,14 +130,9 @@ public:
 		ClearIfGetNone(RemoveEffectsWithMarks);
 		Remove = !RemoveEffects.empty() || !RemoveEffectsWithMarks.empty();
 		RemoveEffectsSkipNext = reader->Get(title + "RemoveEffectsSkipNext", RemoveEffectsSkipNext);
-		RemoveToSource = reader->Get(title + "RemoveToSource", RemoveToSource);
-		RemoveToCounterSource = reader->Get(title + "RemoveToCounterSource", RemoveToCounterSource);
-		if (RemoveToCounterSource)
-		{
-			RemoveToSource = false;
-		}
+		RemoveWho = reader->Get(title + "RemoveWho", RemoveWho);
 
-		Enable = Num != 0 || ResetNum || RemoveCounter || Attach || Remove;
+		Enable = Num != 0 || NumType != CounterType::Number || ResetNum || RemoveCounter || Attach || Remove;
 	}
 
 #pragma region save/load
@@ -94,6 +144,7 @@ public:
 			.Process(this->Range)
 			.Process(this->TriggeredTimes)
 
+			.Process(this->NumType)
 			.Process(this->Num)
 			.Process(this->Action)
 			.Process(this->ResetNum)
@@ -102,17 +153,15 @@ public:
 			.Process(this->Attach)
 			.Process(this->AttachEffects)
 			.Process(this->AttachChances)
-			.Process(this->AttachToSource)
-			.Process(this->AttachToCounterSource)
-			.Process(this->AttachFromCounterSource)
+			.Process(this->AttachTo)
+			.Process(this->AttachFrom)
 
 			.Process(this->Remove)
 			.Process(this->RemoveEffects)
 			.Process(this->RemoveEffectsLevel)
 			.Process(this->RemoveEffectsWithMarks)
 			.Process(this->RemoveEffectsSkipNext)
-			.Process(this->RemoveToSource)
-			.Process(this->RemoveToCounterSource)
+			.Process(this->RemoveWho)
 
 			.Success();
 	};
@@ -133,7 +182,7 @@ class CountTriggerData : public EffectData
 public:
 	EFFECT_DATA(CountTrigger);
 
-	std::string Mark{};
+	std::string Watch{};
 
 	std::vector<CountTriggerEntity> Actions{}; // 触发效果列表
 
@@ -146,7 +195,8 @@ public:
 	{
 		EffectData::Read(reader, title);
 
-		Mark = reader->Get(title + "Mark", Mark);
+		Watch = reader->Get(title + "Mark", Watch);
+		Watch = reader->Get(title + "Watch", Watch);
 
 		// 读取无序号的
 		CountTriggerEntity defaultEntity;
@@ -166,7 +216,7 @@ public:
 			}
 		}
 
-		Enable = IsNotNone(Mark) && !Actions.empty();
+		Enable = IsNotNone(Watch) && !Actions.empty();
 	}
 
 #pragma region save/load
@@ -174,7 +224,7 @@ public:
 	bool Serialize(T& stream)
 	{
 		return stream
-			.Process(this->Mark)
+			.Process(this->Watch)
 			.Process(this->Actions)
 
 			.Success();

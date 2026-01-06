@@ -130,6 +130,7 @@
     <ClCompile Include="src\Ext\TechnoType\Status\BalloonTransporter.cpp" />
     <ClCompile Include="src\Ext\TechnoType\Status\BlackHole.cpp" />
     <ClCompile Include="src\Ext\TechnoType\Status\CrateBuff.cpp" />
+    <ClCompile Include="src\Ext\TechnoType\Status\DeployTo.cpp" />
     <ClCompile Include="src\Ext\TechnoType\Status\Deselect.cpp" />
     <ClCompile Include="src\Ext\TechnoType\Status\DestroyAnim.cpp" />
     <ClCompile Include="src\Ext\TechnoType\Status\DestroySelf.cpp" />
@@ -369,6 +370,7 @@
     <ClInclude Include="src\Ext\TechnoType\DamageTextData.h" />
     <ClInclude Include="src\Ext\TechnoType\DecoyMissile.h" />
     <ClInclude Include="src\Ext\TechnoType\DecoyMissileData.h" />
+    <ClInclude Include="src\Ext\TechnoType\DeployToData.h" />
     <ClInclude Include="src\Ext\TechnoType\DisguiseData.h" />
     <ClInclude Include="src\Ext\TechnoType\FireFLHData.h" />
     <ClInclude Include="src\Ext\TechnoType\HealthText.h" />

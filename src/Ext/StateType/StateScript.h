@@ -248,6 +248,17 @@ public:
 			Component::operator=(other);
 			Token = other.Token;
 			Data = other.Data;
+			pAESource = other.pAESource;
+			ReceiverOwn = other.ReceiverOwn;
+			pAEHouse = other.pAEHouse;
+			AEFromWarhead = other.AEFromWarhead;
+			AEWarheadLocation = other.AEWarheadLocation;
+
+			_duration = other._duration;
+			_immortal = other._immortal;
+			_lifeTimer = other._lifeTimer;
+			_reset = other._reset;
+			_frame = other._frame;
 		}
 		return *this;
 	}

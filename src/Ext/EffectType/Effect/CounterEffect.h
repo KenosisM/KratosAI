@@ -42,8 +42,8 @@ public:
 	void ResetNum();
 	void RemoveCounter();
 
-	// 计数器
-	int CountNum = 0;
+	// 计数器数值，支持小数
+	double CountNum = 0;
 
 #pragma region Save/Load
 	template <typename T>

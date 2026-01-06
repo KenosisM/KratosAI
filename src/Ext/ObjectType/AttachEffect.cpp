@@ -249,9 +249,9 @@ ImmuneData AttachEffect::GetImmuneData()
 			data.Temporal |= temp->AEData.Immune.Temporal;
 			data.IsLocomotor |= temp->AEData.Immune.IsLocomotor;
 			std::vector<std::string> antiWH = temp->AEData.Immune.AntiWarheads;
-			data.AntiWarheads.assign(antiWH.begin(), antiWH.end());
+			data.AntiWarheads.insert(data.AntiWarheads.end() ,antiWH.begin(), antiWH.end());
 			std::vector<std::string> acceptWH = temp->AEData.Immune.AcceptWarheads;
-			data.AcceptWarheads.assign(acceptWH.begin(), acceptWH.end());
+			data.AcceptWarheads.insert(data.AcceptWarheads.end(), acceptWH.begin(), acceptWH.end());
 		}
 		});
 	data.CheckEnable();
@@ -587,7 +587,31 @@ void AttachEffect::Attach(AttachEffectData data,
 				if (needToAddAE)
 				{
 					// 找到计数器，且AE应该被添加时，执行计数操作
-					targetCounter->ModifyCount(data.Counter.Action, data.Counter.Num);
+					double num = data.Counter.Num;
+					if (data.Counter.NumType != CounterType::Number)
+					{
+						ObjectClass* pFrom = data.Counter.NumFromSource ? pAttacker : pObject;
+						if (pFrom && !IsDeadOrInvisible(pFrom))
+						{
+							switch (data.Counter.NumType)
+							{
+							case CounterType::HP:
+								num = pFrom->Health;
+								break;
+							case CounterType::MaxHP:
+								if (data.Counter.NumFromSource)
+								{
+									num = pFrom->GetType()->Strength;
+								}
+								else
+								{
+									num = IsBullet() ? pFrom->Health : pFrom->GetType()->Strength;
+								}
+								break;
+							}
+						}
+					}
+					targetCounter->ModifyCount(data.Counter.Action, num);
 					add = false;
 				}
 				else

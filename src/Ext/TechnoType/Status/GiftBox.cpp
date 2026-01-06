@@ -11,29 +11,6 @@
 #include <Ext/EffectType/AttachEffectScript.h>
 #include <Ext/ObjectType/AttachEffect.h>
 
-
-DeployToTransformData* TechnoStatus::GetTransformData()
-{
-	if (!_transformData)
-	{
-		_transformData = INI::GetConfig<DeployToTransformData>(INI::Rules, pTechno->GetTechnoType()->ID)->Data;
-	}
-	return _transformData;
-}
-
-void TechnoStatus::OnUpdate_DeployToTransform()
-{
-	if (GetTransformData()->Enable)
-	{
-		if ((IsInfantry() && dynamic_cast<InfantryClass*>(pTechno)->SequenceAnim == Sequence::Deployed)
-			|| (IsUnit() && dynamic_cast<UnitClass*>(pTechno)->Deployed))
-		{
-			// 步兵或载具部署完毕，开始变形
-			GiftBox->Start(GetTransformData());
-		}
-	}
-}
-
 void TechnoStatus::OnUpdate_GiftBox()
 {
 	// 记录单位的状态

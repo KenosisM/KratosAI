@@ -21,7 +21,17 @@
 #include <Ext/TechnoType/TurretAngle.h>
 
 #pragma region Unit Deploy
-DEFINE_HOOK(0x6FF923, TechnoClass_Fire_FireOnce, 0x6)
+DEFINE_HOOK(0x6FF8F1, TechnoClass_DeployFire, 0x6)
+{
+	GET(TechnoClass*, pTechno, ESI);
+	if (TechnoStatus* status = GetStatus<TechnoExt, TechnoStatus>(pTechno))
+	{
+		status->DeployState = DeployState::Deployed;
+	}
+	return 0;
+}
+
+DEFINE_HOOK(0x6FF923, TechnoClass_DeployFire_FireOnce, 0x6)
 {
 	GET(TechnoClass*, pTechno, ESI);
 	if (pTechno->CurrentMission == Mission::Unload)
@@ -31,15 +41,18 @@ DEFINE_HOOK(0x6FF923, TechnoClass_Fire_FireOnce, 0x6)
 	return 0;
 }
 
-DEFINE_HOOK(0x739C7A, UnitClass_Deployed, 0x6)
-{
-	GET(TechnoClass*, pTechno, ESI);
-	if (TechnoStatus* status = GetStatus<TechnoExt, TechnoStatus>(pTechno))
-	{
-		status->OnUpdate_DeployToTransform();
-	}
-	return 0;
-}
+// Phobos Skip this.
+// New logic in TechnoClass_Update_DeployTo(), so don't need this.
+// DEFINE_HOOK(0x739C7A, UnitClass_SimpleDeployer_Deployed, 0x6)
+// {
+// 	GET(TechnoClass*, pTechno, ESI);
+// 	if (TechnoStatus* status = GetStatus<TechnoExt, TechnoStatus>(pTechno))
+// 	{
+// 		// Debug::Log("UnitClass_Deployed\n");
+// 		status->DeployState = DeployState::Deployed;
+// 	}
+// 	return 0;
+// }
 #pragma endregion
 
 #pragma region FLH free

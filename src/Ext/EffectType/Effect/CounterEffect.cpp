@@ -41,7 +41,7 @@ void CounterEffect::RemoveSelfFromManager()
 
 void CounterEffect::OnStart()
 {
-	CountNum = Data->Num;
+	ResetNum();
 	// 向AE管理器注册自己
 	AddSelfToManager();
 }
@@ -104,7 +104,31 @@ void CounterEffect::ModifyCount(CounterAction action, int num)
 
 void CounterEffect::ResetNum()
 {
-	CountNum = Data->Num;
+	double num = Data->Num;
+	if (Data->NumType != CounterType::Number)
+	{
+		ObjectClass* pFrom = Data->NumFromSource ? AE->pSource : pObject;
+		if (pFrom && !IsDeadOrInvisible(pFrom))
+		{
+			switch (Data->NumType)
+			{
+			case CounterType::HP:
+				num = pFrom->Health;
+				break;
+			case CounterType::MaxHP:
+				if (Data->NumFromSource)
+				{
+					num = pFrom->GetType()->Strength;
+				}
+				else
+				{
+					num = IsBullet() ? pFrom->Health : pFrom->GetType()->Strength;
+				}
+				break;
+			}
+		}
+	}
+	CountNum = num;
 }
 
 void CounterEffect::RemoveCounter()

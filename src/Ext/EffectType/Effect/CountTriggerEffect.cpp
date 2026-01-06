@@ -19,7 +19,7 @@ bool CountTriggerEffect::CanActive(int num, Point2D range)
 void CountTriggerEffect::Watch()
 {
 	// 向AE管理器查找计数器
-	CounterEffect* counter = AE->AEManager->Counters[Data->Mark];
+	CounterEffect* counter = AE->AEManager->Counters[Data->Watch];
 	if (counter && counter->IsAlive())
 	{
 		int action_idx = 0;
@@ -37,7 +37,40 @@ void CountTriggerEffect::Watch()
 				// 操作计数
 				if (entity.Num != 0)
 				{
-					counter->ModifyCount(entity.Action, entity.Num);
+					double num = entity.Num;
+					if (entity.NumType != CounterType::Number)
+					{
+						ObjectClass* pFrom = pObject;
+						switch (entity.NumFrom)
+						{
+						case CountTriggerWho::SOURCE:
+							pFrom = dynamic_cast<ObjectClass*>(AE->pSource);
+							break;
+						case CountTriggerWho::COUNTER:
+							pFrom = dynamic_cast<ObjectClass*>(counter->AE->pSource);
+							break;
+						}
+						if (pFrom && !IsDeadOrInvisible(pFrom))
+						{
+							switch (entity.NumType)
+							{
+							case CounterType::HP:
+								num = pFrom->Health;
+								break;
+							case CounterType::MaxHP:
+								if (entity.NumFrom != CountTriggerWho::ME)
+								{
+									num = pFrom->GetType()->Strength;
+								}
+								else
+								{
+									num = IsBullet() ? pFrom->Health : pFrom->GetType()->Strength;
+								}
+								break;
+							}
+						}
+					}
+					counter->ModifyCount(entity.Action, num);
 				}
 				if (entity.ResetNum)
 				{
@@ -47,67 +80,53 @@ void CountTriggerEffect::Watch()
 				// 添加AE
 				if (entity.Attach)
 				{
+					// To哪个
 					AttachEffect* aeManager = AE->AEManager;
-					TechnoClass* pSource = AE->pSource;
-					HouseClass* pSourceHouse = AE->pSourceHouse;
-					if (entity.AttachToSource)
+					switch (entity.AttachTo)
 					{
+					case CountTriggerWho::SOURCE:
 						aeManager = GetAEManager<TechnoExt>(AE->pSource);
-						if (pTechno)
-						{
-							pSource = pTechno;
-							pSourceHouse = pTechno->Owner;
-						}
-						else if (pBullet)
-						{
-							pSource = pBullet->Owner;
-							pSourceHouse = GetHouse(pBullet);
-						}
-						else
-						{
-							aeManager = nullptr;
-						}
-					}
-					else if (entity.AttachToCounterSource)
-					{
+						break;
+					case CountTriggerWho::COUNTER:
 						aeManager = GetAEManager<TechnoExt>(counter->AE->pSource);
-						if (pTechno)
-						{
-							pSource = pTechno;
-							pSourceHouse = pTechno->Owner;
-						}
-						else if (pBullet)
-						{
-							pSource = pBullet->Owner;
-							pSourceHouse = GetHouse(pBullet);
-						}
-						else
-						{
-							aeManager = nullptr;
-						}
+						break;
 					}
-					else if (entity.AttachFromCounterSource)
-					{
-						pSource = counter->AE->pSource;
-						pSourceHouse = counter->AE->pSourceHouse;
-					}
+
 					if (aeManager)
 					{
+						// From哪个
+						TechnoClass* pSource = AE->pSource;
+						HouseClass* pSourceHouse = AE->pSourceHouse;
+						switch (entity.AttachFrom)
+						{
+						case CountTriggerWho::ME:
+							pSource = nullptr;
+							pSourceHouse = nullptr;
+							break;
+						case CountTriggerWho::COUNTER:
+							pSource = counter->AE->pSource;
+							pSourceHouse = counter->AE->pSourceHouse;
+							break;
+						}
+						// 附加AE
 						aeManager->Attach(entity.AttachEffects, entity.AttachChances, false, pSource, pSourceHouse);
 					}
 				}
 				// 移除AE
 				if (entity.Remove)
 				{
+					// Remove哪个
 					AttachEffect* aeManager = AE->AEManager;
-					if (entity.RemoveToSource)
+					switch (entity.RemoveWho)
 					{
+					case CountTriggerWho::SOURCE:
 						aeManager = GetAEManager<TechnoExt>(AE->pSource);
-					}
-					else if (entity.RemoveToCounterSource)
-					{
+						break;
+					case CountTriggerWho::COUNTER:
 						aeManager = GetAEManager<TechnoExt>(counter->AE->pSource);
+						break;
 					}
+
 					if (aeManager)
 					{
 						if (!entity.RemoveEffects.empty())

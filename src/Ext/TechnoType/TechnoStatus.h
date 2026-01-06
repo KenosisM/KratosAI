@@ -42,6 +42,7 @@
 #include <Ext/WeaponType/TargetLaserData.h>
 
 #include "AirstrikeData.h"
+#include "DeployToData.h"
 #include "FireFLHData.h"
 #include "PassengersData.h"
 
@@ -187,6 +188,9 @@ public:
 
 		FLHIndex = 0;
 
+		// 部署触发
+		DeployState = DeployState::None;
+
 		// 阿伟死了，DestroySelfState干的
 		_isDead = false;
 
@@ -212,6 +216,8 @@ public:
 
 		// 部署变形
 		_transformData = nullptr;
+		// 部署附加AE
+		_deployAttachData = nullptr;
 
 		// 我有一只激光笔
 		_targetLasers.clear();
@@ -273,7 +279,7 @@ public:
 
 	virtual void OnUpdate() override;
 
-	void OnUpdate_DeployToTransform(); // call by hook
+	void OnUpdate_DeployTo(); // call by hook
 	void OnUpdate_DestroySelf(); // call by Stand
 
 	virtual void OnUpdateEnd() override;
@@ -424,6 +430,9 @@ public:
 
 	int FLHIndex = 0;
 
+	// 部署触发
+	DeployState DeployState = DeployState::None;
+
 #pragma region save/load
 	template <typename T>
 	bool Serialize(T& stream)
@@ -449,6 +458,8 @@ public:
 
 			.Process(this->VirtualUnit)
 			.Process(this->Disappear)
+
+			.Process(this->DeployState)
 
 			.Process(this->_disableSelectable)
 			.Process(this->_cantMoveFlag)
@@ -608,6 +619,10 @@ private:
 	// 部署变形
 	DeployToTransformData* _transformData = nullptr;
 	DeployToTransformData* GetTransformData();
+
+	// 部署附加AE
+	DeployToAttachData* _deployAttachData = nullptr;
+	DeployToAttachData* GetDeployAttachData();
 
 	// 我有一只激光笔
 	std::vector<TargetLaser> _targetLasers{};

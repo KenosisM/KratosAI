@@ -191,7 +191,7 @@ void TechnoStatus::OnUpdate()
 		{
 			FootClass* pFoot = dynamic_cast<FootClass*>(pTechno);
 			_isMoving = pFoot->GetCurrentSpeed() > 0 && pFoot->Locomotor.get()->Is_Moving();
-			OnUpdate_DeployToTransform();
+			OnUpdate_DeployTo();
 			OnUpdate_Transform();
 		}
 		OnUpdate_AntiBullet();

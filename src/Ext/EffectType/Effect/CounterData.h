@@ -91,16 +91,29 @@ public:
 #pragma endregion
 };
 
+enum class CounterType : int
+{
+	Number = 0,
+	HP = 1,
+	MaxHP = 2,
+};
+
 class CounterData : public EffectData
 {
 public:
 	EFFECT_DATA(Counter);
 
 	std::string Mark{};
-	int Num = 0;
-	int Min = 0;
-	int Max = -1;
+
+	double Num = 0;
+	CounterType NumType = CounterType::Number;
+	bool NumFromSource = false;
+
+	double Min = 0;
+	double Max = -1;
 	CounterAction Action = CounterAction::ADD;
+	bool AttachIfNotFound = true;
+
 	std::vector<CounterEntity> RemoveWhenNums{}; // 触发效果列表
 
 	virtual void Read(INIBufferReader* reader) override
@@ -113,10 +126,44 @@ public:
 		EffectData::Read(reader, title);
 
 		Mark = reader->Get(title + "Mark", Mark);
-		Num = reader->Get(title + "Num", Num);
+
+		// 初始数字特殊格式
+		std::string numStr{ "" };
+		numStr = reader->Get(title + "Num", numStr);
+		if (IsNotNone(numStr))
+		{
+			if (std::regex_match(numStr, INIReader::Number))
+			{
+				int buffer = 0;
+				const char* pFmt = "%d";
+				if (sscanf_s(numStr.c_str(), pFmt, &buffer) == 1)
+				{
+					Num = buffer;
+					NumType = CounterType::Number;
+				}
+			}
+			else
+			{
+				const char v = *uppercase(numStr).substr(0, 1).c_str();
+				switch (v)
+				{
+				case 'H': // HP
+					Num = 0;
+					NumType = CounterType::HP;
+					break;
+				case 'M': // MAXHP
+					Num = 0;
+					NumType = CounterType::MaxHP;
+					break;
+				}
+			}
+		}
+		NumFromSource = reader->Get(title + "NumFromSource", NumFromSource);
+
 		Min = reader->Get(title + "Min", Min);
 		Max = reader->Get(title + "Max", Max);
 		Action = reader->Get(title + "Action", Action);
+		AttachIfNotFound = reader->Get(title + "AttachIfNotFound", AttachIfNotFound);
 
 		// 读取无序号的
 		CounterEntity defaultEntity;
@@ -141,7 +188,7 @@ public:
 
 	bool CanAttach()
 	{
-		return Action == CounterAction::ADD || Action == CounterAction::INIT;
+		return AttachIfNotFound && (Action == CounterAction::ADD || Action == CounterAction::INIT);
 	}
 
 #pragma region save/load
@@ -151,6 +198,8 @@ public:
 		return stream
 			.Process(this->Mark)
 			.Process(this->Num)
+			.Process(this->NumType)
+			.Process(this->NumFromSource)
 			.Process(this->Min)
 			.Process(this->Max)
 			.Process(this->Action)
