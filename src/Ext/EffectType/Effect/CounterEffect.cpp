@@ -40,6 +40,11 @@ int CounterEffect::CalculateRemainingDamage(int Damage)
 	// 实际可用的CountNum
 	double actualUsed = std::min(CountNum, requiredCount);
 
+	// Debug::Log("CounterEffect::CalculateRemainingDamage(), Mark: %s, AE: %s, damage = %d, protectedPart = %.2f(%.2f), requiredCount = %.2f(%.2f), actualUsed = %.2f, CountNum = %.2f\n",
+	// 	AEData.Counter.Mark.c_str(), AEData.Name.c_str()
+	// 	, Damage, protectedPart, Data->Reaction.Protect, requiredCount, Data->Reaction.Percent
+	// 	, actualUsed, CountNum);
+
 	// 更新CountNum
 	ModifyCount(CounterAction::SUB, actualUsed);
 
@@ -103,7 +108,7 @@ void CounterEffect::OnWarpUpdate()
 	}
 }
 
-void CounterEffect::OnReceiveDamage(args_ReceiveDamage* args)
+void CounterEffect::OnReceiveDamageReal(int* pRealDamage, WarheadTypeClass* pWH, TechnoClass* pAttacker, HouseClass* pAttackingHouse)
 {
 	if (AE->OwnerIsDead())
 	{
@@ -111,24 +116,23 @@ void CounterEffect::OnReceiveDamage(args_ReceiveDamage* args)
 	}
 
 	// 无视防御的真实伤害不做任何响应
-	if (!args->IgnoreDefenses && Data->ReactionMode != CounterReaction::NORMAL)
+	if (Data->ReactionMode != CounterReaction::NORMAL)
 	{
-		WarheadTypeClass* pWH = args->WH;
 		WarheadTypeExt::TypeData* whData = GetTypeData<WarheadTypeExt, WarheadTypeExt::TypeData>(pWH);
 		if (!whData->IgnoreCounterReaction && Data->Reaction.WarheadOnMark(pWH->ID))
 		{
 			// 扣除计数并返回抵扣后的伤害值
-			int damage = CalculateRemainingDamage(*args->Damage);
+			int damage = CalculateRemainingDamage(*pRealDamage);
 			// 抵扣伤害
 			if (Data->ReactionMode == CounterReaction::SHIELD)
 			{
-				*args->Damage = damage;
+				*pRealDamage = damage;
 			}
 		}
 	}
 }
 
-void CounterEffect::ModifyCount(CounterAction action, int num)
+void CounterEffect::ModifyCount(CounterAction action, double num)
 {
 	switch (action)
 	{

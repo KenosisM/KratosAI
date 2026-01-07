@@ -7,7 +7,7 @@
 
 #include "CounterEffect.h"
 
-bool CountTriggerEffect::CanActive(int num, Point2D range)
+bool CountTriggerEffect::CanActive(double num, Point2D range)
 {
 	if (range.Y >= range.X)
 	{

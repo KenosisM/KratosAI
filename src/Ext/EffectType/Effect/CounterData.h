@@ -106,7 +106,7 @@ public:
 	virtual void Read(INIBufferReader* reader, std::string title)
 	{
 		RemoveWhenNum = reader->Get(title + "RemoveWhenNum", RemoveWhenNum);
-		Enable = RemoveWhenNum.Y > 0 && RemoveWhenNum.Y >= RemoveWhenNum.X;
+		Enable = RemoveWhenNum.Y >= 0 && RemoveWhenNum.Y >= RemoveWhenNum.X;
 	}
 
 #pragma region save/load

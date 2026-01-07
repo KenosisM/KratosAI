@@ -38,9 +38,9 @@ public:
 	virtual void OnUpdate() override;
 	virtual void OnWarpUpdate() override;
 
-	virtual void OnReceiveDamage(args_ReceiveDamage* args) override;
+	virtual void OnReceiveDamageReal(int* pRealDamage, WarheadTypeClass* pWH, TechnoClass* pAttacker, HouseClass* pAttackingHouse) override;
 
-	void ModifyCount(CounterAction action, int num);
+	void ModifyCount(CounterAction action, double num);
 	void ResetNum();
 	void RemoveCounter();
 

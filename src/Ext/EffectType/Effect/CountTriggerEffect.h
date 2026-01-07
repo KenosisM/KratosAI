@@ -56,7 +56,7 @@ public:
 #pragma endregion
 private:
 	void Watch();
-	bool CanActive(int num, Point2D range);
+	bool CanActive(double num, Point2D range);
 
 	// 计数器触发次数
 	std::map<int, int> _count{};
