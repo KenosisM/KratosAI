@@ -189,6 +189,9 @@ void CounterEffect::ResetNum()
 				{
 					num = IsBullet() ? pFrom->Health : pFrom->GetType()->Strength;
 				}
+				// 强制修改取值范围
+				Data->Min = 0;
+				Data->Max = num;
 				break;
 			}
 		}
