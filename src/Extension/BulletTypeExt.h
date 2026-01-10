@@ -11,11 +11,16 @@ public:
 	class TypeData : public INIConfig
 	{
 	public:
+		// Ares
+
+		// Phobos
+		bool AAOnly = false; // 只允许攻击空军
+
 		virtual void Read(INIBufferReader* ini) override
 		{
+			AAOnly = ini->Get("AAOnly", AAOnly);
 		}
 
-		// Ares
 	};
 
 	static constexpr DWORD Canary = 0xF00DF00D;

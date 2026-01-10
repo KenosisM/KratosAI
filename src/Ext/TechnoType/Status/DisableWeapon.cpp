@@ -24,8 +24,8 @@ bool TechnoStatus::CanFire_DisableWeapon(AbstractClass* pTarget, WeaponTypeClass
 				return it != types.end();
 			}
 		}
-		return true;
+		return _CannotFire;
 	}
-	return false;
+	return !_CannotFire;
 }
 

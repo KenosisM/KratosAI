@@ -30,6 +30,11 @@ public:
 		bool BoltDisable3 = false;
 		bool BoltDisableParticle = false;
 		bool IsSingleColor = false; // 单色激光
+		bool VisualScatter = false; // 视觉散射
+		double visualScatterMin = 0.03;
+		double visualScatterMax = 0.13;
+		int VisualScatterMin = Game::F2I(visualScatterMin * Unsorted::LeptonsPerCell);
+		int VisualScatterMax = Game::F2I(visualScatterMax * Unsorted::LeptonsPerCell);
 
 		// Kratos
 		float RockerPitch = 0;
@@ -66,6 +71,16 @@ public:
 			BoltDisableParticle = reader->Get("Bolt.DisableParticle", BoltDisableParticle);
 
 			IsSingleColor = reader->Get("IsSingleColor", IsSingleColor);
+			VisualScatter = reader->Get("VisualScatter", VisualScatter);
+			// 读取全局设置
+			INIBufferReader* avReader = INI::GetSection(INI::Rules, INI::SectionAudioVisual);
+			visualScatterMin = avReader->Get("VisualScatter.Min", visualScatterMin);
+			visualScatterMax = avReader->Get("VisualScatter.Max", visualScatterMax);
+			// 读取个体设置
+			visualScatterMin = reader->Get("VisualScatter.Min", visualScatterMin);
+			visualScatterMax = reader->Get("VisualScatter.Max", visualScatterMax);
+			VisualScatterMin = Game::F2I(visualScatterMin * Unsorted::LeptonsPerCell);
+			VisualScatterMax = Game::F2I(visualScatterMax * Unsorted::LeptonsPerCell);
 
 			RockerPitch = reader->Get("RockerPitch", RockerPitch);
 			SelfLaunch = reader->Get("SelfLaunch", SelfLaunch);
@@ -98,6 +113,11 @@ public:
 				.Process(this->BoltDisable3)
 				.Process(this->BoltDisableParticle)
 				.Process(this->IsSingleColor)
+				.Process(this->VisualScatter)
+				.Process(this->visualScatterMin)
+				.Process(this->visualScatterMax)
+				.Process(this->VisualScatterMin)
+				.Process(this->VisualScatterMax)
 
 				.Process(this->RockerPitch)
 				.Process(this->SelfLaunch)

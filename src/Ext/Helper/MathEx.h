@@ -7,6 +7,7 @@
 #include <map>
 #include <set>
 #include <random>
+#include <limits>
 
 #include <ScenarioClass.h>
 #include <YRMathVector.h>
@@ -32,13 +33,41 @@ public:
 	 */
 	static int RandomRanged(int min, int max)
 	{
+		if (max < min) std::swap(min, max);
+		// int类型包含max
 		std::uniform_int_distribution<int> dis(min, max);
 		return dis(_engine);
 	}
 
+	/**
+	 *@brief Include maximum value
+	 *
+	 * @param min
+	 * @param max
+	 * @return float
+	 */
+	static float RandomFloat(float min, float max)
+	{
+		if (max < min) std::swap(min, max);
+		// float类型不包含max，使用 nextafter 让范围包含max值
+		std::uniform_real_distribution<float> dis(min,
+			std::nextafter(max, std::numeric_limits<float>::max()));
+		return dis(_engine);
+	}
+
+	/**
+	 *@brief Random [0.0 - 1.0], include maximum value
+	 *
+	 * @return double
+	 */
 	static double RandomDouble()
 	{
-		return RandomRanged(1, INT_MAX) / (double)((unsigned int)INT_MAX + 1);
+		// return RandomRanged(1, INT_MAX) / (double)((unsigned int)INT_MAX + 1); // (0, 1)
+
+		// double类型不包含max，使用 nextafter 让范围包含max值
+		std::uniform_real_distribution<double> dis(0.0,
+			std::nextafter(1.0, std::numeric_limits<double>::max()));
+		return dis(_engine);
 	}
 private:
 	inline static std::minstd_rand _engine{};

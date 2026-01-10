@@ -1,8 +1,12 @@
 ﻿#include "DrawEx.h"
 
+#include <MapClass.h>
+
 #include <Extension/EBoltExt.h>
 #include <Ext/EBoltType/EBoltStatus.h>
 #include <Ext/Helper/Scripts.h>
+
+#include <Ext/Common/CommonStatus.h>
 
 #pragma region LaserType
 void DrawLaser(LaserType laser, CoordStruct sourcePos, CoordStruct targetPos, ColorStruct houseColor)
@@ -49,6 +53,11 @@ void DrawLaser(LaserType laser, CoordStruct sourcePos, CoordStruct targetPos, Co
 				outerColor = ColorStruct{ static_cast<BYTE>(r2), static_cast<BYTE>(g2), static_cast<BYTE>(b2) };
 			}
 		}
+	}
+	// 视觉散布
+	if (laser.VisualScatter)
+	{
+		targetPos = MapClass::GetRandomCoordsNear(targetPos, Random::RandomRanged(laser.VisualScatterMin, laser.VisualScatterMax), false);
 	}
 	LaserDrawClass* pLaser = GameCreate<LaserDrawClass>(
 		sourcePos, targetPos,
@@ -188,6 +197,11 @@ void DrawBeam(CoordStruct sourcePos, CoordStruct targetPos, BeamType type, Color
 	if (pBeam)
 	{
 		pBeam->SetCoordsSource(sourcePos);
+		// 视觉散布
+		if (type.VisualScatter)
+		{
+			targetPos = MapClass::Instance->GetRandomCoordsNear(targetPos, Random::RandomRanged(type.VisualScatterMin, type.VisualScatterMax), false);
+		}
 		pBeam->SetCoordsTarget(targetPos);
 		ColorStruct beamColor = type.Color;
 		if (customColor != Colors::Empty)

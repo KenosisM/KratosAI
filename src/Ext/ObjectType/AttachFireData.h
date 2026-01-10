@@ -12,6 +12,7 @@ public:
 	bool CheckROF = true;
 	bool CheckRange = false;
 	bool CheckAA = false;
+	bool CheckAAOnly = false;
 	bool CheckAG = false;
 	bool CheckVersus = true;
 
@@ -50,6 +51,7 @@ public:
 		CheckROF = reader->Get(title + "CheckROF", CheckROF);
 		CheckRange = reader->Get(title + "CheckRange", CheckRange);
 		CheckAA = reader->Get(title + "CheckAA", CheckAA);
+		CheckAAOnly = reader->Get(title + "CheckAAOnly", CheckAAOnly);
 		CheckAG = reader->Get(title + "CheckAG", CheckAG);
 		CheckVersus = reader->Get(title + "CheckVersus", CheckVersus);
 
@@ -212,6 +214,7 @@ public:
 			.Process(this->CheckROF)
 			.Process(this->CheckRange)
 			.Process(this->CheckAA)
+			.Process(this->CheckAAOnly)
 			.Process(this->CheckAG)
 			.Process(this->CheckVersus)
 

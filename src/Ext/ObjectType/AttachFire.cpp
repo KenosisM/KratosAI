@@ -37,6 +37,19 @@ bool AttachFire::FireCustomWeapon(TechnoClass* pAttacker, AbstractClass* pTarget
 			maxRange += pTechno->GetTechnoType()->AirRangeBonus;
 		}
 	}
+	else if (weaponTypeData.CheckAAOnly && pWeapon->Projectile->AA)
+	{
+		// 目标停在地上，抛射体是AAOnly，终止发射
+		TechnoTypeClass* pTechnoType = pAttacker->GetTechnoType();
+		if (pTechnoType && pTechnoType->LandTargeting != LandTargetingType::Land_Not_OK)
+		{
+			BulletTypeExt::TypeData* bulletData = GetTypeData<BulletTypeExt, BulletTypeExt::TypeData>(pWeapon->Projectile);
+			if (bulletData && bulletData->AAOnly)
+			{
+				return false;
+			}
+		}
+	}
 	// 检查射程
 	if (!weaponTypeData.CheckRange || InRange(pObject, pTarget, pWeapon, minRange, maxRange))
 	{

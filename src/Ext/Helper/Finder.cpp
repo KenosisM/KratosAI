@@ -114,11 +114,11 @@ TechnoClass* FindRandomTechno(HouseClass* pHouse)
 	int size = pTechnoArray.size();
 	if (size > 0)
 	{
-		int targetIdx = Random::RandomRanged(0, size - 1); // 同一帧的随机值永远都是同一个，容易造成死循环
-		bool forward = true;
-		for (int i = 0; i < size; i++)
+		int startIdx = Random::RandomRanged(0, size - 1); // 同一帧的随机值永远都是同一个，容易造成死循环
+		// 从当前位置往后查找
+		for (int i = startIdx; i < size; i++)
 		{
-			TechnoClass* pTarget = pTechnoArray[targetIdx];
+			TechnoClass* pTarget = pTechnoArray[i];
 			if (!IsDeadOrInvisible(pTarget))
 			{
 #ifdef DEBUG
@@ -126,23 +126,17 @@ TechnoClass* FindRandomTechno(HouseClass* pHouse)
 #endif // DEBUG
 				return pTarget;
 			}
-			if (targetIdx >= size - 1)
+		}
+		// 从当前位置往前查找
+		for (int i = startIdx - 1; i >= 0; i--)
+		{
+			TechnoClass* pTarget = pTechnoArray[i];
+			if (!IsDeadOrInvisible(pTarget))
 			{
-				targetIdx = size - 1;
-				forward = false;
-			}
-			else if (targetIdx <= 0)
-			{
-				targetIdx = 0;
-				forward = true;
-			}
-			if (forward)
-			{
-				targetIdx++;
-			}
-			else
-			{
-				targetIdx--;
+#ifdef DEBUG
+				Debug::Log("Pickup a Luckey Techno [%s]%d\n", pTarget->GetType()->ID, pTarget);
+#endif // DEBUG
+				return pTarget;
 			}
 		}
 	}

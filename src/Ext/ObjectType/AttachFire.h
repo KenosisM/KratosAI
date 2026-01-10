@@ -14,6 +14,7 @@
 
 #include <Extension/TechnoExt.h>
 #include <Extension/BulletExt.h>
+#include <Extension/BulletTypeExt.h>
 #include <Extension/WarheadTypeExt.h>
 #include <Extension/WeaponTypeExt.h>
 

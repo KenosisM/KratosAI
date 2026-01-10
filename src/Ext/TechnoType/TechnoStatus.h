@@ -46,6 +46,7 @@
 #include "FireFLHData.h"
 #include "PassengersData.h"
 
+#define _CannotFire true;
 
 class AttachEffect;
 
@@ -580,7 +581,8 @@ private:
 	void OnRegisterDestruction_Stand(TechnoClass* pKiller, int cost, bool& skip);
 
 	bool CanFire_DisableWeapon(AbstractClass* pTarget, WeaponTypeClass* pWeapon);
-	bool CanFire_NoMoneyNoTalk(AbstractClass* pTarget, WeaponTypeClass* pWeapon);
+	bool CanFire_CheckWeapon(AbstractClass* pTarget, WeaponTypeClass* pWeapon);
+	bool CanFire_CheckBullet(AbstractClass* pTarget, WeaponTypeClass* pWeapon);
 	bool CanFire_Passenger(AbstractClass* pTarget, WeaponTypeClass* pWeapon);
 
 	void OnFire_RockerPitch(AbstractClass* pTarget, int weaponIdx);

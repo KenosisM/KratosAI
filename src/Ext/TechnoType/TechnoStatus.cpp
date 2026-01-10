@@ -344,7 +344,13 @@ void TechnoStatus::CanFire(AbstractClass* pTarget, WeaponTypeClass* pWeapon, boo
 		Break();
 		return;
 	}
-	ceaseFire = CanFire_NoMoneyNoTalk(pTarget, pWeapon);
+	ceaseFire = CanFire_CheckWeapon(pTarget, pWeapon);
+	if (ceaseFire)
+	{
+		Break();
+		return;
+	}
+	ceaseFire = CanFire_CheckBullet(pTarget, pWeapon);
 	if (ceaseFire)
 	{
 		Break();
@@ -364,7 +370,7 @@ void TechnoStatus::CanFire(AbstractClass* pTarget, WeaponTypeClass* pWeapon, boo
 		ImmuneData immune = aem->GetImmuneData();
 		if (immune.CeaseFire(pWeapon->Warhead->ID))
 		{
-			ceaseFire = true;
+			ceaseFire = _CannotFire;
 			Break();
 			return;
 		}

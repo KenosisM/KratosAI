@@ -129,6 +129,7 @@
     <ClCompile Include="src\Ext\TechnoType\Status\AntiBullet.cpp" />
     <ClCompile Include="src\Ext\TechnoType\Status\BalloonTransporter.cpp" />
     <ClCompile Include="src\Ext\TechnoType\Status\BlackHole.cpp" />
+    <ClCompile Include="src\Ext\TechnoType\Status\CanFireCheck.cpp" />
     <ClCompile Include="src\Ext\TechnoType\Status\CrateBuff.cpp" />
     <ClCompile Include="src\Ext\TechnoType\Status\DeployTo.cpp" />
     <ClCompile Include="src\Ext\TechnoType\Status\Deselect.cpp" />
@@ -138,7 +139,6 @@
     <ClCompile Include="src\Ext\TechnoType\Status\FireFLH.cpp" />
     <ClCompile Include="src\Ext\TechnoType\Status\Freeze.cpp" />
     <ClCompile Include="src\Ext\TechnoType\Status\GiftBox.cpp" />
-    <ClCompile Include="src\Ext\TechnoType\Status\NoMoneyNoTalk.cpp" />
     <ClCompile Include="src\Ext\TechnoType\Status\Paintball.cpp" />
     <ClCompile Include="src\Ext\TechnoType\Status\Pump.cpp" />
     <ClCompile Include="src\Ext\TechnoType\Status\Passenger.cpp" />
@@ -181,6 +181,7 @@
     <ClCompile Include="src\Hooks\VoxelAnimExtHook.cpp" />
     <ClCompile Include="src\Hooks\VoxelAnimTypeExtHook.cpp" />
     <ClCompile Include="src\Hooks\WarheadTypeExtHook.cpp" />
+    <ClCompile Include="src\Hooks\WeaponExtHook.cpp" />
     <ClCompile Include="src\Hooks\WeaponTypeExtHook.cpp" />
     <ClCompile Include="src\Kratos.cpp" />
     <ClCompile Include="src\Utilities\Anchor.cpp" />

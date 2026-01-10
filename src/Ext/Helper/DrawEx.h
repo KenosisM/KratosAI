@@ -20,6 +20,9 @@ public:
 	bool Fade = true;
 	bool IsSingleColor = false;
 	bool RandomColor = false;
+	bool VisualScatter = false;
+	int VisualScatterMin = 0;
+	int VisualScatterMax = 0;
 
 	std::vector<ColorStruct> ColorList{};
 	bool ColorListRandom = false;
@@ -84,6 +87,9 @@ public:
 	ColorStruct Color{ 0, 255, 0 }; // 绿色健康
 	int Period = 15; // 周期
 	double Amplitude = 40.0; // 振幅
+	bool VisualScatter = false;
+	int VisualScatterMin = 0;
+	int VisualScatterMax = 0;
 };
 
 void DrawBeam(CoordStruct sourcePos, CoordStruct targetPos, BeamType type, ColorStruct customColor = Colors::Empty);

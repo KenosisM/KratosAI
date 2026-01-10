@@ -12,6 +12,7 @@
 #include <MapClass.h>
 
 #include <Ext/Helper/StringEx.h>
+#include <Utilities/Constructs.h>
 #include <Utilities/Parser.h>
 
 template <>
@@ -324,6 +325,18 @@ public:
 	inline size_t Parse(const char* value, OutType* outValue)
 	{
 		return Parser<OutType>::Parse(value, outValue);
+	}
+
+	template <>
+	inline size_t Parse<Leptons>(const char* value, Leptons* outValue)
+	{
+		double buffer;
+		if (Parser<double>::TryParse(value, &buffer))
+		{
+			*outValue = Leptons(Game::F2I(buffer * Unsorted::LeptonsPerCell));
+			return 1;
+		}
+		return 0;
 	}
 
 	template <>

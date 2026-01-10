@@ -360,6 +360,7 @@ BulletClass* FireBullet(TechnoClass* pAttacker, AbstractClass* pTarget, HouseCla
 void DrawBulletEffect(WeaponTypeClass* pWeapon, CoordStruct sourcePos, CoordStruct targetPos,
 	TechnoClass* pAttacker, AbstractClass* pTarget, HouseClass* pAttacingHouse, CoordStruct flh, bool isOnTurret)
 {
+	WeaponTypeExt::TypeData* weaponData = nullptr;
 	// IsLaser
 	if (pWeapon->IsLaser)
 	{
@@ -383,17 +384,19 @@ void DrawBulletEffect(WeaponTypeClass* pWeapon, CoordStruct sourcePos, CoordStru
 		laser.IsHouseColor = pWeapon->IsHouseColor;
 		laser.Duration = pWeapon->LaserDuration;
 		// get thickness and fade
-		WeaponTypeExt::TypeData* data = GetTypeData<WeaponTypeExt, WeaponTypeExt::TypeData>(pWeapon);
-		if (data->LaserThickness > 0)
+		weaponData = GetTypeData<WeaponTypeExt, WeaponTypeExt::TypeData>(pWeapon);
+		if (weaponData->LaserThickness > 0)
 		{
-			laser.Thickness = data->LaserThickness;
+			laser.Thickness = weaponData->LaserThickness;
 		}
-		laser.Fade = data->LaserFade;
-		laser.IsSupported = data->IsSupported || laser.Thickness > 3;
+		laser.Fade = weaponData->LaserFade;
+		laser.IsSupported = weaponData->IsSupported || laser.Thickness > 3;
 		// 单一颜色
-		laser.IsSingleColor = data->IsSingleColor;
+		laser.IsSingleColor = weaponData->IsSingleColor;
 		// 随机颜色
-		laser.RandomColor = data->LaserRandomColor;
+		laser.RandomColor = weaponData->LaserRandomColor;
+		// 视觉散布
+		laser.VisualScatter = weaponData->VisualScatter;
 		// draw the laser
 		DrawLaser(laser, sourcePos, targetPos, houseColor);
 	}
@@ -406,6 +409,11 @@ void DrawBulletEffect(WeaponTypeClass* pWeapon, CoordStruct sourcePos, CoordStru
 			beamType = RadBeamType::Temporal;
 		}
 		BeamType type{ beamType };
+		if (!weaponData)
+		{
+			weaponData = GetTypeData<WeaponTypeExt, WeaponTypeExt::TypeData>(pWeapon);
+		}
+		type.VisualScatter = weaponData->VisualScatter;
 		DrawBeam(sourcePos, targetPos, type);
 	}
 	// IsElectricBolt
