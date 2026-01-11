@@ -178,6 +178,9 @@ public:
 		bool AffectShooter = true;
 		bool AffectStand = false;
 
+		int MaxAttachTechno = -1;
+		int MaxAttachBullet = -1;
+
 		bool ClearTarget = false;
 		bool ClearDisguise = false;
 
@@ -232,6 +235,9 @@ public:
 			AffectInAir = reader->Get("AffectInAir", AffectInAir);
 			AffectShooter = reader->Get("AffectShooter", AffectShooter);
 			AffectStand = reader->Get("AffectStand", AffectStand);
+
+			MaxAttachTechno = reader->Get("CellSpread.MaxAttachTechno", MaxAttachTechno);
+			MaxAttachBullet = reader->Get("CellSpread.MaxAttachBullet", MaxAttachBullet);
 
 			ClearTarget = reader->Get("ClearTarget", ClearTarget);
 			ClearDisguise = reader->Get("ClearDisguise", ClearDisguise);

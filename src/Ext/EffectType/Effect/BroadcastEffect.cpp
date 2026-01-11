@@ -18,20 +18,32 @@ void BroadcastEffect::FindAndAttach(BroadcastEntity data, HouseClass* pHouse)
 	// 搜索单位
 	if (Data->AffectTechno)
 	{
+		int attachCount = 0;
 		FindTechnoOnMark([&](TechnoClass* pTarget, AttachEffect* aeManager)
 			{
 				// 赋予AE
 				aeManager->Attach(data.Types, data.AttachChances, false, pSource, pSourceHouse);
+				attachCount++;
+				if (Data->MaxAttachTechno > 0 && attachCount >= Data->MaxAttachTechno)
+				{
+					return true;
+				}
 				return false;
 			}, location, data.RangeMax, data.RangeMin, data.FullAirspace, pSourceHouse, *Data, pObject);
 	}
 	// 搜索抛射体
 	if (Data->AffectBullet)
 	{
+		int attachCount = 0;
 		FindBulletOnMark([&](BulletClass* pTarget, AttachEffect* aeManager)
 			{
 				// 赋予AE
 				aeManager->Attach(data.Types, data.AttachChances, false, pSource, pSourceHouse);
+				attachCount++;
+				if (Data->MaxAttachBullet > 0 && attachCount >= Data->MaxAttachBullet)
+				{
+					return true;
+				}
 				return false;
 			}, location, data.RangeMax, data.RangeMin, data.FullAirspace, pSourceHouse, *Data, pObject);
 	}

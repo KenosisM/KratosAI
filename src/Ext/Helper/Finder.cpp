@@ -391,6 +391,7 @@ void FindAndAttachEffect(CoordStruct location, int damage, WarheadTypeClass* pWH
 				pTargetList.insert(pTechnoList.begin(), pTechnoList.end());
 			}
 			// Logger.Log($"{Game.CurrentFrame} 弹头[{pWH->Base.ID}] {pWH} 爆炸半径{pWH->CellSpread}, 影响的单位{pTechnoList.Count()}个，附加AE [{string.Join(", ", aeTypeData.AttachEffectTypes)}]");
+			int attachCount = 0;
 			for (TechnoClass* pTarget : pTargetList)
 			{
 				// 检查死亡，过滤掉发射者
@@ -416,6 +417,7 @@ void FindAndAttachEffect(CoordStruct location, int damage, WarheadTypeClass* pWH
 					if (attachToSource)
 					{
 						sourceAEM->Attach(aeTypeData->AttachEffectTypes, aeTypeData->AttachEffectChances, false, pTarget, pTargetHouse, location);
+						attachCount++;
 					}
 					else
 					{
@@ -423,15 +425,23 @@ void FindAndAttachEffect(CoordStruct location, int damage, WarheadTypeClass* pWH
 						if (TryGetAEManager<TechnoExt>(pTarget, aeManager))
 						{
 							aeManager->Attach(aeTypeData->AttachEffectTypes, aeTypeData->AttachEffectChances, false, pAttacker, pAttackingHouse, location);
+							attachCount++;
 						}
 					}
 				}
+				// 附加次数上限
+				if (warheadTypeData->MaxAttachTechno > 0 && attachCount >= warheadTypeData->MaxAttachTechno)
+				{
+					break;
+				}
+				// Logger.Log($"{Game.CurrentFrame} 弹头[{pWH->Base.ID}] {pWH} 影响单位{pTarget}, 附加AE [{string.Join(", ", aeTypeData.AttachEffectTypes)}]"
 			}
 		}
 
 		// 检索爆炸范围内的抛射体类型
 		if (findBullet)
 		{
+			int attachCount = 0;
 			FindObject<BulletClass>(BulletClass::Array.get(), [&](BulletClass* pTarget)->bool {
 				if (!IsDeadOrInvisible(pTarget) && (warheadTypeData->AffectShooter || pTarget != pAttacker))
 				{
@@ -443,6 +453,7 @@ void FindAndAttachEffect(CoordStruct location, int damage, WarheadTypeClass* pWH
 						if (attachToSource)
 						{
 							sourceAEM->Attach(aeTypeData->AttachEffectTypes, aeTypeData->AttachEffectChances, false, pTarget, pTargetSourceHouse, location);
+							attachCount++;
 						}
 						else
 						{
@@ -450,7 +461,13 @@ void FindAndAttachEffect(CoordStruct location, int damage, WarheadTypeClass* pWH
 							if (TryGetAEManager<BulletExt>(pTarget, aeManager))
 							{
 								aeManager->Attach(aeTypeData->AttachEffectTypes, aeTypeData->AttachEffectChances, false, pAttacker, pAttackingHouse, location);
+								attachCount++;
 							}
+						}
+						// 附加次数上限
+						if (warheadTypeData->MaxAttachBullet > 0 && attachCount >= warheadTypeData->MaxAttachBullet)
+						{
+							return true;
 						}
 					}
 				}

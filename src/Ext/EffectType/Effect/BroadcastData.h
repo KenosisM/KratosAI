@@ -70,6 +70,9 @@ public:
 	BroadcastEntity Data{};
 	BroadcastEntity EliteData{};
 
+	int MaxAttachTechno = -1;
+	int MaxAttachBullet = -1;
+
 	BroadcastData() : EffectData()
 	{
 		AffectBullet = false;
@@ -107,6 +110,9 @@ public:
 			EliteData = eliteData;
 		}
 
+		MaxAttachTechno = reader->Get(title + "MaxAttachTechno", MaxAttachTechno);
+		MaxAttachBullet = reader->Get(title + "MaxAttachBullet", MaxAttachBullet);
+
 		Enable = Data.Enable || EliteData.Enable;
 	}
 
@@ -117,6 +123,8 @@ public:
 		return stream
 			.Process(this->Data)
 			.Process(this->EliteData)
+			.Process(this->MaxAttachTechno)
+			.Process(this->MaxAttachBullet)
 			.Success();
 	};
 
