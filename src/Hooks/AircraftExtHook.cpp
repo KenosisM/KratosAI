@@ -5,6 +5,7 @@
 #include <TechnoClass.h>
 #include <FootClass.h>
 #include <AircraftClass.h>
+#include <MapClass.h>
 
 #include <Extension.h>
 #include <Utilities/Macro.h>
@@ -512,3 +513,18 @@ DEFINE_HOOK(0x4CDCFD, FlyLocomotionClass_MovingUpdate_HoverAttack, 0x7)
 	return 0;
 }
 
+
+DEFINE_HOOK(0x4DDD66, FootClass_IsLandZoneClear_ReplaceHardcode, 0x6) // To avoid that the aircraft cannot fly towards the water surface normally
+{
+	enum { SkipGameCode = 0x4DDD8A };
+
+	GET(FootClass* const, pThis, EBP);
+	GET_STACK(const CellStruct, cell, STACK_OFFSET(0x20, 0x4));
+
+	const auto pType = pThis->GetTechnoType();
+
+	// In vanilla, only aircrafts or `foots with fly locomotion` will call this virtual function
+	// So I don't know why WW use hard-coded `SpeedType::Track` and `MovementZone::Normal` to check this
+	R->AL(MapClass::Instance->GetCellAt(cell)->IsClearToMove(pType->SpeedType, false, false, ZoneType::None, pType->MovementZone, -1, true));
+	return SkipGameCode;
+}

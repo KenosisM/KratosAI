@@ -542,3 +542,34 @@ bool CheckAndMarkTarget(TechnoClass* pTarget, double distance, CoordStruct locat
 	return false;
 }
 
+int GetUpgradesAmount(BuildingTypeClass* pUpgrade, HouseClass* pHouse)
+{
+	int result = 0;
+	bool isUpgrade = false;
+	auto const pPowersUp = pUpgrade->PowersUpBuilding;
+
+	auto checkUpgrade = [pUpgrade, pHouse, &result, &isUpgrade](BuildingTypeClass* pTPowersUp)
+	{
+		isUpgrade = true;
+		for (auto const& pBuilding : pHouse->Buildings)
+		{
+			if (pBuilding->Type == pTPowersUp)
+			{
+				for (auto const& pTarget : pBuilding->Upgrades)
+				{
+					if (pTarget == pUpgrade)
+						++result;
+				}
+			}
+		}
+	};
+
+	if (pPowersUp[0])
+	{
+		if (auto const pTPowersUp = BuildingTypeClass::Find(pPowersUp))
+			checkUpgrade(pTPowersUp);
+	}
+
+	return isUpgrade ? result : -1;
+}
+

@@ -6,6 +6,7 @@
 #include <Common/INI/INI.h>
 
 #include <Ext/Helper/DrawEx.h>
+#include <Ext/Helper/Finder.h>
 #include <Ext/Helper/MathEx.h>
 #include <Ext/Helper/Scripts.h>
 #include <Ext/Helper/Status.h>
@@ -670,24 +671,34 @@ bool AttachEffect::IsAvailable(AttachEffectData data)
 	// 检查是否持有建筑
 	if (data.CheckBuildings)
 	{
-		bool auxFound = false;
-		for (auto& type : data.AuxBuildings)
+		HouseClass* pHouse = pObject->GetOwningHouse();
+		if (pHouse)
 		{
-			BuildingTypeClass* pType = BuildingTypeClass::Find(type.c_str());
-			if (pType && pObject->GetOwningHouse()->CountOwnedAndPresent(pType) > 0)
+			auto IsBuildingPresent = [pHouse](std::string type)
+				{
+					BuildingTypeClass* pType = BuildingTypeClass::Find(type.c_str());
+					if (pType)
+					{
+						// 检查是否为加载物
+						if (BuildingTypeClass::Find(pType->PowersUpBuilding))
+						{
+							return GetUpgradesAmount(pType, pHouse) > 0;
+						}
+						else
+						{
+							return pHouse->CountOwnedAndPresent(pType) > 0;
+
+						}
+					}
+					return false;
+				};
+
+			if (!data.AuxBuildings.empty() && std::none_of(data.AuxBuildings.begin(), data.AuxBuildings.end(), IsBuildingPresent))
 			{
-				auxFound = true;
-				break;
+				return false;
 			}
-		}
-		if (!auxFound)
-		{
-			return false;
-		}
-		for (auto& type : data.NegBuildings)
-		{
-			BuildingTypeClass* pType = BuildingTypeClass::Find(type.c_str());
-			if (pType && pObject->GetOwningHouse()->CountOwnedAndPresent(pType) > 0)
+
+			if (!data.NegBuildings.empty() && std::any_of(data.NegBuildings.begin(), data.NegBuildings.end(), IsBuildingPresent))
 			{
 				return false;
 			}

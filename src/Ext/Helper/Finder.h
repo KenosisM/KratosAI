@@ -9,6 +9,7 @@
 #include <GeneralDefinitions.h>
 #include <HouseClass.h>
 #include <ObjectClass.h>
+#include <BuildingClass.h>
 #include <BulletClass.h>
 #include <TechnoClass.h>
 #include <WarheadTypeClass.h>
@@ -251,3 +252,11 @@ void FindAndDamageStandOrVUnit(CoordStruct location, int damage,
 bool CheckAndMarkTarget(TechnoClass* pTarget, double distance, CoordStruct location, int damage, ObjectClass* pAttacker,
 	WarheadTypeClass* pWH, HouseClass* pAttackingHouse, DamageGroup& damageGroup);
 
+/**
+ *@brief 查找加载物一共加载了几个
+ *
+ * @param pUpgrade
+ * @param pHouse
+ * @return int
+ */
+int GetUpgradesAmount(BuildingTypeClass* pUpgrade, HouseClass* pHouse);
