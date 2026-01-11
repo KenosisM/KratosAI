@@ -25,6 +25,7 @@
     <ClCompile Include="src\Extension\BulletExt.cpp" />
     <ClCompile Include="src\Extension\BulletTypeExt.cpp" />
     <ClCompile Include="src\Extension\EBoltExt.cpp" />
+    <ClCompile Include="src\Extension\HouseExt.cpp" />
     <ClCompile Include="src\Extension\GOExtension.cpp" />
     <ClCompile Include="src\Extension\SuperWeaponExt.cpp" />
     <ClCompile Include="src\Extension\SuperWeaponTypeExt.cpp" />
@@ -161,6 +162,7 @@
     <ClCompile Include="src\Hooks\BulletExtHook.cpp" />
     <ClCompile Include="src\Hooks\BulletTypeExtHook.cpp" />
     <ClCompile Include="src\Hooks\EBoltExtHook.cpp" />
+    <ClCompile Include="src\Hooks\HouseExtHook.cpp" />
     <ClCompile Include="src\Hooks\GeneralHook.cpp" />
     <ClCompile Include="src\Hooks\GScreenHook.cpp" />
     <ClCompile Include="src\Hooks\InfantryExtHook.cpp" />
@@ -220,6 +222,7 @@
     <ClInclude Include="src\Extension\BulletExt.h" />
     <ClInclude Include="src\Extension\BulletTypeExt.h" />
     <ClInclude Include="src\Extension\EBoltExt.h" />
+    <ClInclude Include="src\Extension\HouseExt.h" />
     <ClInclude Include="src\Extension\GOExtension.h" />
     <ClInclude Include="src\Extension\SuperWeaponExt.h" />
     <ClInclude Include="src\Extension\SuperWeaponTypeExt.h" />

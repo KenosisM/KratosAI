@@ -153,6 +153,7 @@ public:
 	inline static const char* SectionGeneral = "General";
 	inline static const char* SectionCombatDamage = "CombatDamage";
 	inline static const char* SectionAudioVisual = "AudioVisual";
+	inline static const char* SectionAI = "AI";
 
 private:
 	// ini文件名，文件名列表

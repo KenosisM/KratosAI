@@ -140,3 +140,32 @@ public:
 private:
 	static AudioVisualData* _data;
 };
+
+class AIConfigData : public INIConfig
+{
+public:
+	// Phobos
+	int EnablePowerSurplus = 0;
+
+	virtual void Read(INIBufferReader* reader) override
+	{
+		EnablePowerSurplus = reader->Get("EnablePowerSurplus", EnablePowerSurplus);
+	}
+
+};
+
+class AIConfig
+{
+public:
+	static AIConfigData* Data()
+	{
+		if (!_data)
+		{
+			_data = INI::GetConfig<AIConfigData>(INI::Rules, INI::SectionAI)->Data;
+		}
+		return _data;
+	};
+
+private:
+	static AIConfigData* _data;
+};

@@ -110,7 +110,7 @@ void InfoEffect::OnGScreenRenderEnd(CoordStruct location)
 						ae->ForeachChild([&counter](Component* cc) {
 							if (CounterEffect* counterEffect = dynamic_cast<CounterEffect*>(cc))
 							{
-								counter = counterEffect->CountNum;
+								counter = (int)counterEffect->CountNum;
 								counterEffect->Break();
 							}
 							});

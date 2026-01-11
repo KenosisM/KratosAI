@@ -300,6 +300,15 @@ private:
 	TechnoStatus* GetTechnoStatus();
 
 	/**
+	 *@brief 检查是否可以附加AE
+	 *
+	 * @param pOwnerHouse
+	 * @return true
+	 * @return false
+	 */
+	bool IsAvailable(AttachEffectData data);
+
+	/**
 	 *@brief 赋予由乘客带来的AE
 	 *
 	 */

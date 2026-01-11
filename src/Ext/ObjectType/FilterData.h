@@ -47,6 +47,11 @@ public:
 	bool AffectsEnemies = true;
 	bool AffectsCivilian = true;
 
+	bool CheckBuildings = false;
+	std::vector<std::string> AuxBuildings{};
+	std::vector<std::string> NegBuildings{};
+
+
 	virtual void Read(INIBufferReader* reader) override
 	{
 		Read(reader, "");
@@ -102,6 +107,12 @@ public:
 		}
 		AffectsEnemies = reader->Get(title + "AffectsEnemies", AffectsEnemies);
 		AffectsCivilian = reader->Get(title + "AffectsCivilian", AffectsCivilian);
+
+		AuxBuildings = reader->GetList(title + "AuxBuildings", AuxBuildings);
+		ClearIfGetNone(AuxBuildings);
+		NegBuildings = reader->GetList(title + "NegBuildings", NegBuildings);
+		ClearIfGetNone(NegBuildings);
+		CheckBuildings = !AuxBuildings.empty() || !NegBuildings.empty();
 	}
 
 	bool CanAffectHouse(HouseClass* pHouse, HouseClass* pTargetHouse)
@@ -229,6 +240,10 @@ public:
 			.Process(this->AffectsAllies)
 			.Process(this->AffectsEnemies)
 			.Process(this->AffectsCivilian)
+
+			.Process(this->AuxBuildings)
+			.Process(this->NegBuildings)
+			.Process(this->CheckBuildings)
 			.Success();
 	};
 

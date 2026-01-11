@@ -325,6 +325,11 @@ void AttachEffect::Attach(AttachEffectData data,
 		Debug::Log("Warning: Attemp to attach an invalid AE [%s] to [%s]\n", data.Name.c_str(), pObject->GetType()->ID);
 		return;
 	}
+	// 检查附加前提
+	if (!IsAvailable(data))
+	{
+		return;
+	}
 	// 检查是否穿透铁幕
 	if (!data.PenetratesIronCurtain && pObject->IsIronCurtained())
 	{
@@ -432,7 +437,6 @@ void AttachEffect::Attach(AttachEffectData data,
 
 	// 检查叠加
 	bool add = data.Cumulative == CumulativeMode::YES;
-	bool counterFound = false; // 是否找到匹配的计数器
 	if (!add)
 	{
 		// 不同攻击者是否叠加
@@ -659,6 +663,37 @@ void AttachEffect::Attach(AttachEffectData data,
 		}
 
 	}
+}
+
+bool AttachEffect::IsAvailable(AttachEffectData data)
+{
+	// 检查是否持有建筑
+	if (data.CheckBuildings)
+	{
+		bool auxFound = false;
+		for (auto& type : data.AuxBuildings)
+		{
+			BuildingTypeClass* pType = BuildingTypeClass::Find(type.c_str());
+			if (pObject->GetOwningHouse()->CountOwnedAndPresent(pType) > 0)
+			{
+				auxFound = true;
+				break;
+			}
+		}
+		if (!auxFound)
+		{
+			return false;
+		}
+		for (auto& type : data.NegBuildings)
+		{
+			BuildingTypeClass* pType = BuildingTypeClass::Find(type.c_str());
+			if (pObject->GetOwningHouse()->CountOwnedAndPresent(pType) > 0)
+			{
+				return false;
+			}
+		}
+	}
+	return true;
 }
 
 void AttachEffect::FeedbackAttach(WeaponTypeClass* pWeapon)
