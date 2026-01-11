@@ -15,7 +15,7 @@ bool RevengeEffect::CanRevenge(TechnoClass*& pRevenger, HouseClass*& pRevengerHo
 {
 	// 检查弹头
 	WarheadTypeExt::TypeData* warheadTypeData = GetTypeData<WarheadTypeExt, WarheadTypeExt::TypeData>(pWH);
-	if (warheadTypeData->IgnoreRevenge || !Data->OnMark(pWH))
+	if (warheadTypeData->IgnoreRevenge || !Data->WarheadOnMark(pWH->ID))
 	{
 		return false;
 	}

@@ -158,13 +158,22 @@ public:
 		ClearIfGetNone(NotReactionWarheads);
 	}
 
-	bool WarheadOnMark(std::string whID)
+	bool WarheadOnMark(std::string warheadId)
 	{
-		if (!OnlyReactionWarheads.empty())
+		bool mark = true;
+		bool hasWhiteList = !OnlyReactionWarheads.empty();
+		bool hasBlackList = !NotReactionWarheads.empty();
+		if (hasWhiteList)
 		{
-			return std::find(OnlyReactionWarheads.begin(), OnlyReactionWarheads.end(), whID) != OnlyReactionWarheads.end();
+			auto it = std::find(OnlyReactionWarheads.begin(), OnlyReactionWarheads.end(), warheadId);
+			mark = it != OnlyReactionWarheads.end();
 		}
-		return true;
+		if (!mark && hasBlackList)
+		{
+			auto it = std::find(NotReactionWarheads.begin(), NotReactionWarheads.end(), warheadId);
+			mark = it == NotReactionWarheads.end();
+		}
+		return mark;
 	}
 #pragma region save/load
 	template <typename T>

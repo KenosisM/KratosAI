@@ -86,7 +86,7 @@ public:
 		ClearIfGetNone(NotReactionWarheads);
 	}
 
-	bool OnMark(std::string warheadId)
+	bool WarheadOnMark(std::string warheadId)
 	{
 		bool mark = true;
 		bool hasWhiteList = !OnlyReactionWarheads.empty();
@@ -102,11 +102,6 @@ public:
 			mark = it == NotReactionWarheads.end();
 		}
 		return mark;
-	}
-
-	bool OnMark(WarheadTypeClass* pWH)
-	{
-		return OnMark(pWH->ID);
 	}
 
 #pragma region save/load

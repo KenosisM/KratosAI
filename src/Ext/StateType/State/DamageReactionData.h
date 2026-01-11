@@ -108,6 +108,7 @@ public:
 	bool TriggeredAttachEffectsFromAttacker = false; // 触发后附加的AE来源是攻击者
 
 	std::vector<std::string> OnlyReactionWarheads{}; // 只响应某些弹头
+	std::vector<std::string> NotReactionWarheads{};
 
 	std::string Anim{ "" };
 	CoordStruct AnimFLH = CoordStruct::Empty;
@@ -158,6 +159,9 @@ public:
 		OnlyReactionWarheads = reader->GetList(title + "OnlyReactionWarheads", OnlyReactionWarheads);
 		ClearIfGetNone(OnlyReactionWarheads);
 
+		NotReactionWarheads = reader->GetList(title + "NotReactionWarheads", NotReactionWarheads);
+		ClearIfGetNone(NotReactionWarheads);
+
 		Anim = reader->Get(title + "Anim", Anim);
 		AnimFLH = reader->Get(title + "AnimFLH", AnimFLH);
 		AnimDelay = reader->Get(title + "AnimDelay", AnimDelay);
@@ -188,13 +192,22 @@ public:
 		Enable = Chance > 0;
 	}
 
-	bool WarheadOnMark(std::string whID)
+	bool WarheadOnMark(std::string warheadId)
 	{
-		if (!OnlyReactionWarheads.empty())
+		bool mark = true;
+		bool hasWhiteList = !OnlyReactionWarheads.empty();
+		bool hasBlackList = !NotReactionWarheads.empty();
+		if (hasWhiteList)
 		{
-			return std::find(OnlyReactionWarheads.begin(), OnlyReactionWarheads.end(), whID) != OnlyReactionWarheads.end();
+			auto it = std::find(OnlyReactionWarheads.begin(), OnlyReactionWarheads.end(), warheadId);
+			mark = it != OnlyReactionWarheads.end();
 		}
-		return true;
+		if (!mark && hasBlackList)
+		{
+			auto it = std::find(NotReactionWarheads.begin(), NotReactionWarheads.end(), warheadId);
+			mark = it == NotReactionWarheads.end();
+		}
+		return mark;
 	}
 
 #pragma region save/load
@@ -215,6 +228,7 @@ public:
 			.Process(this->TriggeredAttachEffectsFromAttacker)
 
 			.Process(this->OnlyReactionWarheads)
+			.Process(this->NotReactionWarheads)
 
 			.Process(this->Anim)
 			.Process(this->AnimFLH)
