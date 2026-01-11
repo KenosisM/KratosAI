@@ -30,6 +30,7 @@ public:
 	virtual void Clean() override
 	{
 		EffectScript::Clean();
+		_offset = CoordStruct::Empty;
 	}
 
 	virtual void OnGScreenRenderEnd(CoordStruct location) override;
