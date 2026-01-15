@@ -817,14 +817,14 @@ DEFINE_HOOK(0x6F36DB, TechnoClass_SelectWeapon, 0xA)
 			// 两个武器都可以打，按距离选择
 			if (primaryCanAttack && secondaryCanAttack)
 			{
-				// 检查是否足够近
-				if (pTechno->IsCloseEnough(pTarget, 1))
-				{
-					return Secondary; // 返回副武器
-				}
-				else if (pTechno->IsCloseEnough(pTarget, 0))
+				// 检查主武器是否足够近
+				if (pTechno->IsCloseEnough(pTarget, 0))
 				{
 					return Primary; // 返回主武器
+				}
+				else if (pTechno->IsCloseEnough(pTarget, 1))
+				{
+					return Primary; // 返回副武器
 				}
 			}
 		}
