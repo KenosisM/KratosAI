@@ -116,3 +116,42 @@ DEFINE_HOOK(0x6FD38D, TechnoClass_DrawSth_DrawToInvisoFlakScatterLocation, 0x7) 
 	R->EAX(pTargetCoords);
 	return 0;
 }
+
+// Adjust target for bolt / beam / wave drawing.
+DEFINE_HOOK(0x6FF43F, TechnoClass_FireAt_TargetSet, 0x6)
+{
+	LEA_STACK(CoordStruct*, pTargetCoords, STACK_OFFSET(0xB0, -0x28));
+	GET_BASE(AbstractClass*, pOriginalTarget, 0x8);
+
+	// Store original target & coords
+	FireAtTemp::OriginalTargetCoords = *pTargetCoords;
+	FireAtTemp::pOriginalTarget = pOriginalTarget;
+
+	if (FireAtTemp::pObstacleCell)
+	{
+		*pTargetCoords = FireAtTemp::pObstacleCell->GetCoordsWithBridge();
+		R->Base(8, FireAtTemp::pObstacleCell); // Replace original target so it gets used by Ares sonic wave stuff etc. as well.
+	}
+
+	return 0;
+}
+
+// Restore original target values and unset obstacle cell.
+DEFINE_HOOK(0x6FF660, TechnoClass_FireAt_ObstacleCellUnset, 0x6)
+{
+	LEA_STACK(CoordStruct*, pTargetCoords, STACK_OFFSET(0xB0, -0x28));
+
+	// Restore original target & coords
+	*pTargetCoords = FireAtTemp::OriginalTargetCoords;
+	R->Base(8, FireAtTemp::pOriginalTarget);
+	R->EDI(FireAtTemp::pOriginalTarget);
+
+	// Reset temp values
+	FireAtTemp::FireBullet = nullptr;
+	FireAtTemp::OriginalTargetCoords = CoordStruct::Empty;
+	FireAtTemp::pObstacleCell = nullptr;
+	FireAtTemp::pOriginalTarget = nullptr;
+
+	return 0;
+}
+
