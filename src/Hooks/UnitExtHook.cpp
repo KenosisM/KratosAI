@@ -582,7 +582,8 @@ DEFINE_HOOK(0x73D6F8, UnitClass_Mission_Unload_Transporter, 0x6)
 	return 0;
 }
 
-DEFINE_HOOK(0x73D6E6, UnitClass_Mission_Unload_Carryall_Drop, 0x6)
+// DEFINE_HOOK(0x73D6E6, UnitClass_Mission_Unload_Carryall_Drop, 0x6) //phobos skipped this address
+DEFINE_HOOK(0x73D6EC, UnitClass_Mission_Unload_Carryall_Drop, 0x6)
 {
 	GET(TechnoClass*, pTechno, ESI);
 	JumpjetCarryall* carry = GetScript<TechnoExt, JumpjetCarryall>(pTechno);
