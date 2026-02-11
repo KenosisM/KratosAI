@@ -15,6 +15,7 @@ public:
 	EFFECT_DATA(DisableWeapon);
 
 	bool Disable = false;
+	bool DisableWithTarget = false;
 
 	std::vector<LandType> OnLandTypes{};
 
@@ -35,6 +36,7 @@ public:
 
 		Disable = reader->Get(title + "Disable", false);
 		OnLandTypes = reader->GetList(title + "DisableOnLands", OnLandTypes);
+		DisableWithTarget = reader->Get(title + "DisableWithTarget", false);
 
 		Enable = Disable;
 	}
@@ -46,6 +48,7 @@ public:
 		return stream
 			.Process(this->Disable)
 			.Process(this->OnLandTypes)
+			.Process(this->DisableWithTarget)
 			.Success();
 	};
 
