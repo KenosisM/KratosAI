@@ -10,65 +10,30 @@ void TechnoStatus::RockerPitch(WeaponTypeClass* pWeapon)
 	WeaponTypeExt::TypeData* weaponData = nullptr;
 	if (TryGetTypeData<WeaponTypeExt, WeaponTypeExt::TypeData>(pWeapon, weaponData) && weaponData->RockerPitch > 0)
 	{
-		double halfPI = Math::HalfPi;
-		// 获取转角
-		double theta = 0;
-		if (pTechno->HasTurret())
+		float gamma = weaponData->RockerPitch;
+		// 无炮塔的简单情况
+		if (!pTechno->HasTurret())
 		{
-			double turretRad = pTechno->GetRealFacing().Current().GetRadian() - halfPI;
-			double bodyRad = pTechno->PrimaryFacing.Current().GetRadian() - halfPI;
-			Matrix3D matrix3D;
-			matrix3D.RotateZ((float)turretRad);
-			matrix3D.RotateZ((float)-bodyRad);
-			theta = matrix3D.GetZRotation();
+			pTechno->RockingForwardsPerFrame = -gamma;
+			pTechno->RockingSidewaysPerFrame = 0.0f;
+			return;
 		}
-		// 抬起的角度
-		double gamma = weaponData->RockerPitch;
-		// 符号
-		int lrSide = 1;
-		int fbSide = 1;
-		if (theta < 0)
-		{
-			lrSide *= -1;
-		}
-		if (theta >= halfPI || theta <= -halfPI)
-		{
-			fbSide *= -1;
-		}
-		// 抬起的角度
-		double pitch = gamma;
-		double roll = 0.0;
-		if (theta != 0)
-		{
-			if (Math::sin(halfPI - theta) == 0)
-			{
-				pitch = 0.0;
-				roll = gamma * lrSide;
-			}
-			else
-			{
-				// 以底盘朝向为y轴做相对三维坐标系
-				// 在三维坐标系中对于地面γ度，对x轴π/2-θ做一个长度为1线段 L
-				// 这条线段在地面投影的长度为
-				double l = Math::cos(gamma);
-				// L在y轴上的投影长度为
-				double y = l / Math::sin(halfPI - theta);
-				// L在x轴上的投影长度为
-				// double x = l / Math::cos(halfPI - abs(theta));
-				// L在z轴上的投影长度为
-				double z = Math::sin(gamma);
-				// L在yz面上的投影长度为
-				double lyz = Math::sqrt(pow(y, 2) + pow(z, 2));
-				// L在xz面上的投影长度为
-				// double lxz = Math::sqrt(pow(x, 2) + pow(z, 2));
 
-				pitch = Math::acos(abs(y) / lyz) * fbSide;
-				// roll = Math::acos(x / lxz) * lrSide;
-				roll = (gamma - abs(pitch)) * lrSide;
-			}
-		}
-		pTechno->RockingForwardsPerFrame = -(float)pitch;
-		pTechno->RockingSidewaysPerFrame = (float)roll;
+		// 计算炮塔相对车体的旋转角度，直接使用short
+		short turretRaw = pTechno->GetRealFacing().Current().Raw;
+		float bodyRaw = pTechno->PrimaryFacing.Current().Raw;
+		// 相对角度，处理为int
+		int diff = turretRaw - bodyRaw;
+		// 转回short范围，范围为[-32768, 32767]，对应[-pi, pi]
+		// 转换为[-1,1]的范围，用于cos/sin
+		float normalized = static_cast<float>(diff) / 32768.0f;
+		float theta = normalized * Math::Pi;
+		// 计算cos/sin，用于计算前后倾斜幅度
+		float cosTheta = cosf(theta);
+		float sinTheta = sinf(theta);
+
+		pTechno->RockingForwardsPerFrame = -gamma * cosTheta;
+		pTechno->RockingSidewaysPerFrame = -gamma * sinTheta;
 	}
 }
 
