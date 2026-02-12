@@ -8,29 +8,14 @@ class DisableWeaponState : public StateScript<DisableWeaponData>
 public:
 	STATE_SCRIPT(DisableWeapon);
 
-	AbstractClass* LastTarget = nullptr;
-
 	virtual void OnUpdate() override
 	{
 		StateScript<DisableWeaponData>::OnUpdate();
-
-		if (Data.DisableWithTarget && Data.Enable && pTechno)
-		{
-			if (!pTechno->Target && LastTarget)
-			{
-				pTechno->SetTarget(LastTarget);
-			}
-			else if (pTechno->Target && pTechno->Target != LastTarget)
-			{
-				LastTarget = pTechno->Target;
-			}
-		}
 	}
 
 	virtual void Clean() override
 	{
 		StateScript<DisableWeaponData>::Clean();
-		LastTarget = nullptr;
 	}
 
 #pragma region save/load
@@ -38,7 +23,6 @@ public:
 	bool Serialize(T& stream)
 	{
 		return stream
-			.Process(this->LastTarget)
 			.Success();
 	};
 

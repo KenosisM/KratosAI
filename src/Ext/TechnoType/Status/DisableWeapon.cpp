@@ -24,12 +24,6 @@ bool TechnoStatus::CanFire_DisableWeapon(AbstractClass* pTarget, WeaponTypeClass
 				return it != types.end();
 			}
 		}
-
-		if (!data.DisableWithTarget && pTechno->Target)
-		{
-			pTechno->SetTarget(nullptr);
-		}
-
 		return _CannotFire;
 	}
 	return !_CannotFire;

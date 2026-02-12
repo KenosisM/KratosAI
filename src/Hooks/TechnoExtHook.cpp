@@ -407,6 +407,16 @@ DEFINE_HOOK(0x6FC339, TechnoClass_CanFire, 0x6)
 
 	if (auto pExt = TechnoExt::ExtMap.Find(pThis))
 	{
+		if (auto status = pExt->_GameObject->GetComponent<TechnoStatus>())
+		{
+			if (auto dw = status->DisableWeapon)
+			{
+				if (dw->IsAlive())
+				{
+					return dw->Data.DisableWithTarget ? 0x6FC0DF : 0x6FCB7E;
+				}
+			}
+		}
 		bool ceaseFire = false;
 		pExt->_GameObject->Foreach([&](Component* c)
 			{ if (auto cc = dynamic_cast<ITechnoScript*>(c)) { cc->CanFire(pTarget, pWeapon, ceaseFire); if (ceaseFire) c->Break(); } });
