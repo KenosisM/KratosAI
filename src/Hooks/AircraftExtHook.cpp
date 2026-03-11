@@ -11,6 +11,7 @@
 #include <Utilities/Macro.h>
 
 #include <Extension/TechnoExt.h>
+#include <Extension/TechnoTypeExt.h>
 #include <Extension/WarheadTypeExt.h>
 
 #include <Ext/Common/CommonStatus.h>
@@ -402,67 +403,24 @@ DEFINE_HOOK(0x418B40, AircraftClass_Mission_Attack_Fire_Imcoming_5, 0x6)
 	return 0;
 }
 
-DEFINE_HOOK(0x418072, AircraftClass_Mission_Attack_GoodFirePostion, 0x5)
-{
-	GET(AircraftClass*, pAir, ESI);
-	if (!pAir->Type->MissileSpawn && !pAir->Type->Fighter && !pAir->Is_Strafe())
-	{
-		AbstractClass* pTarget = pAir->Target;
-		int weaponIdx = pAir->SelectWeapon(pTarget);
-		if (pAir->IsCloseEnough(pTarget, weaponIdx))
-		{
-			pAir->IsLocked = true;
-			CoordStruct pos = pAir->GetCoords();
-			CellClass* pCell = MapClass::Instance->TryGetCellAt(pos);
-			pAir->SetDestination(pCell, true);
-			return 0x418087;
-		}
-		else
-		{
-			// 计算一个新位置，wwsb往目标的前方飞
-			int dest = pAir->DistanceFrom(pAir->Target);
-			WeaponTypeClass* pWeapon = pAir->GetWeapon(weaponIdx)->WeaponType;
-			CoordStruct nextPos = CoordStruct::Empty;
-			if (dest < pWeapon->MinimumRange)
-			{
-				// 向后撤退 半个武器射程
-				CoordStruct flh = CoordStruct::Empty;
-				flh.X = (int)(pWeapon->Range * 0.5);
-				nextPos = GetFLHAbsoluteCoords(pAir, flh, true);
-			}
-			else if (dest > pWeapon->Range)
-			{
-				// 向前追击至与目标相隔半个武器射程
-				int length = (int)(pWeapon->Range * 0.5);
-				// 随机向左或者向右移动一个ROT的距离
-				int flipY = 1;
-				if (Random::RandomRanged(0, 1) == 1)
-				{
-					flipY *= -1;
-				}
-				CoordStruct sourcePos = pAir->GetCoords();
-				int r = (dest - length) * Unsorted::LeptonsPerCell;
-				r = Random::RandomRanged(0, r);
-				CoordStruct flh{ 0, r * flipY, 0 };
-				CoordStruct targetPos = pAir->Target->GetCoords();
-				DirStruct dir = Point2Dir(sourcePos, targetPos);
-				sourcePos = GetFLHAbsoluteCoords(sourcePos, flh, dir);
-				sourcePos.Z = 0;
-				targetPos.Z = 0;
-				// 从目标位置往回找半个武器射程
-				nextPos = GetForwardCoords(targetPos, sourcePos, length);
-			}
-			if (!nextPos.IsEmpty())
-			{
-				// 计算下一个位置
-				CellClass* pCell = MapClass::Instance->TryGetCellAt(nextPos);
-				pAir->SetDestination(pCell, true);
-				return 0x418087;
-			}
-		}
-	}
-	return 0;
-}
+
+// Aircraft' mission statues:
+// 0	INIT_ATTACK				初始状态。检查目标是否存在，设置状态为 10 或 11，返回1
+// 1	PICK_ATTACK_LOCATION	选择攻击位置。扣除弹药（如果 TimeStart 标志为真），计算攻击位置并设置目的地。根据是否有伞兵决定下一状态：有伞兵 → 状态3，无伞兵 → 状态10
+// 3	APPROACH_TARGET			接近目标。备选弹药扣除点，持续接近目标，检查武器是否就绪（偏移1C函数）。就绪后进入状态4
+// 4	FIRING					主开火状态。执行 burst 循环开火（根据武器连发数）。开火后用偏移1C函数检查武器是否就绪：
+// 								返回0（未就绪）→ 状态5
+// 								返回非0（就绪）→ 继续执行弹药检查，然后根据弹药决定状态1或10
+// 5	WAIT_ROF				等待武器冷却。保持朝向目标，持续检查武器状态：
+// 								武器就绪 → 再次开火，然后根据 CurleyShuffle 决定下一状态
+// 								超出射程 → 根据 CurleyShuffle 决定
+// 								默认分支也可能进入状态5（LABEL_54）
+// 6	POST_FIRE_1				开火后状态1。执行一次开火，设置状态为7
+// 7	POST_FIRE_2				开火后状态2。执行一次开火，设置状态为8
+// 8	POST_FIRE_3				开火后状态3。执行一次开火，设置状态为9
+// 9	POST_FIRE_FINAL			最终开火状态。执行一次开火，设置状态为3（继续攻击）
+// 10	RETREAT					撤退状态。最后弹药扣除点，清除目标，计算撤退位置并前往地图边缘
+// 11	UNKNOWN					从状态0计算得来（v3 + 10），可能是特殊攻击模式
 
 // 已经过滤了扫射
 DEFINE_HOOK(0x4181CF, AircraftClass_Mission_Attack_FlyToPostion, 0x5)
@@ -476,13 +434,115 @@ DEFINE_HOOK(0x4181CF, AircraftClass_Mission_Attack_FlyToPostion, 0x5)
 	return 0;
 }
 
-// Skip fire twice,
-// IsLocked always is False, so the game will jump to MissionStatus=AIR_ATT_FIRE_AT_TARGET1, and fire weapon again.
-// this skip looks no effect for ROT=0 or Arcing.
-DEFINE_HOOK(0x4184FC, AircraftClass_Mission_Attack_Fire_Zero, 0x6)
+namespace AircraftHoverTemp
 {
-	return 0x418506;
+	std::unordered_set<AircraftClass*> Aircraft{};
 }
+
+// 飞机在状态4时，检查rof前，决定是否跳转到状态5，做个标记，以便于扣除弹药
+DEFINE_HOOK(0x4184FC, AircraftClass_Mission_Attack_CheckROF, 0x6)
+{
+	GET(AircraftClass*, pAir, ESI);
+	AircraftHoverTemp::Aircraft.insert(pAir);
+	return 0;
+}
+
+// 飞机在状态4时，发射武器后，没有进入5，而是直接检查弹药状态
+DEFINE_HOOK(0x418506, AircraftClass_Mission_Attack_FireDone, 0x5)
+{
+	GET(AircraftClass*, pAir, ESI);
+	AircraftHoverTemp::Aircraft.erase(pAir);
+	return 0;
+}
+
+DEFINE_HOOK(0x418572, AircraftClass_Mission_Attack_4to5, 0xA)
+{
+	GET(AircraftClass*, pAir, ESI);
+	auto it = AircraftHoverTemp::Aircraft.find(pAir);
+	if (it != AircraftHoverTemp::Aircraft.end())
+	{
+		// 当飞机从4->5时，若CurleyShuffle=yes，5会变成1，1中会扣除弹药，这里不扣除弹药
+		if (!GetTypeData<TechnoTypeExt, TechnoTypeExt::TypeData>(pAir->GetTechnoType())->CurleyShuffle)
+		{
+			pAir->Ammo -= 1;
+			pAir->LoseAmmo = false; // 代码在Update和其他Status中通过检查这个来决定是否扣除弹药
+		}
+		AircraftHoverTemp::Aircraft.erase(it);
+	}
+	return 0;
+}
+
+// 飞机在状态5时，额外发射了一次武器，跳过他
+DEFINE_HOOK(0x4186B6, AircraftClass_Mission_Attack5_HoverFireTwice, 0x6)
+{
+	GET(AircraftClass*, pAir, ESI);
+	if (GetTypeData<TechnoTypeExt, TechnoTypeExt::TypeData>(pAir->GetTechnoType())->DisableNoFighterFireTwice)
+	{
+		return 0x4186D7;
+	}
+	return 0;
+}
+
+DEFINE_HOOK(0x4183D3, AircraftClass_Mission_Attack4_HoverFireMove, 0x6)
+{
+	GET(AircraftClass*, pAir, ESI);
+	if (GetTypeData<TechnoTypeExt, TechnoTypeExt::TypeData>(pAir->GetTechnoType())->CurleyShuffle)
+	{
+		// this->t.r.m.MissionStatus = RulesData->CurleyShuffle != 0 ? 1 : 4;
+		R->EDX(0x1);
+	}
+	else
+	{
+		R->EDX(0x4); // AIR_ATT_FIRE_AT_TARGET0
+	}
+		return 0;
+}
+
+DEFINE_HOOK(0x418743, AircraftClass_Mission_Attack5_HoverFireMove_FireError_0, 0x6)
+{
+	GET(AircraftClass*, pAir, ESI);
+	if (GetTypeData<TechnoTypeExt, TechnoTypeExt::TypeData>(pAir->GetTechnoType())->CurleyShuffle)
+	{
+		// this->t.r.m.MissionStatus = RulesData->CurleyShuffle != 0 ? 1 : 4;
+		R->ECX(0x1);
+	}
+	else
+	{
+		R->ECX(0x4); // AIR_ATT_FIRE_AT_TARGET0
+	}
+	return 0;
+}
+
+DEFINE_HOOK(0x418680, AircraftClass_Mission_Attack5_HoverFireMove_FireError_2, 0x6)
+{
+	GET(AircraftClass*, pAir, ESI);
+	if (GetTypeData<TechnoTypeExt, TechnoTypeExt::TypeData>(pAir->GetTechnoType())->CurleyShuffle)
+	{
+		// this->t.r.m.MissionStatus = RulesData->CurleyShuffle != 0 ? 1 : 4;
+		R->EAX(0x1);
+	}
+	else
+	{
+		R->EAX(0x4); // AIR_ATT_FIRE_AT_TARGET0
+	}
+	return 0;
+}
+
+DEFINE_HOOK(0x418792, AircraftClass_Mission_Attack5_HoverFireMove_FireError_def, 0x6)
+{
+	GET(AircraftClass*, pAir, ESI);
+	if (GetTypeData<TechnoTypeExt, TechnoTypeExt::TypeData>(pAir->GetTechnoType())->CurleyShuffle)
+	{
+		// this->t.r.m.MissionStatus = RulesData->CurleyShuffle != 0 ? 1 : 4;
+		R->EDX(0x1);
+	}
+	else
+	{
+		R->EDX(0x4); // AIR_ATT_FIRE_AT_TARGET0
+	}
+	return 0;
+}
+
 
 // Aircrate hover attack
 DEFINE_HOOK(0x4CDCFD, FlyLocomotionClass_MovingUpdate_HoverAttack, 0x7)

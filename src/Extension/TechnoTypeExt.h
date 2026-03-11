@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <TechnoTypeClass.h>
 
@@ -38,9 +38,14 @@ public:
 		bool SelectWeaponUseRange = false; // 按射程选择武器
 		CoordStruct CarryallOffset{ 0, 0, Unsorted::LevelHeight };
 		std::string CarryallImage{ "" };
+		bool DisableNoFighterFireTwice = false; // 禁用NoFighter飞机开火两次
+		bool CurleyShuffle = true; // NoFighter飞机开火后换位置
 
 		virtual void Read(INIBufferReader* reader) override
 		{
+			// 读取全局设置
+			INIBufferReader* cdReader = INI::GetSection(INI::Rules, INI::SectionCombatDamage);
+
 			AllowCloakable = reader->Get("Cloakable.Allowed", AllowCloakable);
 			Carryall = reader->Get("Carryall", Carryall);
 			CarryallSizeLimit = reader->Get("Carryall.SizeLimit", CarryallSizeLimit);
@@ -72,6 +77,9 @@ public:
 			SelectWeaponUseRange = reader->Get("SelectWeaponUseRange", SelectWeaponUseRange);
 			CarryallOffset = reader->Get("Carryall.Offset", CarryallOffset);
 			CarryallImage = reader->Get("Carryall.Image", CarryallImage);
+			DisableNoFighterFireTwice = cdReader->Get("DisableNoFighterFireTwice", DisableNoFighterFireTwice);
+			DisableNoFighterFireTwice = reader->Get("DisableNoFighterFireTwice", DisableNoFighterFireTwice);
+			CurleyShuffle = reader->Get("CurleyShuffle", rules->CurleyShuffle);
 		}
 	};
 
