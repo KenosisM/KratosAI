@@ -3,7 +3,6 @@
 #include <Ext/Helper/FLH.h>
 #include <Ext/Helper/MathEx.h>
 #include <Ext/Helper/Weapon.h>
-#include <Ext/BulletType/BulletStatus.h>
 #include <Ext/Helper/Scripts.h>
 
 #include <Ext/BulletType/BulletStatus.h>
