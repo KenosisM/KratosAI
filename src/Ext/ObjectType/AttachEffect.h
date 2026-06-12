@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <string>
 #include <vector>
@@ -188,8 +188,6 @@ public:
 	void CheckDurationAndDisable(bool silence = false);
 
 	void OnGScreenRender(EventSystem* sender, Event e, void* args);
-
-	static void TransferAttachedEffects(TechnoClass* pSourceTechno, TechnoClass* pTargetTechno);
 
 	virtual void ExtChanged() override
 	{

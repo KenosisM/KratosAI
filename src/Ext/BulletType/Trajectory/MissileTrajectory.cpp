@@ -1,4 +1,4 @@
-﻿#include "MissileTrajectory.h"
+#include "MissileTrajectory.h"
 
 #include <Ext/Helper/FLH.h>
 #include <Ext/Helper/MathEx.h>
@@ -53,6 +53,14 @@ void MissileTrajectory::Destroy()
 
 void MissileTrajectory::OnPut(CoordStruct* pCoord, DirType dirType)
 {
+	if (auto status = dynamic_cast<BulletStatus*>(_parent))
+	{
+		if (status->VectorForced)
+		{
+			return;
+		}
+	}
+
 	// 高抛导弹
 	if (pBullet->WeaponType && pBullet->WeaponType->Lobber)
 	{

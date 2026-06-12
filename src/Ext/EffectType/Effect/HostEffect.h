@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <string>
 #include <vector>
@@ -30,6 +30,7 @@ public:
 		EffectScript::Clean();
 
 		_count = 0;
+		_dynamicFilled = false;
 
 		_isElite = false;
 		_delay = 0;
@@ -43,6 +44,7 @@ public:
 	bool Serialize(T& stream) {
 		return stream
 			.Process(this->_count)
+			.Process(this->_dynamicFilled)
 			.Process(this->_isElite)
 			.Process(this->_delay)
 			.Process(this->_delayTimer)
@@ -76,6 +78,7 @@ private:
 	}
 
 	int _count = 0;
+	bool _dynamicFilled = false;
 
 	bool _isElite = false;
 	int _delay = 0;

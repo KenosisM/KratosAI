@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <string>
 #include <vector>
 
@@ -12,6 +12,7 @@ class GiftBoxEntity
 public:
 	bool Enable = false;
 
+	bool Dynamic = false;
 	std::vector<std::string> Gifts;
 	std::vector<int> Nums;
 	std::vector<double> Chances;
@@ -23,6 +24,7 @@ public:
 
 	virtual void Read(INIBufferReader* reader, std::string title)
 	{
+		Dynamic = reader->Get(title + "Dynamic", Dynamic);
 		Gifts = reader->GetList(title + "Types", Gifts);
 		Nums = reader->GetList(title + "Nums", Nums);
 		Chances = reader->GetChanceList(title + "Chances", Chances);
@@ -33,7 +35,7 @@ public:
 		Delay = reader->Get(title + "Delay", Delay);
 		RandomDelay = reader->Get(title + "RandomDelay", RandomDelay);
 
-		Enable = !Gifts.empty();
+		Enable = !Gifts.empty() || Dynamic;
 	}
 
 #pragma region save/load
@@ -42,6 +44,7 @@ public:
 	{
 		return stream
 			.Process(this->Enable)
+			.Process(this->Dynamic)
 			.Process(this->Gifts)
 			.Process(this->Nums)
 			.Process(this->Chances)

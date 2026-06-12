@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <string>
 #include <format>
@@ -72,6 +72,8 @@ public:
 		SubjectToGround = false;
 		// 正在被黑洞吸引
 		CaptureByBlackHole = false;
+		// 正在被Vector强制位移
+		VectorForced = false;
 
 		SpeedChanged = false; // 改变抛射体的速度
 		LocationLocked = false; // 锁定抛射体的位置
@@ -164,6 +166,8 @@ public:
 	bool SubjectToGround = false;
 	// 正在被黑洞吸引
 	bool CaptureByBlackHole = false;
+	// 正在被Vector强制位移
+	bool VectorForced = false;
 
 	bool SpeedChanged = false; // 改变抛射体的速度
 	bool LocationLocked = false; // 锁定抛射体的位置
@@ -197,6 +201,7 @@ public:
 			.Process(this->_pFakeTarget)
 			// 黑洞
 			.Process(this->CaptureByBlackHole)
+			.Process(this->VectorForced)
 			.Process(this->_pBlackHole)
 			.Process(this->_blackHoleData)
 			.Process(this->_blackHoleDamageDelay)
@@ -248,12 +253,14 @@ private:
 	void OnUpdate_DestroySelf();
 
 	void OnUpdate_BlackHole();
+	void OnUpdate_Vector();
 	void OnUpdate_GiftBox();
 	void OnUpdate_Paintball();
 	void OnUpdate_RecalculateStatus();
 	void OnUpdate_SelfLaunchOrPumpAction();
 
 	void OnUpdateEnd_BlackHole(CoordStruct& sourcePos);
+	void OnUpdateEnd_Vector(CoordStruct& sourcePos);
 	void OnUpdateEnd_Proximity(CoordStruct& sourcePos);
 
 	bool OnDetonate_AntiBullet(CoordStruct* pCoords);

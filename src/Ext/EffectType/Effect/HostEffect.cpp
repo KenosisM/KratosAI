@@ -1,10 +1,33 @@
-﻿#include "HostEffect.h"
+#include "HostEffect.h"
 
 #include <Ext/Helper/MathEx.h>
 #include <Ext/Helper/Gift.h>
 
 void HostEffect::OnUpdate()
 {
+	// Dynamic 模式：首次执行时自动填入被附加对象的类型名
+	if (Data->Data.Dynamic && !_dynamicFilled)
+	{
+		_dynamicFilled = true;
+		std::string typeId;
+		if (pTechno)
+		{
+			typeId = pTechno->GetTechnoType()->ID;
+		}
+		else if (pBullet && pBullet->Type)
+		{
+			typeId = pBullet->Type->ID;
+		}
+		if (!typeId.empty())
+		{
+			Data->Data.Gifts = { typeId };
+			Data->EliteData.Gifts = Data->Data.Gifts;
+			Data->Enable = true;
+			Data->Data.Enable = true;
+			Data->EliteData.Enable = true;
+		}
+	}
+
 	if (AE->OwnerIsDead())
 	{
 		return;

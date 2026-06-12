@@ -1,5 +1,6 @@
-﻿#include "StraightTrajectory.h"
+#include "StraightTrajectory.h"
 
+#include <fstream>
 #include <Ext/Helper/FLH.h>
 #include <Ext/Helper/Weapon.h>
 #include <Ext/Helper/Scripts.h>
@@ -86,9 +87,21 @@ void StraightTrajectory::OnPut(CoordStruct* pCoord, DirType dirType)
 
 void StraightTrajectory::OnUpdate()
 {
-	if (!dynamic_cast<BulletStatus*>(_parent)->CaptureByBlackHole)
+	bool forced = dynamic_cast<BulletStatus*>(_parent)->VectorForced;
+	bool blackholed = dynamic_cast<BulletStatus*>(_parent)->CaptureByBlackHole;
+
 	{
-		// 强制修正速度
+		std::ofstream f("I:\\kratosAI\\vector_debug.log", std::ios::app);
+		f << "Straight::OnUpdate: VectorForced=" << forced << " BlackHole=" << blackholed
+			<< " Vel=(" << pBullet->Velocity.X << "," << pBullet->Velocity.Y << "," << pBullet->Velocity.Z << ")"
+			<< " Speed=" << pBullet->Speed
+			<< " Pos=(" << pBullet->GetCoords().X << "," << pBullet->GetCoords().Y << "," << pBullet->GetCoords().Z << ")"
+			<< "\n";
+		f.close();
+	}
+
+	if (!blackholed && !forced)
+	{
 		pBullet->Velocity = _straightBullet.Velocity;
 	}
 

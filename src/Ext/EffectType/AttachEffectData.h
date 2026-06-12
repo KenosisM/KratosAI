@@ -1,6 +1,7 @@
-﻿#pragma once
+#pragma once
 
 #include <algorithm>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <set>
@@ -14,6 +15,9 @@
 #include "Effect/CrateBuffData.h"
 #include "Effect/CounterData.h"
 #include "Effect/CountTriggerData.h"
+#include "Effect/AmmoData.h"
+#include "Effect/AmmoTriggerData.h"
+
 #include "Effect/DamageSelfData.h"
 #include "Effect/ExtraFireData.h"
 #include "Effect/FireSuperData.h"
@@ -24,6 +28,7 @@
 #include "Effect/RevengeData.h"
 #include "Effect/StackData.h"
 #include "Effect/StandData.h"
+#include "Effect/VectorData.h"
 #include "Effect/VampireData.h"
 // State Effects
 #include <Ext/StateType/State/AntiBulletData.h>
@@ -152,6 +157,9 @@ public:
 	EFFECT_VAR_DEFINE(CrateBuff);
 	EFFECT_VAR_DEFINE(Counter);
 	EFFECT_VAR_DEFINE(CountTrigger);
+	EFFECT_VAR_DEFINE(Ammo);
+	EFFECT_VAR_DEFINE(AmmoTrigger);
+
 	EFFECT_VAR_DEFINE(DamageSelf);
 	EFFECT_VAR_DEFINE(ExtraFire);
 	EFFECT_VAR_DEFINE(FireSuper);
@@ -162,6 +170,7 @@ public:
 	EFFECT_VAR_DEFINE(Revenge);
 	EFFECT_VAR_DEFINE(Stack);
 	EFFECT_VAR_DEFINE(Stand);
+	EFFECT_VAR_DEFINE(Vector);
 	EFFECT_VAR_DEFINE(Vampire);
 	// State Effects
 	EFFECT_VAR_DEFINE(AntiBullet);
@@ -184,6 +193,11 @@ public:
 
 	void ReadEffects(INIBufferReader* reader)
 	{
+		{
+			std::ofstream f("I:\\kratosAI\\ae_debug.log", std::ios::app);
+			f << "ReadEffects: section=" << reader->Section << "\n";
+			f.close();
+		}
 		EFFECT_VAR_READ(Animation);
 		EFFECT_VAR_READ(AttackBeacon);
 		EFFECT_VAR_READ(AutoWeapon);
@@ -191,6 +205,19 @@ public:
 		EFFECT_VAR_READ(CrateBuff);
 		EFFECT_VAR_READ(Counter);
 		EFFECT_VAR_READ(CountTrigger);
+		{
+			std::ofstream f("I:\\kratosAI\\ae_debug.log", std::ios::app);
+			f << "ReadEffects: reading Ammo, Ammo.Enable=" << Ammo.Enable << "\n";
+			f.close();
+		}
+		EFFECT_VAR_READ(Ammo);
+		{
+			std::ofstream f("I:\\kratosAI\\ae_debug.log", std::ios::app);
+			f << "ReadEffects: reading AmmoTrigger, AmmoTrigger.Enable=" << AmmoTrigger.Enable << "\n";
+			f.close();
+		}
+		EFFECT_VAR_READ(AmmoTrigger);
+
 		EFFECT_VAR_READ(DamageSelf);
 		EFFECT_VAR_READ(ExtraFire);
 		EFFECT_VAR_READ(FireSuper);
@@ -201,6 +228,7 @@ public:
 		EFFECT_VAR_READ(Revenge);
 		EFFECT_VAR_READ(Stack);
 		EFFECT_VAR_READ(Stand);
+		EFFECT_VAR_READ(Vector);
 		EFFECT_VAR_READ(Vampire);
 		// State Effects
 		EFFECT_VAR_READ(AntiBullet);
@@ -227,6 +255,7 @@ public:
 		std::vector<std::string> names{};
 		// 替身要放在第一位，状态类型会附加状态给替身，此时若替身没有初始化，整个AE都会被判定为失效
 		EFFECT_VAR_SCRIPT_NAME(Stand);
+		EFFECT_VAR_SCRIPT_NAME(Vector);
 
 		EFFECT_VAR_SCRIPT_NAME(Animation);
 		EFFECT_VAR_SCRIPT_NAME(AttackBeacon);
@@ -235,6 +264,14 @@ public:
 		EFFECT_VAR_SCRIPT_NAME(CrateBuff);
 		EFFECT_VAR_SCRIPT_NAME(Counter);
 		EFFECT_VAR_SCRIPT_NAME(CountTrigger);
+		EFFECT_VAR_SCRIPT_NAME(Ammo);
+		EFFECT_VAR_SCRIPT_NAME(AmmoTrigger);
+
+		{
+			std::ofstream f("I:\\kratosAI\\ae_debug.log", std::ios::app);
+			f << "GetScriptNames: Ammo.Enable=" << Ammo.Enable << ", AmmoTrigger.Enable=" << AmmoTrigger.Enable << ", names.size=" << names.size() << "\n";
+			f.close();
+		}
 		EFFECT_VAR_SCRIPT_NAME(DamageSelf);
 		EFFECT_VAR_SCRIPT_NAME(ExtraFire);
 		EFFECT_VAR_SCRIPT_NAME(FireSuper);
@@ -278,6 +315,9 @@ public:
 			EFFECT_VAR_PROCESS(CrateBuff)
 			EFFECT_VAR_PROCESS(Counter)
 			EFFECT_VAR_PROCESS(CountTrigger)
+			EFFECT_VAR_PROCESS(Ammo)
+			EFFECT_VAR_PROCESS(AmmoTrigger)
+
 			EFFECT_VAR_PROCESS(DamageSelf)
 			EFFECT_VAR_PROCESS(ExtraFire)
 			EFFECT_VAR_PROCESS(FireSuper)
@@ -288,6 +328,7 @@ public:
 			EFFECT_VAR_PROCESS(Revenge)
 			EFFECT_VAR_PROCESS(Stack)
 			EFFECT_VAR_PROCESS(Stand)
+			EFFECT_VAR_PROCESS(Vector)
 			EFFECT_VAR_PROCESS(Vampire)
 			// State Effects
 			EFFECT_VAR_PROCESS(AntiBullet)
