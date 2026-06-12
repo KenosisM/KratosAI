@@ -1,7 +1,8 @@
-﻿#include "ArcingTrajectory.h"
+#include "ArcingTrajectory.h"
 
 #include <Ext/Helper/Physics.h>
 #include <Ext/Helper/Weapon.h>
+#include <Ext/BulletType/BulletStatus.h>
 
 void ArcingTrajectory::ResetTarget(AbstractClass* pNewTarget, CoordStruct targetPos)
 {
@@ -12,6 +13,14 @@ void ArcingTrajectory::ResetTarget(AbstractClass* pNewTarget, CoordStruct target
 
 void ArcingTrajectory::ResetArcingVelocity(float speedMultiple)
 {
+	if (auto status = dynamic_cast<BulletStatus*>(_parent))
+	{
+		if (status->VectorForced)
+		{
+			return;
+		}
+	}
+
 	if (trajectoryData->AdvancedBallistics)
 	{
 		CoordStruct sourcePos = pBullet->GetCoords();
