@@ -1,1 +1,254 @@
-﻿ ============================================================ Ammo 鏁堟灉鍣?INI 鏍囩璇存槑涔? Kenosis鏇帮細鎴戣绁炲AI鐩存帴鎶勪簡鎴愮啛鐨凜ounter鍜孋ounterTrigger ============================================================ Ammo 鏁堟灉鍣ㄧ洿鎺ユ搷浣滃崟浣嶇殑寮硅嵂璁℃暟鍣紙pTechno->Ammo锛夛紝 鏀寔鍙楀嚮鏃舵秷鑰楀脊鑽姷鎵ｄ激瀹筹紙鎶ょ浘妯″紡锛夋垨浠呰鏁帮紙璁℃暟妯″紡锛夈€? 鏃犻檺寮硅嵂鍗曚綅锛圓mmo=0锛変笉鍏佽闄勭潃姝ゆ晥鏋滃櫒銆? 鎵€鏈夋爣绛惧啓鍦?[AttachEffectSection] 涓嬶紝鍓嶇紑涓?Ammo. 绀轰緥锛?   [AmmoShieldAE]   Duration=-1   Ammo.Num=5   Ammo.ReactionMode=SHIELD ============================================================ ------------------------------------------------------------ 寮硅嵂鍒濆鍊? ------------------------------------------------------------ Ammo.Num=鏁板€?   鍒濆寮硅嵂鍊笺€傛敮鎸佺壒娈婃牸寮忥細     Number 鈫?鐩存帴鏁板€硷紙濡?5銆?0锛?     HP 鈫?璇诲彇鍗曚綅褰撳墠琛€閲?     MaxHP 鈫?璇诲彇鍗曚綅鏈€澶ц閲?     Ammo 鈫?璇诲彇鍗曚綅褰撳墠寮硅嵂     MaxAmmo 鈫?璇诲彇鍗曚綅鏈€澶у脊鑽紙TechnoTypeClass::Ammo锛?   榛樿 Ammo锛堣鍙栧綋鍓嶅脊鑽級銆?Ammo.Num=Ammo Ammo.Action=INIT/ADD/SUB/MUL   鍒濆鍊兼搷浣滄柟寮忋€?     INIT = 鐩存帴璁剧疆涓?Num 鍊?     ADD = 鍦ㄥ綋鍓嶅脊鑽笂鍔?Num     SUB = 鍦ㄥ綋鍓嶅脊鑽笂鍑?Num     MUL = 褰撳墠寮硅嵂涔樹互 Num   榛樿 INIT銆?Ammo.Action=INIT Ammo.NumFromSource=no   褰?Num 浣跨敤鐗规畩鍊硷紙HP/MaxHP/Ammo/MaxAmmo锛夋椂锛?   鏄惁浼樺厛璇诲彇 AE 鏉ユ簮鍗曚綅鐨勬暟鍊艰€岄潪闄勭潃瀵硅薄鑷韩銆?   榛樿 no锛堣鍙栭檮鐫€瀵硅薄鑷韩锛夈€?Ammo.NumFromSource=no ------------------------------------------------------------ 鍙楀嚮鍝嶅簲 ------------------------------------------------------------ Ammo.ReactionMode=NORMAL/HITPOINT/SHIELD   NORMAL = 涓嶅搷搴斾激瀹筹紙榛樿锛?   HITPOINT = 鍙椾激鏃跺脊鑽?-= 浼ゅ鍊硷紝浼ゅ鐓у父浼犻€掞紙涓嶆姷鎵ｏ級   SHIELD = 鍙椾激鏃跺脊鑽?-= 浼ゅ鍊硷紝浼ゅ琚姷鎵?   榛樿 NORMAL銆?Ammo.ReactionMode=NORMAL Ammo.Reaction.Limit=-1   鍗曟鍙繚鎶ょ殑鏈€楂樹激瀹冲€笺€傝秴杩囬儴鍒嗕笉鍙備笌寮硅嵂杞崲銆?   -1 = 涓嶉檺鍒躲€?   榛樿 -1銆?Ammo.Reaction.Limit=-1 Ammo.Reaction.Protect=100%   浣跨敤浼ゅ鐨勬瘮渚嬶紙0%~100%锛夈€?   渚嬶細30% 鐨勬瘮渚嬩笅鏀跺埌 100 浼ゅ锛屼娇鐢?30 浼ゅ杩涜寮硅嵂缁撶畻锛屼綑涓?70 浼ゅ姝ｅ父浼犻€掋€?   榛樿 100%銆?Ammo.Reaction.Protect=100% Ammo.Reaction.Percent=100%   浼ゅ鏁板€艰浆鎹负寮硅嵂鐨勬瘮渚嬨€?   渚嬶細200% 琛ㄧず 1 鐐瑰脊鑽姷鎵?2 鐐逛激瀹炽€?   鑻ュ脊鑽笉瓒虫姷鎵ｏ紝鍓╀綑浼ゅ鐓у父鍙嶉銆?   榛樿 100%銆?Ammo.Reaction.Percent=100% Ammo.Reaction.OnlyReactionWarheads=寮瑰ご1,寮瑰ご2,...   鐧藉悕鍗曘€傚彧鏈夊垪琛ㄤ腑鐨勫脊澶存墠瑙﹀彂鍙楀嚮鍝嶅簲銆?   榛樿绌猴紙鍏ㄩ儴鐢熸晥锛夈€?Ammo.Reaction.OnlyReactionWarheads=none Ammo.Reaction.NotReactionWarheads=寮瑰ご1,寮瑰ご2,...   榛戝悕鍗曘€傚垪琛ㄤ腑鐨勫脊澶翠笉瑙﹀彂鍙楀嚮鍝嶅簲銆?   榛樿绌恒€?Ammo.Reaction.NotReactionWarheads=none ------------------------------------------------------------ 鑷姩绉婚櫎 ------------------------------------------------------------ AmmoX.RemoveWhenNum=Min,Max   寮硅嵂鍊煎湪 [Min, Max] 鑼冨洿鍐呮椂鑷姩绉婚櫎姝ゆ晥鏋滃櫒銆?   X = [0-127]锛屾敮鎸佸鏉¤鍒欙紝鎸夐『搴忔鏌ャ€?   Max >= 0 涓?Max >= Min 鏃舵湁鏁堛€?   Max < 0 鏃朵粎妫€鏌?>= Min銆?   榛樿 0,-1锛堜笉瑙﹀彂锛夈€?AmmoX.RemoveWhenNum=0,-1 ============================================================ 寮硅嵂瑙﹀彂鍣? ============================================================ AmmoTrigger 鏄笌 Ammo 鍒嗙鐨勭嫭绔嬭Е鍙戝櫒銆? 姣忓抚妫€鏌ュ崟浣嶅脊鑽€硷紝婊¤冻鏉′欢鏃惰Е鍙戞晥鏋溿€? 鐩存帴璇诲啓 pTechno->Ammo锛屼笉渚濊禆 AmmoEffect銆? 鎵€鏈夋爣绛惧啓鍦?[AttachEffectSection] 涓嬶紝鍓嶇紑涓?AmmoTrigger. ============================================================ ------------------------------------------------------------ 瑙﹀彂鏉′欢 ------------------------------------------------------------ AmmoTriggerX.Range=Min,Max   寮硅嵂鍊煎湪 [Min, Max] 鑼冨洿鍐呮椂瑙﹀彂銆?   X = [0-127]锛屾敮鎸佸鏉¤Е鍙戝櫒锛屾寜 ID 椤哄簭鎵ц銆?   Max < Min 鏃朵负鏃犳潯浠惰Е鍙戯紙姣忓抚瑙﹀彂锛夈€?   榛樿 0,-1锛堜笉瑙﹀彂锛夈€?AmmoTriggerX.Range=0,-1 AmmoTriggerX.TriggeredTimes=-1   姝よЕ鍙戝櫒鏈€澶氳Е鍙戝灏戞鍚庣Щ闄よ嚜韬€?   鑻ュ瓨鍦ㄥ涓Е鍙戝櫒锛屽悗缁殑瑙﹀彂灏嗗仠姝㈡墽琛屻€?   -1 = 鏃犻檺瑙﹀彂銆?   榛樿 -1銆?AmmoTriggerX.TriggeredTimes=-1 ------------------------------------------------------------ 鎿嶄綔寮硅嵂 ------------------------------------------------------------ AmmoTriggerX.Num=鏁板€?   鎿嶄綔鐨勫脊鑽噺銆傛敮鎸佺壒娈婃牸寮忥細     Number 鈫?鐩存帴鏁板€?     HP 鈫?璇诲彇鍗曚綅褰撳墠琛€閲?     MaxHP 鈫?璇诲彇鍗曚綅鏈€澶ц閲?     Ammo 鈫?璇诲彇鍗曚綅褰撳墠寮硅嵂     MaxAmmo 鈫?璇诲彇鍗曚綅鏈€澶у脊鑽?   榛樿 0锛堜笉鎿嶄綔锛夈€?AmmoTriggerX.Num=0 AmmoTriggerX.NumFrom=ME   褰?Num 浣跨敤鐗规畩鍊兼椂锛岃鍙栬皝鐨勬暟鍊笺€?     ME = 闄勭潃瀵硅薄鑷韩     SOURCE = AE 鏉ユ簮鍗曚綅   榛樿 ME銆?AmmoTriggerX.NumFrom=ME AmmoTriggerX.Action=ADD   寮硅嵂鎿嶄綔鏂瑰紡銆?     INIT = 鐩存帴璁剧疆     ADD = 澧炲姞     SUB = 鍑忓皯     MUL = 涔樹互   榛樿 ADD銆?AmmoTriggerX.Action=ADD AmmoTriggerX.ResetNum=no   瑙﹀彂鍚庡皢寮硅嵂閲嶇疆涓?Num 鍊硷紙绛夋晥 Action=INIT锛夈€?   榛樿 no銆?AmmoTriggerX.ResetNum=no ------------------------------------------------------------ 闄勫姞 AE ------------------------------------------------------------ AmmoTriggerX.AttachEffects=AE1,AE2,...   瑙﹀彂鍚庨檮鍔犵殑鏂?AE銆?   榛樿绌猴紙涓嶉檮鍔狅級銆?AmmoTriggerX.AttachEffects=none AmmoTriggerX.AttachChances=100%,100%,...   鍚?AE 鐨勯檮鍔犳垚鍔熺巼銆?   榛樿绌猴紙100%锛夈€?AmmoTriggerX.AttachChances=none AmmoTriggerX.AttachTo=ME   鍚戣皝闄勫姞 AE銆?     ME = 闄勭潃瀵硅薄鑷韩     SOURCE = AE 鏉ユ簮鍗曚綅   榛樿 ME銆?AmmoTriggerX.AttachTo=ME AmmoTriggerX.AttachFrom=SOURCE   闄勫姞 AE 鏃剁殑鏉ユ簮璁剧疆銆?     ME = 鏃犳潵婧?     SOURCE = AE 鏉ユ簮鍗曚綅   榛樿 SOURCE銆?AmmoTriggerX.AttachFrom=SOURCE ------------------------------------------------------------ 绉婚櫎 AE ------------------------------------------------------------ AmmoTriggerX.RemoveEffects=AE1,AE2,...   瑙﹀彂鍚庣Щ闄ょ殑 AE 鍚嶇О鍒楄〃銆?   榛樿绌猴紙涓嶇Щ闄わ級銆?AmmoTriggerX.RemoveEffects=none AmmoTriggerX.RemoveEffectsLevel=0,0,...   瀵瑰簲 RemoveEffects 鍚勯」鐨勭Щ闄ゅ眰鏁般€?   榛樿绌猴紙绉婚櫎鎵€鏈夊眰锛夈€?AmmoTriggerX.RemoveEffectsLevel=none AmmoTriggerX.RemoveEffectsWithMarks=Mark1,Mark2,...   瑙﹀彂鍚庣Щ闄ゅ甫杩欎簺鏍囪鐨?AE銆?   榛樿绌恒€?AmmoTriggerX.RemoveEffectsWithMarks=none AmmoTriggerX.RemoveEffectsSkipNext=no   绉婚櫎 AE 鏃舵槸鍚﹁烦杩?Next銆?   榛樿 no銆?AmmoTriggerX.RemoveEffectsSkipNext=no AmmoTriggerX.RemoveWho=ME   浠庤皝韬笂绉婚櫎 AE銆?     ME = 闄勭潃瀵硅薄鑷韩     SOURCE = AE 鏉ユ簮鍗曚綅   榛樿 ME銆?AmmoTriggerX.RemoveWho=ME ============================================================ 浣跨敤绀轰緥 ============================================================ --- 寮硅嵂鎶ょ浘锛? 鍙戝脊鑽紝鍙楀嚮鏃?1 寮硅嵂鎶?1 浼ゅ --- [AmmoShieldAE] Duration=-1 Ammo.Num=5 Ammo.ReactionMode=SHIELD Ammo.Reaction.Protect=100% Ammo.Reaction.Percent=100% --- 寮硅嵂璁℃暟锛氬彈浼ゆ椂寮硅嵂鍑忎激瀹冲€硷紝浼ゅ鐓у父浼犻€?--- [AmmoCountAE] Duration=-1 Ammo.Num=Ammo Ammo.ReactionMode=HITPOINT --- 寮硅嵂褰掗浂鏃惰Е鍙戞晥鏋?--- [ZeroAmmoTriggerAE] Duration=-1 AmmoTrigger.Range=0,0 AmmoTrigger.AttachEffects=ExplosionAE --- 寮硅嵂 <= 3 鏃堕檮鍔?Buff --- [LowAmmoTriggerAE] Duration=-1 AmmoTrigger.Range=0,3 AmmoTrigger.AttachEffects=BuffAE --- 寮硅嵂鑰楀敖鍚庤嚜姣?--- [AmmoDestroyAE] Duration=-1 AmmoTrigger.Range=0,0 AmmoTrigger.AttachEffects=DestroySelfAE
+ ============================================================
+ Ammo 效果器 INI 标签说明书
+ Kenosis曰：我让神奇AI直接抄了成熟的Counter和CounterTrigger
+ ============================================================
+ Ammo 效果器直接操作单位的弹药计数器（pTechno->Ammo），
+ 支持受击时消耗弹药抵扣伤害（护盾模式）或仅计数（计数模式）。
+ 无限弹药单位（Ammo=0）不允许附着此效果器。
+
+ 所有标签写在 [AttachEffectSection] 下，前缀为 Ammo.
+ 示例：
+   [AmmoShieldAE]
+   Duration=-1
+   Ammo.Num=5
+   Ammo.ReactionMode=SHIELD
+ ============================================================
+
+ ------------------------------------------------------------
+ 弹药初始值
+ ------------------------------------------------------------
+
+ Ammo.Num=数值
+   初始弹药值。支持特殊格式：
+     Number → 直接数值（如 5、10）
+     HP → 读取单位当前血量
+     MaxHP → 读取单位最大血量
+     Ammo → 读取单位当前弹药
+     MaxAmmo → 读取单位最大弹药（TechnoTypeClass::Ammo）
+   默认 Ammo（读取当前弹药）。
+Ammo.Num=Ammo
+
+ Ammo.Action=INIT/ADD/SUB/MUL
+   初始值操作方式。
+     INIT = 直接设置为 Num 值
+     ADD = 在当前弹药上加 Num
+     SUB = 在当前弹药上减 Num
+     MUL = 当前弹药乘以 Num
+   默认 INIT。
+Ammo.Action=INIT
+
+ Ammo.NumFromSource=no
+   当 Num 使用特殊值（HP/MaxHP/Ammo/MaxAmmo）时，
+   是否优先读取 AE 来源单位的数值而非附着对象自身。
+   默认 no（读取附着对象自身）。
+Ammo.NumFromSource=no
+
+ ------------------------------------------------------------
+ 受击响应
+ ------------------------------------------------------------
+
+ Ammo.ReactionMode=NORMAL/HITPOINT/SHIELD
+   NORMAL = 不响应伤害（默认）
+   HITPOINT = 受伤时弹药 -= 伤害值，伤害照常传递（不抵扣）
+   SHIELD = 受伤时弹药 -= 伤害值，伤害被抵扣
+   默认 NORMAL。
+Ammo.ReactionMode=NORMAL
+
+ Ammo.Reaction.Limit=-1
+   单次可保护的最高伤害值。超过部分不参与弹药转换。
+   -1 = 不限制。
+   默认 -1。
+Ammo.Reaction.Limit=-1
+
+ Ammo.Reaction.Protect=100%
+   使用伤害的比例（0%~100%）。
+   例：30% 的比例下收到 100 伤害，使用 30 伤害进行弹药结算，余下 70 伤害正常传递。
+   默认 100%。
+Ammo.Reaction.Protect=100%
+
+ Ammo.Reaction.Percent=100%
+   伤害数值转换为弹药的比例。
+   例：200% 表示 1 点弹药抵扣 2 点伤害。
+   若弹药不足抵扣，剩余伤害照常反馈。
+   默认 100%。
+Ammo.Reaction.Percent=100%
+
+ Ammo.Reaction.OnlyReactionWarheads=弹头1,弹头2,...
+   白名单。只有列表中的弹头才触发受击响应。
+   默认空（全部生效）。
+Ammo.Reaction.OnlyReactionWarheads=none
+
+ Ammo.Reaction.NotReactionWarheads=弹头1,弹头2,...
+   黑名单。列表中的弹头不触发受击响应。
+   默认空。
+Ammo.Reaction.NotReactionWarheads=none
+
+ ------------------------------------------------------------
+ 自动移除
+ ------------------------------------------------------------
+
+ AmmoX.RemoveWhenNum=Min,Max
+   弹药值在 [Min, Max] 范围内时自动移除此效果器。
+   X = [0-127]，支持多条规则，按顺序检查。
+   Max >= 0 且 Max >= Min 时有效。
+   Max < 0 时仅检查 >= Min。
+   默认 0,-1（不触发）。
+AmmoX.RemoveWhenNum=0,-1
+
+ ============================================================
+ 弹药触发器
+ ============================================================
+ AmmoTrigger 是与 Ammo 分离的独立触发器。
+ 每帧检查单位弹药值，满足条件时触发效果。
+ 直接读写 pTechno->Ammo，不依赖 AmmoEffect。
+
+ 所有标签写在 [AttachEffectSection] 下，前缀为 AmmoTrigger.
+ ============================================================
+
+ ------------------------------------------------------------
+ 触发条件
+ ------------------------------------------------------------
+
+ AmmoTriggerX.Range=Min,Max
+   弹药值在 [Min, Max] 范围内时触发。
+   X = [0-127]，支持多条触发器，按 ID 顺序执行。
+   Max < Min 时为无条件触发（每帧触发）。
+   默认 0,-1（不触发）。
+AmmoTriggerX.Range=0,-1
+
+ AmmoTriggerX.TriggeredTimes=-1
+   此触发器最多触发多少次后移除自身。
+   若存在多个触发器，后续的触发将停止执行。
+   -1 = 无限触发。
+   默认 -1。
+AmmoTriggerX.TriggeredTimes=-1
+
+ ------------------------------------------------------------
+ 操作弹药
+ ------------------------------------------------------------
+
+ AmmoTriggerX.Num=数值
+   操作的弹药量。支持特殊格式：
+     Number → 直接数值
+     HP → 读取单位当前血量
+     MaxHP → 读取单位最大血量
+     Ammo → 读取单位当前弹药
+     MaxAmmo → 读取单位最大弹药
+   默认 0（不操作）。
+AmmoTriggerX.Num=0
+
+ AmmoTriggerX.NumFrom=ME
+   当 Num 使用特殊值时，读取谁的数值。
+     ME = 附着对象自身
+     SOURCE = AE 来源单位
+   默认 ME。
+AmmoTriggerX.NumFrom=ME
+
+ AmmoTriggerX.Action=ADD
+   弹药操作方式。
+     INIT = 直接设置
+     ADD = 增加
+     SUB = 减少
+     MUL = 乘以
+   默认 ADD。
+AmmoTriggerX.Action=ADD
+
+ AmmoTriggerX.ResetNum=no
+   触发后将弹药重置为 Num 值（等效 Action=INIT）。
+   默认 no。
+AmmoTriggerX.ResetNum=no
+
+ ------------------------------------------------------------
+ 附加 AE
+ ------------------------------------------------------------
+
+ AmmoTriggerX.AttachEffects=AE1,AE2,...
+   触发后附加的新 AE。
+   默认空（不附加）。
+AmmoTriggerX.AttachEffects=none
+
+ AmmoTriggerX.AttachChances=100%,100%,...
+   各 AE 的附加成功率。
+   默认空（100%）。
+AmmoTriggerX.AttachChances=none
+
+ AmmoTriggerX.AttachTo=ME
+   向谁附加 AE。
+     ME = 附着对象自身
+     SOURCE = AE 来源单位
+   默认 ME。
+AmmoTriggerX.AttachTo=ME
+
+ AmmoTriggerX.AttachFrom=SOURCE
+   附加 AE 时的来源设置。
+     ME = 无来源
+     SOURCE = AE 来源单位
+   默认 SOURCE。
+AmmoTriggerX.AttachFrom=SOURCE
+
+ ------------------------------------------------------------
+ 移除 AE
+ ------------------------------------------------------------
+
+ AmmoTriggerX.RemoveEffects=AE1,AE2,...
+   触发后移除的 AE 名称列表。
+   默认空（不移除）。
+AmmoTriggerX.RemoveEffects=none
+
+ AmmoTriggerX.RemoveEffectsLevel=0,0,...
+   对应 RemoveEffects 各项的移除层数。
+   默认空（移除所有层）。
+AmmoTriggerX.RemoveEffectsLevel=none
+
+ AmmoTriggerX.RemoveEffectsWithMarks=Mark1,Mark2,...
+   触发后移除带这些标记的 AE。
+   默认空。
+AmmoTriggerX.RemoveEffectsWithMarks=none
+
+ AmmoTriggerX.RemoveEffectsSkipNext=no
+   移除 AE 时是否跳过 Next。
+   默认 no。
+AmmoTriggerX.RemoveEffectsSkipNext=no
+
+ AmmoTriggerX.RemoveWho=ME
+   从谁身上移除 AE。
+     ME = 附着对象自身
+     SOURCE = AE 来源单位
+   默认 ME。
+AmmoTriggerX.RemoveWho=ME
+
+ ============================================================
+ 使用示例
+ ============================================================
+
+ --- 弹药护盾：5 发弹药，受击时 1 弹药抵 1 伤害 ---
+ [AmmoShieldAE]
+ Duration=-1
+ Ammo.Num=5
+ Ammo.ReactionMode=SHIELD
+ Ammo.Reaction.Protect=100%
+ Ammo.Reaction.Percent=100%
+
+ --- 弹药计数：受伤时弹药减伤害值，伤害照常传递 ---
+ [AmmoCountAE]
+ Duration=-1
+ Ammo.Num=Ammo
+ Ammo.ReactionMode=HITPOINT
+
+ --- 弹药归零时触发效果 ---
+ [ZeroAmmoTriggerAE]
+ Duration=-1
+ AmmoTrigger.Range=0,0
+ AmmoTrigger.AttachEffects=ExplosionAE
+
+ --- 弹药 <= 3 时附加 Buff ---
+ [LowAmmoTriggerAE]
+ Duration=-1
+ AmmoTrigger.Range=0,3
+ AmmoTrigger.AttachEffects=BuffAE
+
+ --- 弹药耗尽后自毁 ---
+ [AmmoDestroyAE]
+ Duration=-1
+ AmmoTrigger.Range=0,0
+ AmmoTrigger.AttachEffects=DestroySelfAE

@@ -1,1 +1,636 @@
-﻿ ============================================================ Vector 鏁堟灉鍣?INI 鏍囩璇存槑涔? ============================================================ Vector 鏄竴绉嶇函浣嶇Щ鏁堟灉鍣紝鍦?Duration 鏈熼棿鐩存帴淇敼闄勭潃瀵硅薄鐨勫潗鏍囥€? 閫傜敤浜?Aircraft銆丣umpjet Vehicle銆丳rojectile 绛夋墍鏈夐潪寤虹瓚绫诲瀷銆? BuildingTypes 姘镐箙鍏嶇柅锛屼笉璁?INI 濡備綍璁剧疆銆? 鎵€鏈夋爣绛惧啓鍦?[AttachEffectSection] 涓嬶紝鍓嶇紑涓?Vector. 绀轰緥锛?   [MyVectorAE]   Duration=300   Vector.MoveTo=0,0,16   Vector.AnglePerFrame=5 鏋舵瀯锛?   VectorEffect 涓虹函鏁版嵁瀹瑰櫒锛屽瓨鍌ㄩ厤缃拰杩愯鏃剁姸鎬併€?   杩愬姩璁＄畻鐢?TechnoStatus锛圱echno锛夊拰 BulletStatus锛圔ullet锛夌粺涓€鎵ц銆?   澶氫釜 Vector 鐨勪綅绉诲悜閲忓彔鍔犲悗锛屼竴娆℃€ф墽琛岀鎾炴娴嬪拰 SetLocation銆?   涓?BlackHole 鏋舵瀯瀵归綈锛氭暟鎹湪 EffectScript锛岃绠楀湪 Status銆? ============================================================ ------------------------------------------------------------ 鍩虹杩愬姩鍙傛暟 ------------------------------------------------------------ Vector.TargetFLH=X,Y,Z   鏈€缁堢洰鏍囧潗鏍囥€傚璞″湪鎸佺画鏃堕棿鍐呮湞姝ゆ柟鍚戦琛屻€?   鍧愭爣鍚箟鐢?Vector.Origin 鍐冲畾銆?   榛樿 0,0,0锛堜笉鍚敤鐩爣椋炶锛屼粎鐢?MoveTo 鍋忕Щ锛夈€?Vector.TargetFLH=0,0,0 Vector.TargetRandF=Min,Max   闅忔満鍓嶅悜鍋忕Щ鑼冨洿锛坙epton锛夈€傛晥鏋滆幏寰楃灛闂撮殢鏈虹敓鎴愪竴娆★紝姝ゅ悗涓嶅啀鍒锋柊銆?   鏈€缁堥殢鏈虹洰鏍囧墠鍚戝垎閲?= TargetFLH.F + Random(Min, Max)銆?   榛樿 0,0锛堜笉鍚敤闅忔満锛夈€?Vector.TargetRandF=0,0 Vector.TargetRandL=Min,Max   闅忔満宸﹀悜鍋忕Щ鑼冨洿锛坙epton锛夈€?   鏈€缁堥殢鏈虹洰鏍囧乏鍚戝垎閲?= TargetFLH.L + Random(Min, Max)銆?   榛樿 0,0銆?Vector.TargetRandL=0,0 Vector.TargetRandH=Min,Max   闅忔満楂樺害鍋忕Щ鑼冨洿锛坙epton锛夈€?   鏈€缁堥殢鏈虹洰鏍囬珮搴﹀垎閲?= TargetFLH.H + Random(Min, Max)銆?   榛樿 0,0銆?Vector.TargetRandH=0,0 Vector.ReachTarget=yes/no   璁句负 yes 鏃讹紝绯荤粺鏍规嵁鍓╀綑鏃堕棿鍜岃窛绂昏嚜鍔ㄨ绠楅€熷害锛?   淇濊瘉 Duration 缁撴潫鏃舵伆濂藉埌杈?TargetFLH銆?   榛樿 no锛堟亽瀹氶€熷害椋炶锛屽埌涓嶅埌涓嶇锛夈€?Vector.ReachTarget=no Vector.MoveTo=X,Y,Z   鍧愭爣鍋忕Щ閲忋€?   绾挎€фā寮忥紙鏃?Radius锛夛細姣忓抚浣嶇Щ鍚戦噺锛屽璞℃部姝ゆ柟鍚戠Щ鍔ㄣ€?   鍦嗗懆妯″紡锛堟湁 Radius锛夛細鍦嗗績鐩稿鍘熺偣鐨勫亸绉婚噺銆?   澶氫釜 Vector 鐨?MoveTo 鐙珛璁＄畻鍚庝綅绉诲彔鍔犮€?   榛樿 0,0,0銆?Vector.MoveTo=0,0,0 Vector.Radius=lepton   鍦嗗舰杞ㄨ抗鍗婂緞銆傝涓洪潪闆跺€兼椂杩涘叆鍦嗗懆妯″紡銆?   鍦嗗懆妯″紡涓嬶細鍦嗗績 = Origin + TargetFLH + MoveTo锛岀墿浣撶粫鍦嗗績鏃嬭浆銆?   涓?Speed/StartSpeed 閰嶅悎鍐冲畾瑙掗€熷害銆?   榛樿 0锛堢嚎鎬фā寮忥級銆?Vector.Radius=0 Vector.Force=yes/no   寮哄埗浣嶇Щ妯″紡銆傝涓?yes 鏃讹紝瀹屽叏蹇界暐鎶涘皠浣撶殑鍘熺増椋炶杞ㄨ抗璁＄畻锛?   鍙娇鐢?Vector 鐨勫己鍒朵綅绉汇€傞€傜敤浜庨渶瑕佸畬鍏ㄦ帶鍒舵姏灏勪綋璺緞鐨勫満鏅€?   瀵?Techno/Aircraft 鏃犲奖鍝嶏紙瀹冧滑鏈韩娌℃湁鍘熺増寮归亾锛夈€?   榛樿 no銆?Vector.Force=no Vector.Freeze=yes/no   鍐荤粨妯″紡銆傝涓?yes 鏃讹紝鐗╀綋鍋滅暀鍦ㄥ綋鍓嶅潗鏍囦笉绉诲姩锛屼絾 Duration 浠嶅湪璁℃椂銆?   鑷棆锛圫pinRate锛変粛鐒剁敓鏁堛€?   鐢ㄤ簬鍏堝喕缁撳啀閲婃斁锛屾垨閰嶅悎鍏朵粬鏁堟灉鍣ㄤ娇鐢ㄣ€?   榛樿 no銆?Vector.Freeze=no ------------------------------------------------------------ 閫熷害鎺у埗 ------------------------------------------------------------ Vector.StartSpeed=閫熷害鍊?   鍒濆閫熷害銆?   绾挎€фā寮忥細绾块€熷害锛坙epton/step锛夈€?   鍦嗗懆妯″紡锛氳閫熷害锛埪?step锛夛紝鑻ユ湭璁剧疆鍒欑敱 AnglePerFrame 鎺ㄧ畻銆?   榛樿 0锛堣嚜鍔ㄨ鍙?Techno 鐨?Speed锛夈€?Vector.StartSpeed=0 Vector.EndSpeed=閫熷害鍊?   缁堟閫熷害銆傞厤鍚?Acceleration 浣跨敤銆?   绾挎€фā寮忥細缁堟绾块€熷害銆?   鍦嗗懆妯″紡锛氱粓姝㈣閫熷害銆?   璁句负 -1 鏃朵笉闄愬埗銆?   榛樿 -1銆?Vector.EndSpeed=-1 Vector.Acceleration=鍙樺寲閲?step   姣?step 閫熷害鍙樺寲閲忋€傛=鍔犻€燂紝璐?鍑忛€熴€?   绾挎€фā寮忥細绾垮姞閫熷害銆?   鍦嗗懆妯″紡锛氳鍔犻€熷害銆?   鍙?FrameStep 绾︽潫锛屽彧鍦ㄨ繍鍔ㄥ抚鎵ц銆?   榛樿 0锛堟亽閫燂級銆?Vector.Acceleration=0 Vector.FrameStep=N   杩愬姩棰楃矑搴︺€傛瘡 N 甯ф墽琛屼竴娆′綅绉?鏃嬭浆/鐘舵€佹洿鏂般€?   渚嬪 FrameStep=3 琛ㄧず姣?3 甯хЩ鍔ㄤ竴娆★紝瀹為檯閫熷害 = StartSpeed / 3銆?   鍚屾椂绾︽潫浠ヤ笅鍙傛暟鐨勬墽琛岄鐜囷細     Acceleration銆丟rowRate銆丼pinAcceleration銆乀urretSpinAcceleration銆?     SpeedOscillation銆丼pinOscillation銆乀urretSpinOscillation銆?     GrowOscillation銆乄aveAmpOscillation銆乄aveFreqOscillation銆?     WaveFreqAcceleration   榛樿 1锛堟瘡甯ф墽琛岋級銆?Vector.FrameStep=1 Vector.SpeedOscillation=搴︽暟   閫熷害鎸崱骞呭害銆傚彔鍔犲湪鍩虹閫熷害涓婄殑姝ｅ鸡娉㈡尟骞呫€?   绾挎€фā寮忥細瀹為檯绾块€熷害 = _currentSpeed + SpeedOscillation * sin(...)   鍦嗗懆妯″紡锛氬疄闄呰閫熷害 = _currentSpeed / Radius + SpeedOscillation / Radius * sin(...)   鍙?FrameStep 绾︽潫锛屽彧鍦ㄨ繍鍔ㄥ抚璁＄畻銆?   榛樿 0锛堜笉鎸崱锛夈€?Vector.SpeedOscillation=0 Vector.SpeedOscFreq=搴︽暟/step   閫熷害鎸崱棰戠巼銆?60 = 涓€鍛ㄦ湡銆?   鏃堕棿鍗曚綅涓?step锛堝彈 FrameStep 绾︽潫鐨勮繍鍔ㄥ抚锛夈€?   榛樿 0銆?Vector.SpeedOscFreq=0 Vector.SpeedOscPhase=搴︽暟   閫熷害鎸崱鍒濆鐩镐綅銆?   榛樿 0銆?Vector.SpeedOscPhase=0 Vector.GrowRate=X,Y,Z   绾挎€фā寮忥細MoveTo 姣?step 澧為暱閲忥紙鍛煎惛鏁堟灉锛夈€?   鍦嗗懆妯″紡锛歑=鍗婂緞姣?step 澧為暱閲忥紙铻烘棆锛夛紝Z=鍦嗗績鍨傜洿鍋忕Щ澧為暱閲忋€?   鍙?FrameStep 绾︽潫锛屽彧鍦ㄨ繍鍔ㄥ抚澧為暱銆?   榛樿 0,0,0銆?Vector.GrowRate=0,0,0 Vector.GrowOscillationX=Y,Z=鎸箙, GrowOscFreqX=Y,Z=棰戠巼, GrowOscPhaseX=Y,Z=鐩镐綅   GrowRate 鐨勬寮︽尟鑽″垎閲忋€備笁杞寸嫭绔嬫帶鍒躲€?   瀹為檯澧為暱鐜?= GrowRate + GrowOscillation * sin(GrowOscFreq * step + GrowOscPhase)   鐢ㄤ簬瀹炵幇鍛煎惛鏁堟灉鐨勫懆鏈熸€ц啫鑳€/鏀剁缉銆?   鍙?FrameStep 绾︽潫銆?   榛樿鍏ㄩ儴 0锛堜笉鎸崱锛夈€?Vector.GrowOscillationX=0Vector.GrowOscillationY=0Vector.GrowOscillationZ=0Vector.GrowOscFreqX=0Vector.GrowOscFreqY=0Vector.GrowOscFreqZ=0Vector.GrowOscPhaseX=0Vector.GrowOscPhaseY=0Vector.GrowOscPhaseZ=0 Vector.WaveAmplitude=X,Y,Z   鎸崱鎸箙銆備笁杞村垎鍒帶鍒躲€?   閰嶅悎 WaveFrequency 浣跨敤锛屾瘡杞寸嫭绔嬫寮︽尝銆?   榛樿 0,0,0锛堜笉鎸崱锛夈€?Vector.WaveAmplitude=0,0,0 Vector.WaveFrequency=X,Y,Z   鎸崱棰戠巼锛堝害/step锛夈€備笁杞村垎鍒帶鍒躲€?   360 = 涓€鍛ㄦ湡銆備緥濡?5 鈫?72 step 涓€鍛ㄦ湡銆?   涓夎酱棰戠巼浜掕川鏃朵笉闂悎锛堟潕钀ㄥ鍥惧舰锛夈€?   榛樿 0,0,0銆?Vector.WaveFrequency=0,0,0 Vector.WavePhase=X,Y,Z   鎸崱鍒濆鐩镐綅锛堝害锛夈€備笁杞村垎鍒帶鍒躲€?   鐢ㄤ簬閿欏紑澶氳酱鎸崱锛堝 0,90,0 鈫?X/Y 宸?0搴︾浉浣嶏級銆?   榛樿 0,0,0銆?Vector.WavePhase=0,0,0 Vector.WaveFreqAcceleration=X,Y,Z   娉㈤鐜囧姞閫熷害锛堝害/step虏锛夈€傛瘡 step 鍙犲姞鍒板綋鍓嶆尝棰戠巼涓娿€?   涓夎酱鍒嗗埆鎺у埗銆傛鍊尖啋棰戠巼鍔犲揩锛堟尝褰㈠彉瀵嗭級锛岃礋鍊尖啋棰戠巼鍑忔參锛堟尝褰㈠彉鐤忥級銆?   鍙?FrameStep 绾︽潫锛屽彧鍦ㄨ繍鍔ㄥ抚鎵ц銆?   鍙?WaveFreqEndSpeed 闄愬埗銆?   榛樿 0,0,0锛堥鐜囨亽瀹氾級銆?Vector.WaveFreqAcceleration=0,0,0 Vector.WaveFreqEndSpeed=X,Y,Z   娉㈤鐜囩粓姝㈠€硷紙搴?step锛夈€傞厤鍚?WaveFreqAcceleration 浣跨敤銆?   棰戠巼鍦ㄦ鍖洪棿鍐呰閽充綅锛坢in/max锛夈€?   璁句负 0 鏃朵笉闄愬埗銆?   榛樿 0,0,0锛堜笉闄愬埗锛夈€?Vector.WaveFreqEndSpeed=0,0,0 Vector.WaveAmpOscillation=鐧惧垎姣?   鎸箙 LFO锛堜綆棰戞尟鑽″櫒锛夊箙搴︺€備互鐧惧垎姣旇皟鍒跺綋鍓嶆尟骞呫€?   鍏紡: 鏈€缁堟尟骞?= 鍩虹鎸箙 脳 (1 + WaveAmpOscillation/100 脳 sin(...))   渚嬪 50 鈫?鎸箙鍦?卤50% 闂磋剦鍔ㄣ€?   鍙?FrameStep 绾︽潫锛屽彧鍦ㄨ繍鍔ㄥ抚璁＄畻銆?   榛樿 0锛堜笉鎸崱锛夈€?Vector.WaveAmpOscillation=0 Vector.WaveAmpOscFreq=搴︽暟/step   鎸箙 LFO 棰戠巼銆?60 = 涓€鍛ㄦ湡銆?   鏃堕棿鍗曚綅涓?step锛堝彈 FrameStep 绾︽潫鐨勮繍鍔ㄥ抚锛夛紝涓嶆槸鍘熷甯с€?   榛樿 0銆?Vector.WaveAmpOscFreq=0 Vector.WaveAmpOscPhase=搴︽暟   鎸箙 LFO 鍒濆鐩镐綅銆?   榛樿 0銆?Vector.WaveAmpOscPhase=0 Vector.WaveFreqOscillation=搴︽暟   棰戠巼 LFO 骞呭害銆備互缁濆鍊煎彔鍔犲埌褰撳墠娉㈤鐜囦笂銆?   鍏紡: 鏈€缁堥鐜?= 鍩虹棰戠巼 + WaveFreqOscillation 脳 sin(...)   渚嬪 10 鈫?棰戠巼鍦?卤10搴?step 闂存姈鍔ㄣ€?   鍙?FrameStep 绾︽潫锛屽彧鍦ㄨ繍鍔ㄥ抚璁＄畻銆?   榛樿 0锛堜笉鎸崱锛夈€?Vector.WaveFreqOscillation=0 Vector.WaveFreqOscFreq=搴︽暟/step   棰戠巼 LFO 棰戠巼銆?60 = 涓€鍛ㄦ湡銆?   鏃堕棿鍗曚綅涓?step锛堝彈 FrameStep 绾︽潫鐨勮繍鍔ㄥ抚锛夛紝涓嶆槸鍘熷甯с€?   榛樿 0銆?Vector.WaveFreqOscFreq=0 Vector.WaveFreqOscPhase=搴︽暟   棰戠巼 LFO 鍒濆鐩镐綅銆?   榛樿 0銆?Vector.WaveFreqOscPhase=0 ------------------------------------------------------------ 鏃嬭浆锛堢敾鍦?铻烘棆锛? ------------------------------------------------------------ Vector.AnglePerFrame=搴︽暟   姣?step 鏃嬭浆瑙掑害銆傛=椤烘椂閽堬紝璐?閫嗘椂閽堛€?   鍦嗗懆妯″紡锛氳嫢鏈 StartSpeed锛屽垯鐢ㄦ鍊间綔涓鸿閫熷害銆?   鑻ュ悓鏃惰浜?StartSpeed 鍜?AnglePerFrame锛屼互 StartSpeed 涓哄噯銆?   榛樿 0銆?Vector.AnglePerFrame=0 Vector.RotateAxis=X/Y/Z   鏃嬭浆杞撮璁俱€傛湁 RotateDirection 鏃惰瑕嗙洊銆?   Z = 姘村钩闈㈢敾鍦嗭紙鏈€甯哥敤锛?   X = 鍓嶅悗缈昏浆鐢诲渾   Y = 宸﹀彸缈昏浆鐢诲渾   榛樿 Z銆?Vector.RotateAxis=Z Vector.RotateDirection=X,Y,Z   鑷畾涔夋棆杞酱鏂瑰悜锛堜笘鐣屽潗鏍囩郴锛夈€?   浼樺厛绾ч珮浜?RotateAxis銆?   绀轰緥锛?,1,0 鈫?缁?5搴︽枩杞存棆杞紝鐢诲嚭妞渾杞ㄨ抗銆?   榛樿 0,0,0锛堜娇鐢?RotateAxis锛夈€?Vector.RotateDirection=0,0,0 ------------------------------------------------------------ 鑷棆锛堟ā鍨嬫棆杞級 ------------------------------------------------------------ Vector.SpinRate=搴︽暟/step   Body 鑷棆鍒濆瑙掗€熷害銆傛=椤烘椂閽堬紝璐?閫嗘椂閽堛€?   鍙?FrameStep 绾︽潫锛屽彧鍦ㄨ繍鍔ㄥ抚鏇存柊銆?   澶氫釜 Vector 鐨?SpinRate 鍙犲姞锛圧odrigues 鏃嬭浆锛夈€?   瀵?Techno锛圥rimaryFacing锛夊拰 Bullet锛圖irection锛夊潎鏈夋晥銆?   榛樿 0锛堜笉鑷棆锛夈€?Vector.SpinRate=0 Vector.SpinEndSpeed=搴︽暟/step   Body 鑷棆缁堟瑙掗€熷害銆傞厤鍚?SpinAcceleration 浣跨敤銆?   璁句负 -1 鏃朵笉闄愬埗銆傞粯璁?-1銆?Vector.SpinEndSpeed=-1 Vector.SpinAcceleration=搴︽暟/step虏   Body 鑷棆瑙掑姞閫熷害銆傚彈 FrameStep 绾︽潫銆傞粯璁?0銆?Vector.SpinAcceleration=0 Vector.SpinOscillation=搴︽暟   Body 鑷棆鎸崱骞呭害銆傚彔鍔犲湪鍩虹瑙掗€熷害涓婄殑姝ｅ鸡娉€?   瀹為檯瑙掗€熷害 = SpinRate + SpinAcceleration * step + SpinOscillation * sin(...)   鍙?FrameStep 绾︽潫銆傞粯璁?0銆?Vector.SpinOscillation=0 Vector.SpinOscFreq=搴︽暟/step   Body 鑷棆鎸崱棰戠巼銆傞粯璁?0銆?Vector.SpinOscFreq=0 Vector.SpinOscPhase=搴︽暟   Body 鑷棆鎸崱鍒濆鐩镐綅銆傞粯璁?0銆?Vector.SpinOscPhase=0 Vector.SpinAxis=X/Y/Z   鑷棆杞撮璁撅紙鐗╀綋灞€閮ㄥ潗鏍囩郴锛夈€傛湁 SpinDirection 鏃惰瑕嗙洊銆?   Z = 缁曞瀭鐩磋酱姘村钩鑷浆锛堟渶甯歌锛?   X = 缈绘粴锛圧oll锛?   Y = 淇话锛圥itch锛?   榛樿 Z銆?Vector.SpinAxis=Z Vector.SpinDirection=X,Y,Z   鑷畾涔夎嚜鏃嬭酱鏂瑰悜锛堝眬閮ㄥ潗鏍囩郴锛夈€?   浼樺厛绾ч珮浜?SpinAxis銆?   榛樿 0,0,0锛堜娇鐢?SpinAxis锛夈€?Vector.SpinDirection=0,0,0 ------------------------------------------------------------ 鐐鑷棆 ------------------------------------------------------------ Vector.TurretSpinRate=搴︽暟/step   鐐鑷棆鍒濆瑙掗€熷害銆備笌 SpinRate 鐢ㄦ硶涓€鑷淬€?   澶氫釜 Vector 鐨?TurretSpinRate 鍙犲姞锛圧odrigues 鏃嬭浆锛夈€?   榛樿 0銆?Vector.TurretSpinRate=0 Vector.TurretSpinEndSpeed=搴︽暟/step   鐐鑷棆缁堟瑙掗€熷害銆傞粯璁?-1锛堜笉闄愬埗锛夈€?Vector.TurretSpinEndSpeed=-1 Vector.TurretSpinAcceleration=搴︽暟/step虏   鐐鑷棆瑙掑姞閫熷害銆傚彈 FrameStep 绾︽潫銆傞粯璁?0銆?Vector.TurretSpinAcceleration=0 Vector.TurretSpinOscillation=搴︽暟   鐐鑷棆鎸崱骞呭害銆傚彈 FrameStep 绾︽潫銆傞粯璁?0銆?Vector.TurretSpinOscillation=0 Vector.TurretSpinOscFreq=搴︽暟/step   鐐鑷棆鎸崱棰戠巼銆傞粯璁?0銆?Vector.TurretSpinOscFreq=0 Vector.TurretSpinOscPhase=搴︽暟   鐐鑷棆鎸崱鍒濆鐩镐綅銆傞粯璁?0銆?Vector.TurretSpinOscPhase=0 Vector.TurretSpinAxis=X/Y/Z   鐐鑷棆杞撮璁俱€傞粯璁?Z銆?Vector.TurretSpinAxis=Z Vector.TurretSpinDirection=X,Y,Z   鑷畾涔夌偖濉旇嚜鏃嬭酱鏂瑰悜銆備紭鍏堢骇楂樹簬 TurretSpinAxis銆?   榛樿 0,0,0銆?Vector.TurretSpinDirection=0,0,0 Vector.FreeTurret=yes/no   鐐鑷敱妯″紡銆傝涓?yes 鏃讹紝鐐瀹屽叏鐙珛鏃嬭浆锛堜笉鍙?Body 鑷棆褰卞搷锛夈€?   榛樿 no锛堢偖濉旇窡闅?Body 鐨勬棆杞級銆?Vector.FreeTurret=no ------------------------------------------------------------ 鏈濆悜鎺у埗 ------------------------------------------------------------ Vector.Facing=Destination/Target/Initial   鍩虹鏈濆悜妯″紡銆係pinRate 鍦ㄦ鍩虹涓婂彔鍔犺嚜鏃嬨€?   澶氫釜 Vector 鏃讹紝鍙栫涓€涓椿璺?Vector 鐨?Facing銆?   Destination = 鏈濆悜 MoveTo/TargetFLH 鏂瑰悜   Target = 鏈濆悜鍘熷鐬勫噯鐩爣   Initial = 淇濇寔鍚冨埌鏁堟灉鏃剁殑鏈濆悜   榛樿 Destination銆?Vector.Facing=Destination ------------------------------------------------------------ 鍙傝€冪郴 ------------------------------------------------------------ Vector.Origin=World/Target/Launcher/Self/Realtime/Source/FLH    TargetFLH 鍜?MoveTo 鐨勮绠楀弬鑰冪郴銆?    姣忎釜 Vector 鐙珛浣跨敤鑷繁鐨?Origin 璁＄畻浣嶇Щ鍚戦噺銆?    World = 涓栫晫鍧愭爣绯伙紝鐩存帴浣跨敤鍧愭爣鍊?    Target = 浠ユ姏灏勪綋/鍗曚綅鐨勫師濮嬬洰鏍囦负鍘熺偣    Launcher = 浠ュ彂灏勮€呬负鍘熺偣锛堟瘡甯у姩鎬佽鍙栧彂灏勮€呬綅缃級    Self = 浠ュ悆鍒版晥鏋滅灛闂寸殑鑷韩浣嶇疆涓哄師鐐癸紙鏈€甯哥敤锛?    Realtime = 姣忓抚浠ュ綋鍓嶈嚜韬綅缃负鍘熺偣锛堢敤浜庣粫鑷韩鐢诲渾锛?    Source = 浠E鏉ユ簮鍗曚綅涓哄師鐐癸紙鏂藉姞鏁堟灉鐨勫崟浣嶏紝姣忓抚鍔ㄦ€佽鍙栵級    FLH = 浠ヨ幏寰桝E鏃跺崟浣嶉潰鏈濇柟鍚戜负F璁＄畻鍋忕Щ鍚庣殑涓栫晫鍧愭爣浣滀负鍥哄畾鍘熺偣          鍘熺偣 = 鍗曚綅鍧愭爣 + RotateByFacing(OriginFLH, 鍗曚綅鏈濆悜)锛屾鍚庝笉鍙?    榛樿 Self銆?  Vector.OriginFLH=F,L,H    Origin=FLH 鏃剁敓鏁堛€備互鑾峰緱AE鏃跺崟浣嶆墍鍦ㄥ潗鏍囦负鍘熺偣锛屽崟浣嶉潰鏈濇柟鍚戜负F锛堝墠鏂癸級锛?    L涓哄乏鏂癸紝H涓洪珮搴︼紝璁＄畻鍋忕Щ鍚庣殑涓栫晫鍧愭爣浣滀负鍥哄畾鍘熺偣銆?    绀轰緥锛歄riginFLH=0,512,0 鈫?鍘熺偣鍦ㄥ崟浣嶆鍓嶆柟512澶?    榛樿 0,0,0銆? Vector.OriginNoUpdate=yes/no   璁句负 yes 鏃讹紝Target/Launcher/Source 鍙彇鏁堟灉鑾峰緱鐬棿鐨勫潗鏍囷紝   姝ゅ悗涓嶅啀杩借釜绉诲姩銆傜敤浜庨敋瀹氬埌鏌愪釜鏃跺埢鐨勪綅缃€?   榛樿 no锛堟瘡甯у姩鎬佽拷韪級銆?Vector.OriginNoUpdate=no   榛樿 Self銆?Vector.Origin=Self ------------------------------------------------------------ 绛涢€変笌鏉冮噸 ------------------------------------------------------------ Vector.Weight=鏁板€?   鍚戦噺鏉冮噸銆傜敤浜庝笌 BlackHole 鐨勪氦浜掑垽鏂€?   Vector 涔嬮棿涓嶄簤澶猴紝鐩存帴鍙犲姞銆?   榛樿 -1銆?Vector.Weight=-1 Vector.AffectAircraft=yes/no   鏄惁褰卞搷 Aircraft銆傞粯璁?yes銆?Vector.AffectAircraft=yes Vector.AffectJumpjet=yes/no   鏄惁褰卞搷 Jumpjet Vehicle銆傞粯璁?yes銆?Vector.AffectJumpjet=yes Vector.AffectBullet=yes/no   鏄惁褰卞搷 Projectile銆傞粯璁?yes銆?Vector.AffectBullet=yes ------------------------------------------------------------ 缁ф壙鑷?EffectData 鐨勯€氱敤鍙傛暟锛堝彲閫夛級 ------------------------------------------------------------ Vector.Enable=yes/no   鎵嬪姩鍚敤/绂佺敤銆傞粯璁よ嚜鍔ㄥ垽鏂紙鏈?MoveTo/TargetFLH/AnglePerFrame/SpinRate/WaveAmplitude 鏃惰嚜鍔ㄥ惎鐢級銆? Vector.AffectTypes=绫诲瀷1,绫诲瀷2,...   鐧藉悕鍗曘€傚彧鏈夊垪琛ㄤ腑鐨?TechnoType/BulletType 鎵嶅彈姝ゆ晥鏋滃奖鍝嶃€?   榛樿绌猴紙褰卞搷鎵€鏈夛級銆? Vector.NotAffectTypes=绫诲瀷1,绫诲瀷2,...   榛戝悕鍗曘€傚垪琛ㄤ腑鐨勭被鍨嬩笉鍙楁鏁堟灉褰卞搷銆? Vector.AffectTechno=yes/no   鏄惁褰卞搷 Techno锛堝缓绛?姝ュ叺+杞藉叿+椋炴満锛夈€傞粯璁?yes銆? Vector.AffectSelf=yes/no   鏄惁褰卞搷鏂藉姞鑰呰嚜韬€傞粯璁?no銆? Vector.AffectInAir=yes/no   鏄惁褰卞搷绌轰腑鍗曚綅銆傞粯璁?yes銆? Vector.AffectsOwner=yes/no   鏄惁褰卞搷鎵€灞炴柟銆傞粯璁?yes銆? Vector.AffectsAllies=yes/no   鏄惁褰卞搷鐩熷弸銆傞粯璁?yes銆? Vector.AffectsEnemies=yes/no   鏄惁褰卞搷鏁屾柟銆傞粯璁?yes銆? Vector.AffectsCivilian=yes/no   鏄惁褰卞搷骞虫皯銆傞粯璁?yes銆? Vector.AuxBuildings=寤虹瓚1,寤虹瓚2,...   鍓嶇疆寤虹瓚銆傛墍灞炴柟蹇呴』鎷ユ湁鍒楄〃涓嚦灏戜竴涓缓绛戯紝鏁堟灉鎵嶇敓鏁堛€? Vector.NegBuildings=寤虹瓚1,寤虹瓚2,...   鎺掗櫎寤虹瓚銆傛墍灞炴柟鎷ユ湁鍒楄〃涓换鎰忓缓绛戞椂锛屾晥鏋滀笉鐢熸晥銆? Vector.Powered=yes/no   鏄惁闇€瑕佺數鍔涖€傚缓绛戞柇鐢垫椂鏁堟灉鏆傚仠銆傞粯璁?no銆? Vector.CheckHealthPrecent=yes/no   鏄惁妫€鏌ヨ閲忔瘮渚嬨€傞粯璁?no銆? Vector.ActiveWhenHealthPercent=姣斾緥   琛€閲忎綆浜庢姣斾緥鏃舵縺娲绘晥鏋滐紙0~1锛夈€傞粯璁?1銆? Vector.DeactiveWhenHealthPercent=姣斾緥   琛€閲忛珮浜庢姣斾緥鏃跺仠鐢ㄦ晥鏋滐紙0~1锛夈€傞粯璁?0銆? Vector.TriggeredTimes=娆℃暟   鏈€澶цЕ鍙戞鏁般€傝揪鍒板悗鏁堟灉缁撴潫銆傞粯璁?-1锛堟棤闄愶級銆? Vector.AffectWho=Master/Stand/All   褰卞搷瀵硅薄銆侻aster=浣胯€? Stand=鏇胯韩, All=閮藉奖鍝嶃€傞粯璁?Master銆? Vector.DeactiveWhenCivilian=yes/no   骞虫皯鏄惁涓嶇敓鏁堛€傞粯璁?no銆? ============================================================ 鍙犲姞瑙勫垯 ============================================================ 澶氫釜甯?Vector 鏁堟灉鐨?AE 鍙互鍚屾椂闄勫姞鍒颁竴涓璞′笂銆? 姣忎釜 VectorEffect 鐙珛璁＄畻鑷繁鐨勮繍鍔ㄥ悜閲忥細   displacement_i = nextPos_i - currentPos   finalPos = currentPos + 危 displacement_i 姣忎釜 Vector 浣跨敤鑷繁鐨?Origin/TargetFLH/Speed/Radius 绛夊弬鏁扮嫭绔嬭绠椼€? 澶氫釜 Vector 鐨勪綅绉诲悜閲忓彔鍔犲悗锛屼竴娆℃€ф墽琛岀鎾炴娴嬪拰 SetLocation銆? Facing: 鍙栫涓€涓椿璺?Vector 鐨?Facing锛坒irst-only + 绾ц仈锛夈€? Spin/TurretSpin: 鎵€鏈?Vector 鍙犲姞锛圧odrigues 鏃嬭浆锛夛紝FreeTurret 鎺у埗鐐璺熼殢銆? Duration: per-Vector锛岀粨鏉熷悗鍏朵綅绉昏础鐚Щ闄ゃ€? 鎵€鏈夊彉鍖栫郴鏁板彈 FrameStep 缁熶竴绾︽潫銆? 缁撴潫瑙勫垯锛氭墍鏈?VectorEffect 缁撴潫鏃惰Е鍙戣惤鍦伴€昏緫锛團allingExceptAircraft锛夈€? BuildingTypes 姘镐箙鍏嶇柅锛屼笉璁?AffectBuilding 璁剧疆銆? ============================================================ 涓?BlackHole 鐨勪氦浜? ============================================================ BlackHole 鎹曡幏鏃讹紝Vector 鍋滄鎵ц浣嗕笉绉婚櫎銆? BlackHole 閲婃斁鍚庯紝Vector 鑷姩鎭㈠鎵ц銆? Vector 涔嬮棿涓嶄簤澶猴紝鐩存帴鍙犲姞銆? ============================================================ 绀轰緥 ============================================================ --- 鍖€閫熺洿绾?--- [FlyStraightAE] Duration=300 Vector.MoveTo=0,16,0          鏂瑰悜鍋忕Щ Vector.StartSpeed=16          绾块€熷害 16 lepton/step Vector.Origin=Self --- 鍖€閫熺敾鍦嗭紙鍗婂緞512锛岀嚎閫熷害50锛?-- [CircleAE] Duration=720 Vector.Radius=512 Vector.StartSpeed=50          娌垮渾鍛ㄧ嚎閫熷害 50 Vector.Origin=Self --- 鍖€閫熺敾鍦嗭紙鎸囧畾瑙掗€熷害锛?-- [CircleByAngleAE] Duration=720 Vector.Radius=512 Vector.AnglePerFrame=5        5掳/step锛堟湭璁?StartSpeed 鏃朵娇鐢級 Vector.Origin=Self --- 娓愬紑铻烘棆锛堝崐寰勯€掑锛?-- [InvoluteSpiralAE] Duration=600 Vector.Radius=64              鍒濆鍗婂緞 Vector.GrowRate=4,0,0         X=鍗婂緞姣弒tep+4 Vector.StartSpeed=50          娌垮渾鍛ㄧ嚎閫熷害鎭掑畾 50 Vector.Origin=Self --- 鏀舵暃铻烘棆锛堝崐寰勯€掑噺锛?-- [ConvergeSpiralAE] Duration=600 Vector.Radius=512 Vector.GrowRate=-4,0,0        X=鍗婂緞姣弒tep-4 Vector.StartSpeed=50 Vector.Origin=Self --- 铻烘棆涓婂崌 --- [SpiralUpAE] Duration=600 Vector.Radius=512 Vector.GrowRate=0,0,2         Z=鍦嗗績姣弒tep涓婂崌 2 Vector.StartSpeed=50 Vector.Origin=Self --- 鍔犻€熸棆杞?--- [AccelCircleAE] Duration=600 Vector.Radius=512 Vector.StartSpeed=2           鍒濆瑙掗€熷害 2掳/step Vector.EndSpeed=10            缁堟瑙掗€熷害 10掳/step Vector.Acceleration=0.5       姣弒tep +0.5掳 Vector.Origin=Self --- 鎱㈤€熺敾鍦嗭紙棰楃矑搴︽帶鍒讹級--- [SlowCircleAE] Duration=720 Vector.Radius=512 Vector.StartSpeed=15          瑙掗€熷害 15掳/step Vector.FrameStep=3            姣?甯ц浆涓€娆?鈫?瀹為檯 5掳/step Vector.Origin=Self --- 鍐荤粨 + 鑷棆 --- [FreezeSpinAE] Duration=300 Vector.Freeze=yes Vector.SpinRate=15 Vector.Origin=Self --- 鍙犲姞缁勫悎锛氬渾 + 涓婂崌 --- [AE_Circle] Duration=600 Vector.Radius=512 Vector.StartSpeed=50 Vector.Origin=Self [AE_Up] Duration=600 Vector.MoveTo=0,0,2           绾挎€фā寮忥細姣弒tep涓婂崌 2 --- 鏉庤惃濡傚浘褰紙涓夎酱姝ｅ鸡娉㈠彔鍔狅級--- [LissajousAE] Duration=1000 Vector.WaveAmplitude=256,256,0 Vector.WaveFrequency=5,7,0 Vector.StartSpeed=0 --- 3D閿ュ舰铻烘棆锛堣嚜瀹氫箟鏃嬭浆杞达級--- [ConeSpiralAE] Duration=600 Vector.Radius=64 Vector.GrowRate=2,2,1 Vector.StartSpeed=50 Vector.RotateDirection=1,1,1 Vector.Origin=Self --- 鎸箙鑴夊姩姝ｅ鸡娉?--- [PulseWaveAE] Duration=600 Vector.WaveAmplitude=0,256,0 Vector.WaveFrequency=6,0,0 Vector.WaveAmpOscillation=80        鎸箙鍦?卤80% 闂磋剦鍔? Vector.WaveAmpOscFreq=30            鑴夊姩鍛ㄦ湡 = 360/30 = 12 step Vector.Origin=Self  --- 棰戠巼鎶栧姩姝ｅ鸡娉?---  [FreqJitterAE]  Duration=600  Vector.WaveAmplitude=0,256,0  Vector.WaveFrequency=6,0,0  Vector.WaveFreqOscillation=3        棰戠巼鍦?卤3搴?step 闂存姈鍔?  Vector.WaveFreqOscFreq=20           鎶栧姩鍛ㄦ湡 = 360/20 = 18 step  Vector.Origin=Self  --- FLH鍘熺偣鍋忕Щ锛堝湪鍗曚綅鍓嶆柟鍥哄畾浣嶇疆鐢熸垚鍘熺偣锛?--  [FLHOriginAE]  Duration=300  Vector.Origin=FLH                   浠ラ潰鏈濇柟鍚戣绠楀亸绉诲師鐐?  Vector.OriginFLH=0,512,0            鍘熺偣鍦ㄥ崟浣嶆鍓嶆柟512澶?  Vector.TargetFLH=0,0,256            鐩爣鍦ㄥ師鐐逛笂鏂?56  Vector.StartSpeed=50
+ ============================================================
+ Vector 效果器 INI 标签说明书
+ ============================================================
+ Vector 是一种纯位移效果器，在 Duration 期间直接修改附着对象的坐标。
+ 适用于 Aircraft、Jumpjet Vehicle、Projectile 等所有非建筑类型。
+ BuildingTypes 永久免疫，不论 INI 如何设置。
+
+ 所有标签写在 [AttachEffectSection] 下，前缀为 Vector.
+ 示例：
+   [MyVectorAE]
+   Duration=300
+   Vector.MoveTo=0,0,16
+   Vector.AnglePerFrame=5
+
+ 架构：
+   VectorEffect 为纯数据容器，存储配置和运行时状态。
+   运动计算由 TechnoStatus（Techno）和 BulletStatus（Bullet）统一执行。
+   多个 Vector 的位移向量叠加后，一次性执行碰撞检测和 SetLocation。
+   与 BlackHole 架构对齐：数据在 EffectScript，计算在 Status。
+ ============================================================
+
+ ------------------------------------------------------------
+ 基础运动参数
+ ------------------------------------------------------------
+
+ Vector.TargetFLH=X,Y,Z
+   最终目标坐标。对象在持续时间内朝此方向飞行。
+   坐标含义由 Vector.Origin 决定。
+   默认 0,0,0（不启用目标飞行，仅用 MoveTo 偏移）。
+Vector.TargetFLH=0,0,0
+
+ Vector.TargetRandF=Min,Max
+   随机前向偏移范围（lepton）。效果获得瞬间随机生成一次，此后不再刷新。
+   最终随机目标前向分量 = TargetFLH.F + Random(Min, Max)。
+   默认 0,0（不启用随机）。
+Vector.TargetRandF=0,0
+
+ Vector.TargetRandL=Min,Max
+   随机左向偏移范围（lepton）。
+   最终随机目标左向分量 = TargetFLH.L + Random(Min, Max)。
+   默认 0,0。
+Vector.TargetRandL=0,0
+
+ Vector.TargetRandH=Min,Max
+   随机高度偏移范围（lepton）。
+   最终随机目标高度分量 = TargetFLH.H + Random(Min, Max)。
+   默认 0,0。
+Vector.TargetRandH=0,0
+
+ Vector.ReachTarget=yes/no
+   设为 yes 时，系统根据剩余时间和距离自动计算速度，
+   保证 Duration 结束时恰好到达 TargetFLH。
+   默认 no（恒定速度飞行，到不到不管）。
+Vector.ReachTarget=no
+
+ Vector.MoveTo=X,Y,Z
+   坐标偏移量。
+   线性模式（无 Radius）：每帧位移向量，对象沿此方向移动。
+   圆周模式（有 Radius）：圆心相对原点的偏移量。
+   多个 Vector 的 MoveTo 独立计算后位移叠加。
+   默认 0,0,0。
+Vector.MoveTo=0,0,0
+
+ Vector.Radius=lepton
+   圆形轨迹半径。设为非零值时进入圆周模式。
+   圆周模式下：圆心 = Origin + TargetFLH + MoveTo，物体绕圆心旋转。
+   与 Speed/StartSpeed 配合决定角速度。
+   默认 0（线性模式）。
+Vector.Radius=0
+
+ Vector.Force=yes/no
+   强制位移模式。设为 yes 时，完全忽略抛射体的原版飞行轨迹计算，
+   只使用 Vector 的强制位移。适用于需要完全控制抛射体路径的场景。
+   对 Techno/Aircraft 无影响（它们本身没有原版弹道）。
+   默认 no。
+Vector.Force=no
+
+ Vector.Freeze=yes/no
+   冻结模式。设为 yes 时，物体停留在当前坐标不移动，但 Duration 仍在计时。
+   自旋（SpinRate）仍然生效。
+   用于先冻结再释放，或配合其他效果器使用。
+   默认 no。
+Vector.Freeze=no
+
+ ------------------------------------------------------------
+ 速度控制
+ ------------------------------------------------------------
+
+ Vector.StartSpeed=速度值
+   初始速度。
+   线性模式：线速度（lepton/step）。
+   圆周模式：角速度（°/step），若未设置则由 AnglePerFrame 推算。
+   默认 0（自动读取 Techno 的 Speed）。
+Vector.StartSpeed=0
+
+ Vector.EndSpeed=速度值
+   终止速度。配合 Acceleration 使用。
+   线性模式：终止线速度。
+   圆周模式：终止角速度。
+   设为 -1 时不限制。
+   默认 -1。
+Vector.EndSpeed=-1
+
+ Vector.Acceleration=变化量/step
+   每 step 速度变化量。正=加速，负=减速。
+   线性模式：线加速度。
+   圆周模式：角加速度。
+   受 FrameStep 约束，只在运动帧执行。
+   默认 0（恒速）。
+Vector.Acceleration=0
+
+ Vector.FrameStep=N
+   运动颗粒度。每 N 帧执行一次位移/旋转/状态更新。
+   例如 FrameStep=3 表示每 3 帧移动一次，实际速度 = StartSpeed / 3。
+   同时约束以下参数的执行频率：
+     Acceleration、GrowRate、SpinAcceleration、TurretSpinAcceleration、
+     SpeedOscillation、SpinOscillation、TurretSpinOscillation、
+     GrowOscillation、WaveAmpOscillation、WaveFreqOscillation、
+     WaveFreqAcceleration
+   默认 1（每帧执行）。
+Vector.FrameStep=1
+
+ Vector.SpeedOscillation=度数
+   速度振荡幅度。叠加在基础速度上的正弦波振幅。
+   线性模式：实际线速度 = _currentSpeed + SpeedOscillation * sin(...)
+   圆周模式：实际角速度 = _currentSpeed / Radius + SpeedOscillation / Radius * sin(...)
+   受 FrameStep 约束，只在运动帧计算。
+   默认 0（不振荡）。
+Vector.SpeedOscillation=0
+
+ Vector.SpeedOscFreq=度数/step
+   速度振荡频率。360 = 一周期。
+   时间单位为 step（受 FrameStep 约束的运动帧）。
+   默认 0。
+Vector.SpeedOscFreq=0
+
+ Vector.SpeedOscPhase=度数
+   速度振荡初始相位。
+   默认 0。
+Vector.SpeedOscPhase=0
+
+ Vector.GrowRate=X,Y,Z
+   线性模式：MoveTo 每 step 增长量（呼吸效果）。
+   圆周模式：X=半径每 step 增长量（螺旋），Z=圆心垂直偏移增长量。
+   受 FrameStep 约束，只在运动帧增长。
+   默认 0,0,0。
+Vector.GrowRate=0,0,0
+
+ Vector.GrowOscillationX=Y,Z=振幅, GrowOscFreqX=Y,Z=频率, GrowOscPhaseX=Y,Z=相位
+   GrowRate 的正弦振荡分量。三轴独立控制。
+   实际增长率 = GrowRate + GrowOscillation * sin(GrowOscFreq * step + GrowOscPhase)
+   用于实现呼吸效果的周期性膨胀/收缩。
+   受 FrameStep 约束。
+   默认全部 0（不振荡）。
+Vector.GrowOscillationX=0
+Vector.GrowOscillationY=0
+Vector.GrowOscillationZ=0
+Vector.GrowOscFreqX=0
+Vector.GrowOscFreqY=0
+Vector.GrowOscFreqZ=0
+Vector.GrowOscPhaseX=0
+Vector.GrowOscPhaseY=0
+Vector.GrowOscPhaseZ=0
+
+ Vector.WaveAmplitude=X,Y,Z
+   振荡振幅。三轴分别控制。
+   配合 WaveFrequency 使用，每轴独立正弦波。
+   默认 0,0,0（不振荡）。
+Vector.WaveAmplitude=0,0,0
+
+ Vector.WaveFrequency=X,Y,Z
+   振荡频率（度/step）。三轴分别控制。
+   360 = 一周期。例如 5 → 72 step 一周期。
+   三轴频率互质时不闭合（李萨如图形）。
+   默认 0,0,0。
+Vector.WaveFrequency=0,0,0
+
+ Vector.WavePhase=X,Y,Z
+   振荡初始相位（度）。三轴分别控制。
+   用于错开多轴振荡（如 0,90,0 → X/Y 差90度相位）。
+   默认 0,0,0。
+Vector.WavePhase=0,0,0
+
+ Vector.WaveFreqAcceleration=X,Y,Z
+   波频率加速度（度/step²）。每 step 叠加到当前波频率上。
+   三轴分别控制。正值→频率加快（波形变密），负值→频率减慢（波形变疏）。
+   受 FrameStep 约束，只在运动帧执行。
+   受 WaveFreqEndSpeed 限制。
+   默认 0,0,0（频率恒定）。
+Vector.WaveFreqAcceleration=0,0,0
+
+ Vector.WaveFreqEndSpeed=X,Y,Z
+   波频率终止值（度/step）。配合 WaveFreqAcceleration 使用。
+   频率在此区间内被钳位（min/max）。
+   设为 0 时不限制。
+   默认 0,0,0（不限制）。
+Vector.WaveFreqEndSpeed=0,0,0
+
+ Vector.WaveAmpOscillation=百分比
+   振幅 LFO（低频振荡器）幅度。以百分比调制当前振幅。
+   公式: 最终振幅 = 基础振幅 × (1 + WaveAmpOscillation/100 × sin(...))
+   例如 50 → 振幅在 ±50% 间脉动。
+   受 FrameStep 约束，只在运动帧计算。
+   默认 0（不振荡）。
+Vector.WaveAmpOscillation=0
+
+ Vector.WaveAmpOscFreq=度数/step
+   振幅 LFO 频率。360 = 一周期。
+   时间单位为 step（受 FrameStep 约束的运动帧），不是原始帧。
+   默认 0。
+Vector.WaveAmpOscFreq=0
+
+ Vector.WaveAmpOscPhase=度数
+   振幅 LFO 初始相位。
+   默认 0。
+Vector.WaveAmpOscPhase=0
+
+ Vector.WaveFreqOscillation=度数
+   频率 LFO 幅度。以绝对值叠加到当前波频率上。
+   公式: 最终频率 = 基础频率 + WaveFreqOscillation × sin(...)
+   例如 10 → 频率在 ±10度/step 间抖动。
+   受 FrameStep 约束，只在运动帧计算。
+   默认 0（不振荡）。
+Vector.WaveFreqOscillation=0
+
+ Vector.WaveFreqOscFreq=度数/step
+   频率 LFO 频率。360 = 一周期。
+   时间单位为 step（受 FrameStep 约束的运动帧），不是原始帧。
+   默认 0。
+Vector.WaveFreqOscFreq=0
+
+ Vector.WaveFreqOscPhase=度数
+   频率 LFO 初始相位。
+   默认 0。
+Vector.WaveFreqOscPhase=0
+
+ ------------------------------------------------------------
+ 旋转（画圆/螺旋）
+ ------------------------------------------------------------
+
+ Vector.AnglePerFrame=度数
+   每 step 旋转角度。正=顺时针，负=逆时针。
+   圆周模式：若未设 StartSpeed，则用此值作为角速度。
+   若同时设了 StartSpeed 和 AnglePerFrame，以 StartSpeed 为准。
+   默认 0。
+Vector.AnglePerFrame=0
+
+ Vector.RotateAxis=X/Y/Z
+   旋转轴预设。有 RotateDirection 时被覆盖。
+   Z = 水平面画圆（最常用）
+   X = 前后翻转画圆
+   Y = 左右翻转画圆
+   默认 Z。
+Vector.RotateAxis=Z
+
+ Vector.RotateDirection=X,Y,Z
+   自定义旋转轴方向（世界坐标系）。
+   优先级高于 RotateAxis。
+   示例：1,1,0 → 绕45度斜轴旋转，画出椭圆轨迹。
+   默认 0,0,0（使用 RotateAxis）。
+Vector.RotateDirection=0,0,0
+
+ ------------------------------------------------------------
+ 自旋（模型旋转）
+ ------------------------------------------------------------
+
+ Vector.SpinRate=度数/step
+   Body 自旋初始角速度。正=顺时针，负=逆时针。
+   受 FrameStep 约束，只在运动帧更新。
+   多个 Vector 的 SpinRate 叠加（Rodrigues 旋转）。
+   对 Techno（PrimaryFacing）和 Bullet（Direction）均有效。
+   默认 0（不自旋）。
+Vector.SpinRate=0
+
+ Vector.SpinEndSpeed=度数/step
+   Body 自旋终止角速度。配合 SpinAcceleration 使用。
+   设为 -1 时不限制。默认 -1。
+Vector.SpinEndSpeed=-1
+
+ Vector.SpinAcceleration=度数/step²
+   Body 自旋角加速度。受 FrameStep 约束。默认 0。
+Vector.SpinAcceleration=0
+
+ Vector.SpinOscillation=度数
+   Body 自旋振荡幅度。叠加在基础角速度上的正弦波。
+   实际角速度 = SpinRate + SpinAcceleration * step + SpinOscillation * sin(...)
+   受 FrameStep 约束。默认 0。
+Vector.SpinOscillation=0
+
+ Vector.SpinOscFreq=度数/step
+   Body 自旋振荡频率。默认 0。
+Vector.SpinOscFreq=0
+
+ Vector.SpinOscPhase=度数
+   Body 自旋振荡初始相位。默认 0。
+Vector.SpinOscPhase=0
+
+ Vector.SpinAxis=X/Y/Z
+   自旋轴预设（物体局部坐标系）。有 SpinDirection 时被覆盖。
+   Z = 绕垂直轴水平自转（最常见）
+   X = 翻滚（Roll）
+   Y = 俯仰（Pitch）
+   默认 Z。
+Vector.SpinAxis=Z
+
+ Vector.SpinDirection=X,Y,Z
+   自定义自旋轴方向（局部坐标系）。
+   优先级高于 SpinAxis。
+   默认 0,0,0（使用 SpinAxis）。
+Vector.SpinDirection=0,0,0
+
+ ------------------------------------------------------------
+ 炮塔自旋
+ ------------------------------------------------------------
+
+ Vector.TurretSpinRate=度数/step
+   炮塔自旋初始角速度。与 SpinRate 用法一致。
+   多个 Vector 的 TurretSpinRate 叠加（Rodrigues 旋转）。
+   默认 0。
+Vector.TurretSpinRate=0
+
+ Vector.TurretSpinEndSpeed=度数/step
+   炮塔自旋终止角速度。默认 -1（不限制）。
+Vector.TurretSpinEndSpeed=-1
+
+ Vector.TurretSpinAcceleration=度数/step²
+   炮塔自旋角加速度。受 FrameStep 约束。默认 0。
+Vector.TurretSpinAcceleration=0
+
+ Vector.TurretSpinOscillation=度数
+   炮塔自旋振荡幅度。受 FrameStep 约束。默认 0。
+Vector.TurretSpinOscillation=0
+
+ Vector.TurretSpinOscFreq=度数/step
+   炮塔自旋振荡频率。默认 0。
+Vector.TurretSpinOscFreq=0
+
+ Vector.TurretSpinOscPhase=度数
+   炮塔自旋振荡初始相位。默认 0。
+Vector.TurretSpinOscPhase=0
+
+ Vector.TurretSpinAxis=X/Y/Z
+   炮塔自旋轴预设。默认 Z。
+Vector.TurretSpinAxis=Z
+
+ Vector.TurretSpinDirection=X,Y,Z
+   自定义炮塔自旋轴方向。优先级高于 TurretSpinAxis。
+   默认 0,0,0。
+Vector.TurretSpinDirection=0,0,0
+
+ Vector.FreeTurret=yes/no
+   炮塔自由模式。设为 yes 时，炮塔完全独立旋转（不受 Body 自旋影响）。
+   默认 no（炮塔跟随 Body 的旋转）。
+Vector.FreeTurret=no
+
+ ------------------------------------------------------------
+ 朝向控制
+ ------------------------------------------------------------
+
+ Vector.Facing=Destination/Target/Initial
+   基础朝向模式。SpinRate 在此基础上叠加自旋。
+   多个 Vector 时，取第一个活跃 Vector 的 Facing。
+   Destination = 朝向 MoveTo/TargetFLH 方向
+   Target = 朝向原始瞄准目标
+   Initial = 保持吃到效果时的朝向
+   默认 Destination。
+Vector.Facing=Destination
+
+ ------------------------------------------------------------
+ 参考系
+ ------------------------------------------------------------
+
+ Vector.Origin=World/Target/Launcher/Self/Realtime/Source/FLH
+    TargetFLH 和 MoveTo 的计算参考系。
+    每个 Vector 独立使用自己的 Origin 计算位移向量。
+    World = 世界坐标系，直接使用坐标值
+    Target = 以抛射体/单位的原始目标为原点
+    Launcher = 以发射者为原点（每帧动态读取发射者位置）
+    Self = 以吃到效果瞬间的自身位置为原点（最常用）
+    Realtime = 每帧以当前自身位置为原点（用于绕自身画圆）
+    Source = 以AE来源单位为原点（施加效果的单位，每帧动态读取）
+    FLH = 以获得AE时单位面朝方向为F计算偏移后的世界坐标作为固定原点
+          原点 = 单位坐标 + RotateByFacing(OriginFLH, 单位朝向)，此后不变
+    默认 Self。
+
+  Vector.OriginFLH=F,L,H
+    Origin=FLH 时生效。以获得AE时单位所在坐标为原点，单位面朝方向为F（前方），
+    L为左方，H为高度，计算偏移后的世界坐标作为固定原点。
+    示例：OriginFLH=0,512,0 → 原点在单位正前方512处
+    默认 0,0,0。
+
+ Vector.OriginNoUpdate=yes/no
+   设为 yes 时，Target/Launcher/Source 只取效果获得瞬间的坐标，
+   此后不再追踪移动。用于锚定到某个时刻的位置。
+   默认 no（每帧动态追踪）。
+Vector.OriginNoUpdate=no
+   默认 Self。
+Vector.Origin=Self
+
+ ------------------------------------------------------------
+ 筛选与权重
+ ------------------------------------------------------------
+
+ Vector.Weight=数值
+   向量权重。用于与 BlackHole 的交互判断。
+   Vector 之间不争夺，直接叠加。
+   默认 -1。
+Vector.Weight=-1
+
+ Vector.AffectAircraft=yes/no
+   是否影响 Aircraft。默认 yes。
+Vector.AffectAircraft=yes
+
+ Vector.AffectJumpjet=yes/no
+   是否影响 Jumpjet Vehicle。默认 yes。
+Vector.AffectJumpjet=yes
+
+ Vector.AffectBullet=yes/no
+   是否影响 Projectile。默认 yes。
+Vector.AffectBullet=yes
+
+ ------------------------------------------------------------
+ 继承自 EffectData 的通用参数（可选）
+ ------------------------------------------------------------
+
+ Vector.Enable=yes/no
+   手动启用/禁用。默认自动判断（有 MoveTo/TargetFLH/AnglePerFrame/SpinRate/WaveAmplitude 时自动启用）。
+
+ Vector.AffectTypes=类型1,类型2,...
+   白名单。只有列表中的 TechnoType/BulletType 才受此效果影响。
+   默认空（影响所有）。
+
+ Vector.NotAffectTypes=类型1,类型2,...
+   黑名单。列表中的类型不受此效果影响。
+
+ Vector.AffectTechno=yes/no
+   是否影响 Techno（建筑+步兵+载具+飞机）。默认 yes。
+
+ Vector.AffectSelf=yes/no
+   是否影响施加者自身。默认 no。
+
+ Vector.AffectInAir=yes/no
+   是否影响空中单位。默认 yes。
+
+ Vector.AffectsOwner=yes/no
+   是否影响所属方。默认 yes。
+
+ Vector.AffectsAllies=yes/no
+   是否影响盟友。默认 yes。
+
+ Vector.AffectsEnemies=yes/no
+   是否影响敌方。默认 yes。
+
+ Vector.AffectsCivilian=yes/no
+   是否影响平民。默认 yes。
+
+ Vector.AuxBuildings=建筑1,建筑2,...
+   前置建筑。所属方必须拥有列表中至少一个建筑，效果才生效。
+
+ Vector.NegBuildings=建筑1,建筑2,...
+   排除建筑。所属方拥有列表中任意建筑时，效果不生效。
+
+ Vector.Powered=yes/no
+   是否需要电力。建筑断电时效果暂停。默认 no。
+
+ Vector.CheckHealthPrecent=yes/no
+   是否检查血量比例。默认 no。
+
+ Vector.ActiveWhenHealthPercent=比例
+   血量低于此比例时激活效果（0~1）。默认 1。
+
+ Vector.DeactiveWhenHealthPercent=比例
+   血量高于此比例时停用效果（0~1）。默认 0。
+
+ Vector.TriggeredTimes=次数
+   最大触发次数。达到后效果结束。默认 -1（无限）。
+
+ Vector.AffectWho=Master/Stand/All
+   影响对象。Master=使者, Stand=替身, All=都影响。默认 Master。
+
+ Vector.DeactiveWhenCivilian=yes/no
+   平民是否不生效。默认 no。
+
+ ============================================================
+ 叠加规则
+ ============================================================
+ 多个带 Vector 效果的 AE 可以同时附加到一个对象上。
+
+ 每个 VectorEffect 独立计算自己的运动向量：
+   displacement_i = nextPos_i - currentPos
+   finalPos = currentPos + Σ displacement_i
+
+ 每个 Vector 使用自己的 Origin/TargetFLH/Speed/Radius 等参数独立计算。
+ 多个 Vector 的位移向量叠加后，一次性执行碰撞检测和 SetLocation。
+
+ Facing: 取第一个活跃 Vector 的 Facing（first-only + 级联）。
+ Spin/TurretSpin: 所有 Vector 叠加（Rodrigues 旋转），FreeTurret 控制炮塔跟随。
+ Duration: per-Vector，结束后其位移贡献移除。
+ 所有变化系数受 FrameStep 统一约束。
+
+ 结束规则：所有 VectorEffect 结束时触发落地逻辑（FallingExceptAircraft）。
+
+ BuildingTypes 永久免疫，不论 AffectBuilding 设置。
+
+ ============================================================
+ 与 BlackHole 的交互
+ ============================================================
+ BlackHole 捕获时，Vector 停止执行但不移除。
+ BlackHole 释放后，Vector 自动恢复执行。
+ Vector 之间不争夺，直接叠加。
+
+ ============================================================
+ 示例
+ ============================================================
+
+ --- 匀速直线 ---
+ [FlyStraightAE]
+ Duration=300
+ Vector.MoveTo=0,16,0          方向偏移
+ Vector.StartSpeed=16          线速度 16 lepton/step
+ Vector.Origin=Self
+
+ --- 匀速画圆（半径512，线速度50）---
+ [CircleAE]
+ Duration=720
+ Vector.Radius=512
+ Vector.StartSpeed=50          沿圆周线速度 50
+ Vector.Origin=Self
+
+ --- 匀速画圆（指定角速度）---
+ [CircleByAngleAE]
+ Duration=720
+ Vector.Radius=512
+ Vector.AnglePerFrame=5        5°/step（未设 StartSpeed 时使用）
+ Vector.Origin=Self
+
+ --- 渐开螺旋（半径递增）---
+ [InvoluteSpiralAE]
+ Duration=600
+ Vector.Radius=64              初始半径
+ Vector.GrowRate=4,0,0         X=半径每step+4
+ Vector.StartSpeed=50          沿圆周线速度恒定 50
+ Vector.Origin=Self
+
+ --- 收敛螺旋（半径递减）---
+ [ConvergeSpiralAE]
+ Duration=600
+ Vector.Radius=512
+ Vector.GrowRate=-4,0,0        X=半径每step-4
+ Vector.StartSpeed=50
+ Vector.Origin=Self
+
+ --- 螺旋上升 ---
+ [SpiralUpAE]
+ Duration=600
+ Vector.Radius=512
+ Vector.GrowRate=0,0,2         Z=圆心每step上升 2
+ Vector.StartSpeed=50
+ Vector.Origin=Self
+
+ --- 加速旋转 ---
+ [AccelCircleAE]
+ Duration=600
+ Vector.Radius=512
+ Vector.StartSpeed=2           初始角速度 2°/step
+ Vector.EndSpeed=10            终止角速度 10°/step
+ Vector.Acceleration=0.5       每step +0.5°
+ Vector.Origin=Self
+
+ --- 慢速画圆（颗粒度控制）---
+ [SlowCircleAE]
+ Duration=720
+ Vector.Radius=512
+ Vector.StartSpeed=15          角速度 15°/step
+ Vector.FrameStep=3            每3帧转一次 → 实际 5°/step
+ Vector.Origin=Self
+
+ --- 冻结 + 自旋 ---
+ [FreezeSpinAE]
+ Duration=300
+ Vector.Freeze=yes
+ Vector.SpinRate=15
+ Vector.Origin=Self
+
+ --- 叠加组合：圆 + 上升 ---
+ [AE_Circle]
+ Duration=600
+ Vector.Radius=512
+ Vector.StartSpeed=50
+ Vector.Origin=Self
+
+ [AE_Up]
+ Duration=600
+ Vector.MoveTo=0,0,2           线性模式：每step上升 2
+
+ --- 李萨如图形（三轴正弦波叠加）---
+ [LissajousAE]
+ Duration=1000
+ Vector.WaveAmplitude=256,256,0
+ Vector.WaveFrequency=5,7,0
+ Vector.StartSpeed=0
+
+ --- 3D锥形螺旋（自定义旋转轴）---
+ [ConeSpiralAE]
+ Duration=600
+ Vector.Radius=64
+ Vector.GrowRate=2,2,1
+ Vector.StartSpeed=50
+ Vector.RotateDirection=1,1,1
+ Vector.Origin=Self
+
+ --- 振幅脉动正弦波 ---
+ [PulseWaveAE]
+ Duration=600
+ Vector.WaveAmplitude=0,256,0
+ Vector.WaveFrequency=6,0,0
+ Vector.WaveAmpOscillation=80        振幅在 ±80% 间脉动
+ Vector.WaveAmpOscFreq=30            脉动周期 = 360/30 = 12 step
+ Vector.Origin=Self
+
+  --- 频率抖动正弦波 ---
+  [FreqJitterAE]
+  Duration=600
+  Vector.WaveAmplitude=0,256,0
+  Vector.WaveFrequency=6,0,0
+  Vector.WaveFreqOscillation=3        频率在 ±3度/step 间抖动
+  Vector.WaveFreqOscFreq=20           抖动周期 = 360/20 = 18 step
+  Vector.Origin=Self
+
+  --- FLH原点偏移（在单位前方固定位置生成原点）---
+  [FLHOriginAE]
+  Duration=300
+  Vector.Origin=FLH                   以面朝方向计算偏移原点
+  Vector.OriginFLH=0,512,0            原点在单位正前方512处
+  Vector.TargetFLH=0,0,256            目标在原点上方256
+  Vector.StartSpeed=50
