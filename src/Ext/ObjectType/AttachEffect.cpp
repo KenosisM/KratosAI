@@ -18,6 +18,7 @@
 #include <Ext/EffectType/Effect/AttackBeaconEffect.h>
 #include <Ext/EffectType/Effect/CounterEffect.h>
 #include <Ext/EffectType/Effect/StandEffect.h>
+#include <Ext/EffectType/Effect/VectorEffect.h>
 #include <Ext/BulletType/BulletStatus.h>
 #include <Ext/TechnoType/TechnoStatus.h>
 #include <Ext/TechnoType/UploadAttachData.h>
@@ -231,6 +232,31 @@ CrateBuffData AttachEffect::CountAttachStatusMultiplier()
 		}
 		});
 	return multiplier;
+}
+
+VectorResult AttachEffect::MarginVectorOffset()
+{
+	VectorResult result;
+	CoordStruct currentPos = pObject->GetCoords();
+	ForeachChild([&result, &currentPos](Component* c) {
+		auto temp = dynamic_cast<AttachEffectScript*>(c);
+		if (temp && temp->IsAlive() && !temp->IsPaused() && temp->AEData.Vector.Enable && !temp->AEData.Vector.Freeze)
+		{
+			if (auto* ve = temp->GetComponent<VectorEffect>())
+			{
+				VectorResult tempResult = ve->GetVectorResult();
+				result.MoveDisp.X += tempResult.MoveDisp.X;
+				result.MoveDisp.Y += tempResult.MoveDisp.Y;
+				result.MoveDisp.Z += tempResult.MoveDisp.Z;
+				result.Freeze |= tempResult.Freeze;
+				if (tempResult.Freeze && !tempResult.FrozenPos.IsEmpty())
+				{
+					result.FrozenPos = tempResult.FrozenPos;
+				}
+			}
+		}
+	});
+	return result;
 }
 
 ImmuneData AttachEffect::GetImmuneData()

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <string>
 #include <vector>
@@ -26,6 +26,19 @@ class CounterEffect;
 /// @brief 快速查找的map，使用vector代替map，以达到更快的查找速度
 template<typename K, typename V>
 using StackOffsetMap = std::vector<std::pair<K, V>>;
+
+/// @brief 位移向量结果结构体，包含位移向量和是否冻结标志位。用于VectorEffect的位移计算结果存储。
+struct VectorResult
+{
+	CoordStruct MoveDisp = CoordStruct::Empty; // 位移向量
+	bool CanPassBuilding = false; // 是否可以穿过建筑
+	bool Freeze = false; // 是否冻结标志位，如果为true，则表示被冻结，位移无效
+	CoordStruct FrozenPos = CoordStruct::Empty; // 冻结时的位置，仅当Freeze为true时有效
+	bool AllowFallingDestroy = false; // 是否允许掉落摧毁
+	int FallingDestroyHeight = 2 * Unsorted::LevelHeight; // 掉落摧毁高度，仅当AllowFallingDestroy为true时有效
+	bool AllowCrawl = false; // 是否播放爬行帧
+	bool AllowRotateUnit = false; // 是否调整朝向
+};
 
 /// @brief AEManager, sub-component is AttachEffectScript, and AttachEffectScript 's sub-component is EffectScript
 /// GameObject
@@ -72,6 +85,13 @@ public:
 	 * @return CrateBuffData
 	 */
 	CrateBuffData CountAttachStatusMultiplier();
+
+	/**
+	 *@brief 统计所有的位移向量，并返回总和向量
+	 * 
+	 * @return CoordStruct 
+	 */
+	VectorResult MarginVectorOffset();
 
 	/**
 	 *@brief 读取所有生效的免疫Buff
@@ -188,6 +208,8 @@ public:
 	void CheckDurationAndDisable(bool silence = false);
 
 	void OnGScreenRender(EventSystem* sender, Event e, void* args);
+
+	static void TransferAttachedEffects(TechnoClass* pSourceTechno, TechnoClass* pTargetTechno);
 
 	virtual void ExtChanged() override
 	{

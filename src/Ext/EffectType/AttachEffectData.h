@@ -1,7 +1,6 @@
-#pragma once
+﻿#pragma once
 
 #include <algorithm>
-#include <fstream>
 #include <string>
 #include <vector>
 #include <set>
@@ -193,11 +192,6 @@ public:
 
 	void ReadEffects(INIBufferReader* reader)
 	{
-		{
-			std::ofstream f("I:\\kratosAI\\ae_debug.log", std::ios::app);
-			f << "ReadEffects: section=" << reader->Section << "\n";
-			f.close();
-		}
 		EFFECT_VAR_READ(Animation);
 		EFFECT_VAR_READ(AttackBeacon);
 		EFFECT_VAR_READ(AutoWeapon);
@@ -205,17 +199,7 @@ public:
 		EFFECT_VAR_READ(CrateBuff);
 		EFFECT_VAR_READ(Counter);
 		EFFECT_VAR_READ(CountTrigger);
-		{
-			std::ofstream f("I:\\kratosAI\\ae_debug.log", std::ios::app);
-			f << "ReadEffects: reading Ammo, Ammo.Enable=" << Ammo.Enable << "\n";
-			f.close();
-		}
 		EFFECT_VAR_READ(Ammo);
-		{
-			std::ofstream f("I:\\kratosAI\\ae_debug.log", std::ios::app);
-			f << "ReadEffects: reading AmmoTrigger, AmmoTrigger.Enable=" << AmmoTrigger.Enable << "\n";
-			f.close();
-		}
 		EFFECT_VAR_READ(AmmoTrigger);
 
 		EFFECT_VAR_READ(DamageSelf);
@@ -266,12 +250,6 @@ public:
 		EFFECT_VAR_SCRIPT_NAME(CountTrigger);
 		EFFECT_VAR_SCRIPT_NAME(Ammo);
 		EFFECT_VAR_SCRIPT_NAME(AmmoTrigger);
-
-		{
-			std::ofstream f("I:\\kratosAI\\ae_debug.log", std::ios::app);
-			f << "GetScriptNames: Ammo.Enable=" << Ammo.Enable << ", AmmoTrigger.Enable=" << AmmoTrigger.Enable << ", names.size=" << names.size() << "\n";
-			f.close();
-		}
 		EFFECT_VAR_SCRIPT_NAME(DamageSelf);
 		EFFECT_VAR_SCRIPT_NAME(ExtraFire);
 		EFFECT_VAR_SCRIPT_NAME(FireSuper);

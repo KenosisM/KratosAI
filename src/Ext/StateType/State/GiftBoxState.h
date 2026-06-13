@@ -127,6 +127,8 @@ private:
 		return _delay <= 0 || _delayTimer.Expired();
 	}
 
+	bool _dynamicFilled = false;
+
 	bool _isElite = false;
 	int _delay = 0;
 	CDTimerClass _delayTimer{};

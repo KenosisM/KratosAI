@@ -139,6 +139,9 @@ public:
 	bool PumpAction(CoordStruct targetPos, bool isLobber, Sequence flySequence); // 爆炸冲击
 	void HumanCannon(CoordStruct sourcePos, CoordStruct targetPos, int height, bool isLobber, Sequence flySequence); // 人间大炮
 
+	// 向量位移
+	void VectorCancel();
+
 	virtual void Clean() override
 	{
 		TechnoScript::Clean();
@@ -412,6 +415,7 @@ public:
 	bool AttackBeaconRecruited = false;
 
 	bool CaptureByBlackHole = false;
+	bool VectorForced = false;
 	bool Jumping = false;
 
 	// 冻结
@@ -490,6 +494,10 @@ public:
 			.Process(this->_blackHoleData)
 			.Process(this->_blackHoleDamageDelay)
 			.Process(this->_lostControl)
+
+			// 向量位移
+			.Process(this->VectorForced)
+			.Process(this->_vectorResult)
 			.Success();
 	};
 	virtual bool Load(ExStreamReader& stream, bool registerForChange) override
@@ -565,6 +573,7 @@ private:
 	void OnUpdate_Passenger();
 	void OnUpdate_TargetLaser();
 	void OnUpdate_Transform();
+	void OnUpdate_Vector();
 
 	void OnWarpUpdate_DestroySelf_Stand();
 
@@ -661,4 +670,7 @@ private:
 	BlackHoleData _blackHoleData{};
 	CDTimerClass _blackHoleDamageDelay{};
 	bool _lostControl = false;
+
+	// 向量位移
+	VectorResult _vectorResult{};
 };

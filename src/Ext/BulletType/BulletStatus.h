@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <string>
 #include <format>
@@ -201,10 +201,12 @@ public:
 			.Process(this->_pFakeTarget)
 			// 黑洞
 			.Process(this->CaptureByBlackHole)
-			.Process(this->VectorForced)
 			.Process(this->_pBlackHole)
 			.Process(this->_blackHoleData)
 			.Process(this->_blackHoleDamageDelay)
+			// 位移向量
+			.Process(this->VectorForced)
+			.Process(this->_vectorResult)
 			// 碰撞引信
 			.Process(this->_proximity)
 			.Process(this->_activeProximity)
@@ -277,6 +279,9 @@ private:
 	ObjectClass* _pBlackHole = nullptr;
 	BlackHoleData _blackHoleData{};
 	CDTimerClass _blackHoleDamageDelay{};
+
+	// 向量位移
+	VectorResult _vectorResult{};
 
 	// 碰撞引信配置
 	ProximityData* _proximityData = nullptr;

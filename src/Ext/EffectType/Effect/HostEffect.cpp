@@ -1,9 +1,9 @@
-#include "HostEffect.h"
+﻿#include "HostEffect.h"
 
 #include <Ext/Helper/MathEx.h>
 #include <Ext/Helper/Gift.h>
 
-void HostEffect::OnUpdate()
+void HostEffect::OnStart()
 {
 	// Dynamic 模式：首次执行时自动填入被附加对象的类型名
 	if (Data->Data.Dynamic && !_dynamicFilled)
@@ -22,12 +22,12 @@ void HostEffect::OnUpdate()
 		{
 			Data->Data.Gifts = { typeId };
 			Data->EliteData.Gifts = Data->Data.Gifts;
-			Data->Enable = true;
-			Data->Data.Enable = true;
-			Data->EliteData.Enable = true;
 		}
 	}
+}
 
+void HostEffect::OnUpdate()
+{
 	if (AE->OwnerIsDead())
 	{
 		return;

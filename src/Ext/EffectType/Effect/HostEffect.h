@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <string>
 #include <vector>
@@ -37,6 +37,7 @@ public:
 		_delayTimer = {};
 	}
 
+	virtual void OnStart() override;
 	virtual void OnUpdate() override;
 
 #pragma region Save/Load

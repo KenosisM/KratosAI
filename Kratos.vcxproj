@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ShowAllFiles>true</ShowAllFiles>
@@ -47,9 +47,10 @@
     <ClCompile Include="src\Ext\BulletType\Status\CrateBuff.cpp" />
     <ClCompile Include="src\Ext\BulletType\Status\DestroySelf.cpp" />
     <ClCompile Include="src\Ext\BulletType\Status\GiftBox.cpp" />
-    <ClCompile Include="src\Ext\BulletType\Status\SelfLaunch.cpp" />
     <ClCompile Include="src\Ext\BulletType\Status\Paintball.cpp" />
     <ClCompile Include="src\Ext\BulletType\Status\Proximity.cpp" />
+    <ClCompile Include="src\Ext\BulletType\Status\SelfLaunch.cpp" />
+    <ClCompile Include="src\Ext\BulletType\Status\Vector.cpp" />
     <ClCompile Include="src\Ext\BulletType\Trajectory\ArcingTrajectory.cpp" />
     <ClCompile Include="src\Ext\BulletType\Trajectory\MissileTrajectory.cpp" />
     <ClCompile Include="src\Ext\BulletType\Trajectory\StraightTrajectory.cpp" />
@@ -79,6 +80,7 @@
     <ClCompile Include="src\Ext\EffectType\Effect\StackEffect.cpp" />
     <ClCompile Include="src\Ext\EffectType\Effect\StandEffect.cpp" />
     <ClCompile Include="src\Ext\EffectType\Effect\VampireEffect.cpp" />
+    <ClCompile Include="src\Ext\EffectType\Effect\VectorEffect.cpp" />
     <ClCompile Include="src\Ext\EffectType\State\StateEffect.cpp" />
     <ClCompile Include="src\Ext\EffectType\State\StateEffectScript.cpp" />
     <ClCompile Include="src\Ext\Helper\CastEx.cpp" />
@@ -148,6 +150,7 @@
     <ClCompile Include="src\Ext\TechnoType\Status\TargetLaser.cpp" />
     <ClCompile Include="src\Ext\TechnoType\Status\Transform.cpp" />
     <ClCompile Include="src\Ext\TechnoType\Status\Vampire.cpp" />
+    <ClCompile Include="src\Ext\TechnoType\Status\Vector.cpp" />
     <ClCompile Include="src\Ext\TechnoType\Spawn.cpp" />
     <ClCompile Include="src\Ext\TechnoType\SupportSpawns.cpp" />
     <ClCompile Include="src\Ext\TechnoType\TechnoStatus.cpp" />
@@ -301,6 +304,8 @@
     <ClInclude Include="src\Ext\EffectType\Effect\StandEffect.h" />
     <ClInclude Include="src\Ext\EffectType\Effect\VampireData.h" />
     <ClInclude Include="src\Ext\EffectType\Effect\VampireEffect.h" />
+    <ClInclude Include="src\Ext\EffectType\Effect\VectorData.h" />
+    <ClInclude Include="src\Ext\EffectType\Effect\VectorEffect.h" />
     <ClInclude Include="src\Ext\EffectType\State\StateEffect.h" />
     <ClInclude Include="src\Ext\EffectType\State\StateEffectScript.h" />
     <ClInclude Include="src\Ext\Helper\CastEx.h" />

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <string>
 #include <vector>
@@ -21,22 +21,17 @@ public:
 		_initialTarget = {};
 		_initialOriginPos = {};
 		_randomTargetOffset = {};
-		_initialFacing = DirStruct{};
 		_pLauncher = nullptr;
 		_pSource = nullptr;
 		_currentSpeed = 0;
 		_elapsedFrames = 0;
 		_moveFrame = 0;
-		_currentAngle = 0;
-		_currentWaveFrequency = {};
-		_currentSpinRate = 0;
-		_currentTurretSpinRate = 0;
 	}
 
 	virtual void OnStart() override;
-	virtual void End(CoordStruct location) override;
-	virtual void OnPause() override;
-	virtual void OnRecover() override;
+
+	// 获取位移结果，包含位移向量和冻结状态等信息
+	VectorResult GetVectorResult();
 
 #pragma region Save/Load
 	template <typename T>
@@ -46,16 +41,11 @@ public:
 			.Process(this->_initialTarget)
 			.Process(this->_initialOriginPos)
 			.Process(this->_randomTargetOffset)
-			.Process(this->_initialFacing)
 			.Process(this->_pLauncher)
 			.Process(this->_pSource)
 			.Process(this->_currentSpeed)
 			.Process(this->_elapsedFrames)
-			.Process(this->_moveFrame)
-			.Process(this->_currentAngle)
-			.Process(this->_currentWaveFrequency)
-			.Process(this->_currentSpinRate)
-			.Process(this->_currentTurretSpinRate);
+			.Process(this->_moveFrame);
 		return stream.Success();
 	};
 
@@ -75,14 +65,9 @@ public:
 	CoordStruct _initialTarget{};
 	CoordStruct _initialOriginPos{};
 	CoordStruct _randomTargetOffset{};
-	DirStruct _initialFacing{};
 	ObjectClass* _pLauncher = nullptr;
 	ObjectClass* _pSource = nullptr;
 	int _currentSpeed = 0;
 	int _elapsedFrames = 0;
 	int _moveFrame = 0;
-	double _currentAngle = 0;
-	CoordStruct _currentWaveFrequency{};
-	int _currentSpinRate = 0;
-	int _currentTurretSpinRate = 0;
 };

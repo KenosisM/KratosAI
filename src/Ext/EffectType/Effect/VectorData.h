@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <string>
 #include <vector>
@@ -170,11 +170,11 @@ public:
 	CoordStruct OriginFLH{};
 	bool OriginNoUpdate = false;
 
-	double Weight = -1;
+	VectorData() : EffectData()
+	{
+		AffectBuilding = false;
+	}
 
-	bool AffectAircraft = true;
-	bool AffectJumpjet = true;
-	bool AffectBullet = true;
 
 	virtual void Read(INIBufferReader* reader) override
 	{
@@ -265,12 +265,6 @@ public:
 		OriginFLH = reader->Get(title + "OriginFLH", OriginFLH);
 		OriginNoUpdate = reader->Get(title + "OriginNoUpdate", OriginNoUpdate);
 
-		Weight = reader->Get(title + "Weight", Weight);
-
-		AffectAircraft = reader->Get(title + "AffectAircraft", AffectAircraft);
-		AffectJumpjet = reader->Get(title + "AffectJumpjet", AffectJumpjet);
-		AffectBullet = reader->Get(title + "AffectBullet", AffectBullet);
-
 		Enable = !MoveTo.IsEmpty() || !TargetFLH.IsEmpty() || AnglePerFrame != 0 || Radius != 0
 			|| SpinRate != 0 || !WaveAmplitude.IsEmpty() || Force || Freeze;
 	}
@@ -347,13 +341,7 @@ public:
 			.Process(this->Facing)
 			.Process(this->Origin)
 			.Process(this->OriginFLH)
-			.Process(this->OriginNoUpdate)
-
-			.Process(this->Weight)
-
-			.Process(this->AffectAircraft)
-			.Process(this->AffectJumpjet)
-			.Process(this->AffectBullet);
+			.Process(this->OriginNoUpdate);
 		return stream.Success();
 	};
 

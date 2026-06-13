@@ -1,4 +1,4 @@
-#include "GiftBoxState.h"
+﻿#include "GiftBoxState.h"
 
 #include <Ext/Helper/MathEx.h>
 #include <Ext/Helper/Gift.h>
@@ -23,8 +23,9 @@ void GiftBoxState::ResetGiftBox()
 void GiftBoxState::OnStart()
 {
 	// Dynamic 模式：自动读取被附加对象的类型名填入 Types
-	if (Data.Data.Dynamic && Data.Data.Gifts.empty())
+	if (Data.Data.Dynamic && !_dynamicFilled)
 	{
+		_dynamicFilled = true;
 		std::string typeId;
 		if (pTechno)
 		{
@@ -38,9 +39,6 @@ void GiftBoxState::OnStart()
 		{
 			Data.Data.Gifts = { typeId };
 			Data.EliteData.Gifts = Data.Data.Gifts;
-			Data.Enable = true;
-			Data.Data.Enable = true;
-			Data.EliteData.Enable = true;
 		}
 	}
 	ResetGiftBox();
