@@ -34,6 +34,7 @@ struct VectorResult
 	bool CanPassBuilding = false; // 是否可以穿过建筑
 	bool Freeze = false; // 是否冻结标志位，如果为true，则表示被冻结，位移无效
 	CoordStruct FrozenPos = CoordStruct::Empty; // 冻结时的位置，仅当Freeze为true时有效
+	bool Force = false; // Force 模式，Vector 完全接管位置（非运动帧也 SetLocation 保持原地）
 	bool AllowFallingDestroy = false; // 是否允许掉落摧毁
 	int FallingDestroyHeight = 2 * Unsorted::LevelHeight; // 掉落摧毁高度，仅当AllowFallingDestroy为true时有效
 	bool AllowCrawl = false; // 是否播放爬行帧

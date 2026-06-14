@@ -1,4 +1,4 @@
-﻿#include "AttachEffect.h"
+#include "AttachEffect.h"
 
 #include <BuildingClass.h>
 #include <MissionClass.h>
@@ -240,18 +240,23 @@ VectorResult AttachEffect::MarginVectorOffset()
 	CoordStruct currentPos = pObject->GetCoords();
 	ForeachChild([&result, &currentPos](Component* c) {
 		auto temp = dynamic_cast<AttachEffectScript*>(c);
-		if (temp && temp->IsAlive() && !temp->IsPaused() && temp->AEData.Vector.Enable && !temp->AEData.Vector.Freeze)
+		if (temp && temp->IsAlive() && !temp->IsPaused())
 		{
-			if (auto* ve = temp->GetComponent<VectorEffect>())
+			// Vector（替代 V1，包括 Freeze）
+			if (temp->AEData.Vector.Enable)
 			{
-				VectorResult tempResult = ve->GetVectorResult();
-				result.MoveDisp.X += tempResult.MoveDisp.X;
-				result.MoveDisp.Y += tempResult.MoveDisp.Y;
-				result.MoveDisp.Z += tempResult.MoveDisp.Z;
-				result.Freeze |= tempResult.Freeze;
-				if (tempResult.Freeze && !tempResult.FrozenPos.IsEmpty())
+				if (auto* ve = temp->GetComponent<VectorEffect>())
 				{
-					result.FrozenPos = tempResult.FrozenPos;
+					VectorResult tempResult = ve->GetVectorResult();
+					result.MoveDisp.X += tempResult.MoveDisp.X;
+					result.MoveDisp.Y += tempResult.MoveDisp.Y;
+					result.MoveDisp.Z += tempResult.MoveDisp.Z;
+					result.Freeze |= tempResult.Freeze;
+					result.Force |= tempResult.Force;
+					if (tempResult.Freeze && !tempResult.FrozenPos.IsEmpty())
+					{
+						result.FrozenPos = tempResult.FrozenPos;
+					}
 				}
 			}
 		}

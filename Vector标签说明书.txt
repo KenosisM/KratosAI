@@ -1,636 +1,331 @@
-﻿ ============================================================
- Vector 效果器 INI 标签说明书
  ============================================================
- Vector 是一种纯位移效果器，在 Duration 期间直接修改附着对象的坐标。
- 适用于 Aircraft、Jumpjet Vehicle、Projectile 等所有非建筑类型。
- BuildingTypes 永久免疫，不论 INI 如何设置。
-
- 所有标签写在 [AttachEffectSection] 下，前缀为 Vector.
- 示例：
-   [MyVectorAE]
-   Duration=300
-   Vector.MoveTo=0,0,16
-   Vector.AnglePerFrame=5
-
- 架构：
-   VectorEffect 为纯数据容器，存储配置和运行时状态。
-   运动计算由 TechnoStatus（Techno）和 BulletStatus（Bullet）统一执行。
-   多个 Vector 的位移向量叠加后，一次性执行碰撞检测和 SetLocation。
-   与 BlackHole 架构对齐：数据在 EffectScript，计算在 Status。
- ============================================================
-
- ------------------------------------------------------------
- 基础运动参数
- ------------------------------------------------------------
-
- Vector.TargetFLH=X,Y,Z
-   最终目标坐标。对象在持续时间内朝此方向飞行。
-   坐标含义由 Vector.Origin 决定。
-   默认 0,0,0（不启用目标飞行，仅用 MoveTo 偏移）。
-Vector.TargetFLH=0,0,0
-
- Vector.TargetRandF=Min,Max
-   随机前向偏移范围（lepton）。效果获得瞬间随机生成一次，此后不再刷新。
-   最终随机目标前向分量 = TargetFLH.F + Random(Min, Max)。
-   默认 0,0（不启用随机）。
-Vector.TargetRandF=0,0
-
- Vector.TargetRandL=Min,Max
-   随机左向偏移范围（lepton）。
-   最终随机目标左向分量 = TargetFLH.L + Random(Min, Max)。
-   默认 0,0。
-Vector.TargetRandL=0,0
-
- Vector.TargetRandH=Min,Max
-   随机高度偏移范围（lepton）。
-   最终随机目标高度分量 = TargetFLH.H + Random(Min, Max)。
-   默认 0,0。
-Vector.TargetRandH=0,0
-
- Vector.ReachTarget=yes/no
-   设为 yes 时，系统根据剩余时间和距离自动计算速度，
-   保证 Duration 结束时恰好到达 TargetFLH。
-   默认 no（恒定速度飞行，到不到不管）。
-Vector.ReachTarget=no
-
- Vector.MoveTo=X,Y,Z
-   坐标偏移量。
-   线性模式（无 Radius）：每帧位移向量，对象沿此方向移动。
-   圆周模式（有 Radius）：圆心相对原点的偏移量。
-   多个 Vector 的 MoveTo 独立计算后位移叠加。
-   默认 0,0,0。
-Vector.MoveTo=0,0,0
-
- Vector.Radius=lepton
-   圆形轨迹半径。设为非零值时进入圆周模式。
-   圆周模式下：圆心 = Origin + TargetFLH + MoveTo，物体绕圆心旋转。
-   与 Speed/StartSpeed 配合决定角速度。
-   默认 0（线性模式）。
-Vector.Radius=0
-
- Vector.Force=yes/no
-   强制位移模式。设为 yes 时，完全忽略抛射体的原版飞行轨迹计算，
-   只使用 Vector 的强制位移。适用于需要完全控制抛射体路径的场景。
-   对 Techno/Aircraft 无影响（它们本身没有原版弹道）。
-   默认 no。
-Vector.Force=no
-
- Vector.Freeze=yes/no
-   冻结模式。设为 yes 时，物体停留在当前坐标不移动，但 Duration 仍在计时。
-   自旋（SpinRate）仍然生效。
-   用于先冻结再释放，或配合其他效果器使用。
-   默认 no。
-Vector.Freeze=no
-
- ------------------------------------------------------------
- 速度控制
- ------------------------------------------------------------
-
- Vector.StartSpeed=速度值
-   初始速度。
-   线性模式：线速度（lepton/step）。
-   圆周模式：角速度（°/step），若未设置则由 AnglePerFrame 推算。
-   默认 0（自动读取 Techno 的 Speed）。
-Vector.StartSpeed=0
-
- Vector.EndSpeed=速度值
-   终止速度。配合 Acceleration 使用。
-   线性模式：终止线速度。
-   圆周模式：终止角速度。
-   设为 -1 时不限制。
-   默认 -1。
-Vector.EndSpeed=-1
-
- Vector.Acceleration=变化量/step
-   每 step 速度变化量。正=加速，负=减速。
-   线性模式：线加速度。
-   圆周模式：角加速度。
-   受 FrameStep 约束，只在运动帧执行。
-   默认 0（恒速）。
-Vector.Acceleration=0
-
- Vector.FrameStep=N
-   运动颗粒度。每 N 帧执行一次位移/旋转/状态更新。
-   例如 FrameStep=3 表示每 3 帧移动一次，实际速度 = StartSpeed / 3。
-   同时约束以下参数的执行频率：
-     Acceleration、GrowRate、SpinAcceleration、TurretSpinAcceleration、
-     SpeedOscillation、SpinOscillation、TurretSpinOscillation、
-     GrowOscillation、WaveAmpOscillation、WaveFreqOscillation、
-     WaveFreqAcceleration
-   默认 1（每帧执行）。
-Vector.FrameStep=1
-
- Vector.SpeedOscillation=度数
-   速度振荡幅度。叠加在基础速度上的正弦波振幅。
-   线性模式：实际线速度 = _currentSpeed + SpeedOscillation * sin(...)
-   圆周模式：实际角速度 = _currentSpeed / Radius + SpeedOscillation / Radius * sin(...)
-   受 FrameStep 约束，只在运动帧计算。
-   默认 0（不振荡）。
-Vector.SpeedOscillation=0
-
- Vector.SpeedOscFreq=度数/step
-   速度振荡频率。360 = 一周期。
-   时间单位为 step（受 FrameStep 约束的运动帧）。
-   默认 0。
-Vector.SpeedOscFreq=0
-
- Vector.SpeedOscPhase=度数
-   速度振荡初始相位。
-   默认 0。
-Vector.SpeedOscPhase=0
-
- Vector.GrowRate=X,Y,Z
-   线性模式：MoveTo 每 step 增长量（呼吸效果）。
-   圆周模式：X=半径每 step 增长量（螺旋），Z=圆心垂直偏移增长量。
-   受 FrameStep 约束，只在运动帧增长。
-   默认 0,0,0。
-Vector.GrowRate=0,0,0
-
- Vector.GrowOscillationX=Y,Z=振幅, GrowOscFreqX=Y,Z=频率, GrowOscPhaseX=Y,Z=相位
-   GrowRate 的正弦振荡分量。三轴独立控制。
-   实际增长率 = GrowRate + GrowOscillation * sin(GrowOscFreq * step + GrowOscPhase)
-   用于实现呼吸效果的周期性膨胀/收缩。
-   受 FrameStep 约束。
-   默认全部 0（不振荡）。
-Vector.GrowOscillationX=0
-Vector.GrowOscillationY=0
-Vector.GrowOscillationZ=0
-Vector.GrowOscFreqX=0
-Vector.GrowOscFreqY=0
-Vector.GrowOscFreqZ=0
-Vector.GrowOscPhaseX=0
-Vector.GrowOscPhaseY=0
-Vector.GrowOscPhaseZ=0
-
- Vector.WaveAmplitude=X,Y,Z
-   振荡振幅。三轴分别控制。
-   配合 WaveFrequency 使用，每轴独立正弦波。
-   默认 0,0,0（不振荡）。
-Vector.WaveAmplitude=0,0,0
-
- Vector.WaveFrequency=X,Y,Z
-   振荡频率（度/step）。三轴分别控制。
-   360 = 一周期。例如 5 → 72 step 一周期。
-   三轴频率互质时不闭合（李萨如图形）。
-   默认 0,0,0。
-Vector.WaveFrequency=0,0,0
-
- Vector.WavePhase=X,Y,Z
-   振荡初始相位（度）。三轴分别控制。
-   用于错开多轴振荡（如 0,90,0 → X/Y 差90度相位）。
-   默认 0,0,0。
-Vector.WavePhase=0,0,0
-
- Vector.WaveFreqAcceleration=X,Y,Z
-   波频率加速度（度/step²）。每 step 叠加到当前波频率上。
-   三轴分别控制。正值→频率加快（波形变密），负值→频率减慢（波形变疏）。
-   受 FrameStep 约束，只在运动帧执行。
-   受 WaveFreqEndSpeed 限制。
-   默认 0,0,0（频率恒定）。
-Vector.WaveFreqAcceleration=0,0,0
-
- Vector.WaveFreqEndSpeed=X,Y,Z
-   波频率终止值（度/step）。配合 WaveFreqAcceleration 使用。
-   频率在此区间内被钳位（min/max）。
-   设为 0 时不限制。
-   默认 0,0,0（不限制）。
-Vector.WaveFreqEndSpeed=0,0,0
-
- Vector.WaveAmpOscillation=百分比
-   振幅 LFO（低频振荡器）幅度。以百分比调制当前振幅。
-   公式: 最终振幅 = 基础振幅 × (1 + WaveAmpOscillation/100 × sin(...))
-   例如 50 → 振幅在 ±50% 间脉动。
-   受 FrameStep 约束，只在运动帧计算。
-   默认 0（不振荡）。
-Vector.WaveAmpOscillation=0
-
- Vector.WaveAmpOscFreq=度数/step
-   振幅 LFO 频率。360 = 一周期。
-   时间单位为 step（受 FrameStep 约束的运动帧），不是原始帧。
-   默认 0。
-Vector.WaveAmpOscFreq=0
-
- Vector.WaveAmpOscPhase=度数
-   振幅 LFO 初始相位。
-   默认 0。
-Vector.WaveAmpOscPhase=0
-
- Vector.WaveFreqOscillation=度数
-   频率 LFO 幅度。以绝对值叠加到当前波频率上。
-   公式: 最终频率 = 基础频率 + WaveFreqOscillation × sin(...)
-   例如 10 → 频率在 ±10度/step 间抖动。
-   受 FrameStep 约束，只在运动帧计算。
-   默认 0（不振荡）。
-Vector.WaveFreqOscillation=0
-
- Vector.WaveFreqOscFreq=度数/step
-   频率 LFO 频率。360 = 一周期。
-   时间单位为 step（受 FrameStep 约束的运动帧），不是原始帧。
-   默认 0。
-Vector.WaveFreqOscFreq=0
-
- Vector.WaveFreqOscPhase=度数
-   频率 LFO 初始相位。
-   默认 0。
-Vector.WaveFreqOscPhase=0
-
- ------------------------------------------------------------
- 旋转（画圆/螺旋）
- ------------------------------------------------------------
-
- Vector.AnglePerFrame=度数
-   每 step 旋转角度。正=顺时针，负=逆时针。
-   圆周模式：若未设 StartSpeed，则用此值作为角速度。
-   若同时设了 StartSpeed 和 AnglePerFrame，以 StartSpeed 为准。
-   默认 0。
-Vector.AnglePerFrame=0
-
- Vector.RotateAxis=X/Y/Z
-   旋转轴预设。有 RotateDirection 时被覆盖。
-   Z = 水平面画圆（最常用）
-   X = 前后翻转画圆
-   Y = 左右翻转画圆
-   默认 Z。
-Vector.RotateAxis=Z
-
- Vector.RotateDirection=X,Y,Z
-   自定义旋转轴方向（世界坐标系）。
-   优先级高于 RotateAxis。
-   示例：1,1,0 → 绕45度斜轴旋转，画出椭圆轨迹。
-   默认 0,0,0（使用 RotateAxis）。
-Vector.RotateDirection=0,0,0
-
- ------------------------------------------------------------
- 自旋（模型旋转）
- ------------------------------------------------------------
-
- Vector.SpinRate=度数/step
-   Body 自旋初始角速度。正=顺时针，负=逆时针。
-   受 FrameStep 约束，只在运动帧更新。
-   多个 Vector 的 SpinRate 叠加（Rodrigues 旋转）。
-   对 Techno（PrimaryFacing）和 Bullet（Direction）均有效。
-   默认 0（不自旋）。
-Vector.SpinRate=0
-
- Vector.SpinEndSpeed=度数/step
-   Body 自旋终止角速度。配合 SpinAcceleration 使用。
-   设为 -1 时不限制。默认 -1。
-Vector.SpinEndSpeed=-1
-
- Vector.SpinAcceleration=度数/step²
-   Body 自旋角加速度。受 FrameStep 约束。默认 0。
-Vector.SpinAcceleration=0
-
- Vector.SpinOscillation=度数
-   Body 自旋振荡幅度。叠加在基础角速度上的正弦波。
-   实际角速度 = SpinRate + SpinAcceleration * step + SpinOscillation * sin(...)
-   受 FrameStep 约束。默认 0。
-Vector.SpinOscillation=0
-
- Vector.SpinOscFreq=度数/step
-   Body 自旋振荡频率。默认 0。
-Vector.SpinOscFreq=0
-
- Vector.SpinOscPhase=度数
-   Body 自旋振荡初始相位。默认 0。
-Vector.SpinOscPhase=0
-
- Vector.SpinAxis=X/Y/Z
-   自旋轴预设（物体局部坐标系）。有 SpinDirection 时被覆盖。
-   Z = 绕垂直轴水平自转（最常见）
-   X = 翻滚（Roll）
-   Y = 俯仰（Pitch）
-   默认 Z。
-Vector.SpinAxis=Z
-
- Vector.SpinDirection=X,Y,Z
-   自定义自旋轴方向（局部坐标系）。
-   优先级高于 SpinAxis。
-   默认 0,0,0（使用 SpinAxis）。
-Vector.SpinDirection=0,0,0
-
- ------------------------------------------------------------
- 炮塔自旋
- ------------------------------------------------------------
-
- Vector.TurretSpinRate=度数/step
-   炮塔自旋初始角速度。与 SpinRate 用法一致。
-   多个 Vector 的 TurretSpinRate 叠加（Rodrigues 旋转）。
-   默认 0。
-Vector.TurretSpinRate=0
-
- Vector.TurretSpinEndSpeed=度数/step
-   炮塔自旋终止角速度。默认 -1（不限制）。
-Vector.TurretSpinEndSpeed=-1
-
- Vector.TurretSpinAcceleration=度数/step²
-   炮塔自旋角加速度。受 FrameStep 约束。默认 0。
-Vector.TurretSpinAcceleration=0
-
- Vector.TurretSpinOscillation=度数
-   炮塔自旋振荡幅度。受 FrameStep 约束。默认 0。
-Vector.TurretSpinOscillation=0
-
- Vector.TurretSpinOscFreq=度数/step
-   炮塔自旋振荡频率。默认 0。
-Vector.TurretSpinOscFreq=0
-
- Vector.TurretSpinOscPhase=度数
-   炮塔自旋振荡初始相位。默认 0。
-Vector.TurretSpinOscPhase=0
-
- Vector.TurretSpinAxis=X/Y/Z
-   炮塔自旋轴预设。默认 Z。
-Vector.TurretSpinAxis=Z
-
- Vector.TurretSpinDirection=X,Y,Z
-   自定义炮塔自旋轴方向。优先级高于 TurretSpinAxis。
-   默认 0,0,0。
-Vector.TurretSpinDirection=0,0,0
-
- Vector.FreeTurret=yes/no
-   炮塔自由模式。设为 yes 时，炮塔完全独立旋转（不受 Body 自旋影响）。
-   默认 no（炮塔跟随 Body 的旋转）。
-Vector.FreeTurret=no
-
- ------------------------------------------------------------
- 朝向控制
- ------------------------------------------------------------
-
- Vector.Facing=Destination/Target/Initial
-   基础朝向模式。SpinRate 在此基础上叠加自旋。
-   多个 Vector 时，取第一个活跃 Vector 的 Facing。
-   Destination = 朝向 MoveTo/TargetFLH 方向
-   Target = 朝向原始瞄准目标
-   Initial = 保持吃到效果时的朝向
-   默认 Destination。
-Vector.Facing=Destination
-
- ------------------------------------------------------------
- 参考系
- ------------------------------------------------------------
-
- Vector.Origin=World/Target/Launcher/Self/Realtime/Source/FLH
-    TargetFLH 和 MoveTo 的计算参考系。
-    每个 Vector 独立使用自己的 Origin 计算位移向量。
-    World = 世界坐标系，直接使用坐标值
-    Target = 以抛射体/单位的原始目标为原点
-    Launcher = 以发射者为原点（每帧动态读取发射者位置）
-    Self = 以吃到效果瞬间的自身位置为原点（最常用）
-    Realtime = 每帧以当前自身位置为原点（用于绕自身画圆）
-    Source = 以AE来源单位为原点（施加效果的单位，每帧动态读取）
-    FLH = 以获得AE时单位面朝方向为F计算偏移后的世界坐标作为固定原点
-          原点 = 单位坐标 + RotateByFacing(OriginFLH, 单位朝向)，此后不变
-    默认 Self。
-
-  Vector.OriginFLH=F,L,H
-    Origin=FLH 时生效。以获得AE时单位所在坐标为原点，单位面朝方向为F（前方），
-    L为左方，H为高度，计算偏移后的世界坐标作为固定原点。
-    示例：OriginFLH=0,512,0 → 原点在单位正前方512处
-    默认 0,0,0。
-
- Vector.OriginNoUpdate=yes/no
-   设为 yes 时，Target/Launcher/Source 只取效果获得瞬间的坐标，
-   此后不再追踪移动。用于锚定到某个时刻的位置。
-   默认 no（每帧动态追踪）。
-Vector.OriginNoUpdate=no
-   默认 Self。
-Vector.Origin=Self
-
- ------------------------------------------------------------
- 筛选与权重
- ------------------------------------------------------------
-
- Vector.Weight=数值
-   向量权重。用于与 BlackHole 的交互判断。
-   Vector 之间不争夺，直接叠加。
-   默认 -1。
-Vector.Weight=-1
-
- Vector.AffectAircraft=yes/no
-   是否影响 Aircraft。默认 yes。
-Vector.AffectAircraft=yes
-
- Vector.AffectJumpjet=yes/no
-   是否影响 Jumpjet Vehicle。默认 yes。
-Vector.AffectJumpjet=yes
-
- Vector.AffectBullet=yes/no
-   是否影响 Projectile。默认 yes。
-Vector.AffectBullet=yes
-
- ------------------------------------------------------------
- 继承自 EffectData 的通用参数（可选）
- ------------------------------------------------------------
-
- Vector.Enable=yes/no
-   手动启用/禁用。默认自动判断（有 MoveTo/TargetFLH/AnglePerFrame/SpinRate/WaveAmplitude 时自动启用）。
-
- Vector.AffectTypes=类型1,类型2,...
-   白名单。只有列表中的 TechnoType/BulletType 才受此效果影响。
-   默认空（影响所有）。
-
- Vector.NotAffectTypes=类型1,类型2,...
-   黑名单。列表中的类型不受此效果影响。
-
- Vector.AffectTechno=yes/no
-   是否影响 Techno（建筑+步兵+载具+飞机）。默认 yes。
-
- Vector.AffectSelf=yes/no
-   是否影响施加者自身。默认 no。
-
- Vector.AffectInAir=yes/no
-   是否影响空中单位。默认 yes。
-
- Vector.AffectsOwner=yes/no
-   是否影响所属方。默认 yes。
-
- Vector.AffectsAllies=yes/no
-   是否影响盟友。默认 yes。
-
- Vector.AffectsEnemies=yes/no
-   是否影响敌方。默认 yes。
-
- Vector.AffectsCivilian=yes/no
-   是否影响平民。默认 yes。
-
- Vector.AuxBuildings=建筑1,建筑2,...
-   前置建筑。所属方必须拥有列表中至少一个建筑，效果才生效。
-
- Vector.NegBuildings=建筑1,建筑2,...
-   排除建筑。所属方拥有列表中任意建筑时，效果不生效。
-
- Vector.Powered=yes/no
-   是否需要电力。建筑断电时效果暂停。默认 no。
-
- Vector.CheckHealthPrecent=yes/no
-   是否检查血量比例。默认 no。
-
- Vector.ActiveWhenHealthPercent=比例
-   血量低于此比例时激活效果（0~1）。默认 1。
-
- Vector.DeactiveWhenHealthPercent=比例
-   血量高于此比例时停用效果（0~1）。默认 0。
-
- Vector.TriggeredTimes=次数
-   最大触发次数。达到后效果结束。默认 -1（无限）。
-
- Vector.AffectWho=Master/Stand/All
-   影响对象。Master=使者, Stand=替身, All=都影响。默认 Master。
-
- Vector.DeactiveWhenCivilian=yes/no
-   平民是否不生效。默认 no。
-
- ============================================================
- 叠加规则
- ============================================================
- 多个带 Vector 效果的 AE 可以同时附加到一个对象上。
-
- 每个 VectorEffect 独立计算自己的运动向量：
-   displacement_i = nextPos_i - currentPos
-   finalPos = currentPos + Σ displacement_i
-
- 每个 Vector 使用自己的 Origin/TargetFLH/Speed/Radius 等参数独立计算。
- 多个 Vector 的位移向量叠加后，一次性执行碰撞检测和 SetLocation。
-
- Facing: 取第一个活跃 Vector 的 Facing（first-only + 级联）。
- Spin/TurretSpin: 所有 Vector 叠加（Rodrigues 旋转），FreeTurret 控制炮塔跟随。
- Duration: per-Vector，结束后其位移贡献移除。
- 所有变化系数受 FrameStep 统一约束。
-
- 结束规则：所有 VectorEffect 结束时触发落地逻辑（FallingExceptAircraft）。
-
- BuildingTypes 永久免疫，不论 AffectBuilding 设置。
-
- ============================================================
- 与 BlackHole 的交互
- ============================================================
- BlackHole 捕获时，Vector 停止执行但不移除。
- BlackHole 释放后，Vector 自动恢复执行。
- Vector 之间不争夺，直接叠加。
-
- ============================================================
- 示例
- ============================================================
-
- --- 匀速直线 ---
- [FlyStraightAE]
- Duration=300
- Vector.MoveTo=0,16,0          方向偏移
- Vector.StartSpeed=16          线速度 16 lepton/step
- Vector.Origin=Self
-
- --- 匀速画圆（半径512，线速度50）---
- [CircleAE]
- Duration=720
- Vector.Radius=512
- Vector.StartSpeed=50          沿圆周线速度 50
- Vector.Origin=Self
-
- --- 匀速画圆（指定角速度）---
- [CircleByAngleAE]
- Duration=720
- Vector.Radius=512
- Vector.AnglePerFrame=5        5°/step（未设 StartSpeed 时使用）
- Vector.Origin=Self
-
- --- 渐开螺旋（半径递增）---
- [InvoluteSpiralAE]
- Duration=600
- Vector.Radius=64              初始半径
- Vector.GrowRate=4,0,0         X=半径每step+4
- Vector.StartSpeed=50          沿圆周线速度恒定 50
- Vector.Origin=Self
-
- --- 收敛螺旋（半径递减）---
- [ConvergeSpiralAE]
- Duration=600
- Vector.Radius=512
- Vector.GrowRate=-4,0,0        X=半径每step-4
- Vector.StartSpeed=50
- Vector.Origin=Self
-
- --- 螺旋上升 ---
- [SpiralUpAE]
- Duration=600
- Vector.Radius=512
- Vector.GrowRate=0,0,2         Z=圆心每step上升 2
- Vector.StartSpeed=50
- Vector.Origin=Self
-
- --- 加速旋转 ---
- [AccelCircleAE]
- Duration=600
- Vector.Radius=512
- Vector.StartSpeed=2           初始角速度 2°/step
- Vector.EndSpeed=10            终止角速度 10°/step
- Vector.Acceleration=0.5       每step +0.5°
- Vector.Origin=Self
-
- --- 慢速画圆（颗粒度控制）---
- [SlowCircleAE]
- Duration=720
- Vector.Radius=512
- Vector.StartSpeed=15          角速度 15°/step
- Vector.FrameStep=3            每3帧转一次 → 实际 5°/step
- Vector.Origin=Self
-
- --- 冻结 + 自旋 ---
- [FreezeSpinAE]
- Duration=300
- Vector.Freeze=yes
- Vector.SpinRate=15
- Vector.Origin=Self
-
- --- 叠加组合：圆 + 上升 ---
- [AE_Circle]
- Duration=600
- Vector.Radius=512
- Vector.StartSpeed=50
- Vector.Origin=Self
-
- [AE_Up]
- Duration=600
- Vector.MoveTo=0,0,2           线性模式：每step上升 2
-
- --- 李萨如图形（三轴正弦波叠加）---
- [LissajousAE]
- Duration=1000
- Vector.WaveAmplitude=256,256,0
- Vector.WaveFrequency=5,7,0
- Vector.StartSpeed=0
-
- --- 3D锥形螺旋（自定义旋转轴）---
- [ConeSpiralAE]
- Duration=600
- Vector.Radius=64
- Vector.GrowRate=2,2,1
- Vector.StartSpeed=50
- Vector.RotateDirection=1,1,1
- Vector.Origin=Self
-
- --- 振幅脉动正弦波 ---
- [PulseWaveAE]
- Duration=600
- Vector.WaveAmplitude=0,256,0
- Vector.WaveFrequency=6,0,0
- Vector.WaveAmpOscillation=80        振幅在 ±80% 间脉动
- Vector.WaveAmpOscFreq=30            脉动周期 = 360/30 = 12 step
- Vector.Origin=Self
-
-  --- 频率抖动正弦波 ---
-  [FreqJitterAE]
-  Duration=600
-  Vector.WaveAmplitude=0,256,0
-  Vector.WaveFrequency=6,0,0
-  Vector.WaveFreqOscillation=3        频率在 ±3度/step 间抖动
-  Vector.WaveFreqOscFreq=20           抖动周期 = 360/20 = 18 step
-  Vector.Origin=Self
-
-  --- FLH原点偏移（在单位前方固定位置生成原点）---
-  [FLHOriginAE]
+Vector 效果器 INI 标签说明书
+版本: 2026-06-15
+============================================================
+
+Vector 是纯位移效果器，Duration 期间强制修改附着对象坐标。
+适用于 Aircraft、Jumpjet Vehicle、Projectile、Infantry 等。
+BuildingTypes 永久免疫。
+
+所有标签写在 [AttachEffectSection] 下，前缀为 Vector.
+示例：
+  [MyVectorAE]
   Duration=300
-  Vector.Origin=FLH                   以面朝方向计算偏移原点
-  Vector.OriginFLH=0,512,0            原点在单位正前方512处
-  Vector.TargetFLH=0,0,256            目标在原点上方256
-  Vector.StartSpeed=50
+  Vector.Force=yes
+  Vector.MoveTo=0,100,0
+
+============================================================
+模式优先级
+============================================================
+Freeze > Circle > MoveTo > TargetFLH (ReachTarget → Speed)
+
+每个 AE 同时只能有一种模式生效，按优先级匹配。
+
+============================================================
+通用标签
+============================================================
+
+Vector.TimeStep=N
+  运动颗粒度。每 N 帧执行一次位移。
+  默认 1（每帧执行）。
+
+Vector.Origin=FLH / Launcher / Target / Source
+  FLH      = 抛射体自身朝向为 F 轴（默认）
+  Launcher = 发射者为原点，F 轴 = 发射者 → 抛射体
+  Target   = 目标为原点，F 轴 = 目标 → 抛射体
+  Source   = AE 来源单位为原点，F 轴 = 来源 → 抛射体
+  默认 FLH。
+
+Vector.OriginFLH=F,L,H
+  Origin=FLH 时的原点偏移（FLH 坐标系）。
+  默认 0,0,0。
+
+Vector.OriginNoUpdate=yes/no
+  yes = 原点锁定在获得 AE 瞬间的坐标，不跟随移动。
+  Origin=Launcher 时默认 yes，其余默认 no。
+
+Vector.Force=yes/no
+  yes = 彻底跳过引擎轨迹计算，Vector 直接 SetLocation 控制位置。
+  所有模式下均适用。MoveTo 和 Circle 模式自动等价 Force=yes。
+  默认 no。
+
+Vector.Freeze=yes/no
+  yes = 冻结在获得 AE 时的位置，Duration 继续计时。
+  Freeze 为最高优先级，启用时忽略所有位移配置。
+  默认 no。
+
+============================================================
+Circle 模式（圆周）
+============================================================
+优先级最高（除 Freeze 外）。圆心 = Origin，半径/线速/角速三选二。
+半径每帧动态计算，支持长缩和边界控制。
+
+Vector.CircleRadius=N
+  初始圆半径（lepton）。-1 或 0 = 自动取抛射体到原点的当前 XY 距离。
+  默认 -1。
+
+Vector.CircleSpeed=N
+  线速度（lepton/step），沿圆周切向。正值=逆时针，负值=顺时针。
+  未设时由半径和角速度自动推算。
+  默认 0。
+
+Vector.CircleSpeedAcceleration=N
+  线速度每步加速度（lepton/step²）。正=加速，负=减速。
+  默认 0。
+
+Vector.CircleMaxSpeed=N
+  线速度上限。0 = 不限（支持负值限幅）。
+  默认 0。
+
+Vector.CircleMinSpeed=N
+  线速度下限。0 = 不限（支持负值限幅）。
+  默认 0。
+
+Vector.CircleAnglePerFrame=N
+  角速度（°/step），正值逆时针、负值顺时针。
+  未设时由半径和线速度自动推算。
+  默认 0。
+
+Vector.CircleAngleAcceleration=N
+  角速度每步加速度（°/step²）。正=加速，负=减速。
+  默认 0。
+
+Vector.CircleMaxAngle=N
+  角速度上限。0 = 不限（支持负值限幅）。
+  默认 0。
+
+Vector.CircleMinAngle=N
+  角速度下限。0 = 不限（支持负值限幅）。
+  默认 0。
+
+Vector.CircleRadiusGrow=N
+  半径每步增长率（lepton/step）。正值外扩（螺旋），负值内缩。
+  默认 0（半径恒定）。
+
+Vector.CircleMaxRadius=N
+  半径上限（lepton）。0 = 不限。
+  默认 0。
+
+Vector.CircleMinRadius=N
+  半径下限（lepton）。0 = 不限。
+  默认 0。
+
+Vector.CircleEndOnMaxRadius=yes/no
+  yes = 半径达到上限时强制结束 AE。
+  默认 no。
+
+Vector.CircleEndOnMinRadius=yes/no
+  yes = 半径达到下限时强制结束 AE。
+  默认 no。
+
+--- 示例：绕 Target 匀速圆周 ---
+[CircleAroundTarget]
+Duration=400
+Vector.CircleRadius=512
+Vector.CircleAnglePerFrame=5
+Vector.Origin=Target
+
+--- 示例：外扩螺旋 + 上限停止 ---
+[SpiralOut]
+Duration=400
+Vector.CircleRadius=64
+Vector.CircleRadiusGrow=2
+Vector.CircleAnglePerFrame=5
+Vector.CircleMaxRadius=512
+Vector.CircleEndOnMaxRadius=yes
+Vector.Origin=Target
+
+--- 示例：内缩螺旋 + 下限消失 ---
+[SpiralIn]
+Duration=400
+Vector.CircleRadius=512
+Vector.CircleRadiusGrow=-2
+Vector.CircleAnglePerFrame=5
+Vector.CircleMinRadius=32
+Vector.CircleEndOnMinRadius=yes
+Vector.Origin=Target
+
+============================================================
+MoveTo 模式（FLH 强制位移）
+============================================================
+抛射体自身 FLH 坐标系下的每帧位移。自动等效 Force=yes。
+
+Vector.MoveTo=F,L,H
+  FLH 坐标系位移向量（lepton/step）。
+  F=前进方向，L=左方向，H=高度方向。
+  默认 0,0,0（不启用 MoveTo 模式）。
+
+Vector.GrowRate=F,L,H
+  每帧增量（lepton/step）。随时间缩放 MoveTo，产生呼吸/螺旋效果。
+  只计算运动帧（受 TimeStep 约束）。
+  默认 0,0,0。
+
+Vector.AnglePerFrame=N
+  每帧自增角度（°/step）。叠加到当前 FLH 朝向上，使位移向量持续旋转。
+  0 = 跟随物体当前朝向；非 0 = 画圆/螺旋。
+  默认 0。
+
+--- 示例：左侧切向偏移（直线）---
+[StraightLeft]
+Duration=200
+Vector.MoveTo=0,100,0
+
+--- 示例：自旋画圆（绕自身）---
+[SelfCircle]
+Duration=400
+Vector.MoveTo=0,100,0
+Vector.AnglePerFrame=5
+
+--- 示例：绕 Target 画圆（配合 Origin=Target）---
+[CircleTarget]
+Duration=400
+Vector.MoveTo=100,0,0
+Vector.AnglePerFrame=5
+Vector.Origin=Target
+
+--- 示例：呼吸效果（位移逐渐缩小）---
+[ShrinkMove]
+Duration=200
+Vector.MoveTo=100,100,100
+Vector.GrowRate=-1,-1,-1
+
+============================================================
+Speed 模式（直线追踪）
+============================================================
+每帧取当前位置到 TargetFLH 目标点的方向，以 Speed 速度移动。
+
+Vector.TargetFLH=F,L,H
+  目标点（FLH 坐标系，相对 Origin）。
+  默认 0,0,0。
+
+Vector.TargetOffsetF=Min,Max
+Vector.TargetOffsetL=Min,Max
+Vector.TargetOffsetH=Min,Max
+  目标随机偏移范围。获得 AE 时随机一次，之后固定。
+  默认 0,0。
+
+Vector.ReachTarget=yes/no
+  yes = 根据剩余 Duration 自动计算速度，保证到达目标点。
+       此时 InitialSpeed/Acceleration/MaxSpeed/MinSpeed 被忽略。
+  no  = 使用 Speed 模式，恒速/加速飞行，不论是否到达。
+  默认 no。
+
+Vector.InitialSpeed=N
+  初始线速度（lepton/step）。-1 = 读取单位 Speed 属性。
+  默认 -1。
+
+Vector.Acceleration=N
+  线加速度（lepton/step²）。每运动帧叠加。
+  受 TimeStep 约束。
+  默认 0。
+
+Vector.MaxSpeed=N
+  最大速度钳位。-1 = 不限。
+  默认 -1。
+
+Vector.MinSpeed=N
+  最小速度钳位。-1 = 不限。允许设 0 为静止或负值为反向。
+  默认 -1。
+
+--- 示例：恒速直线飞行 ---
+[FlyStraight]
+Duration=300
+Vector.TargetFLH=5000,0,5000
+Vector.InitialSpeed=40
+Vector.Origin=Launcher
+
+--- 示例：加速飞行 + 限速 ---
+[AccelFly]
+Duration=200
+Vector.TargetFLH=0,0,5000
+Vector.InitialSpeed=10
+Vector.Acceleration=2
+Vector.MaxSpeed=100
+Vector.Origin=FLH
+Vector.OriginFLH=0,512,0
+
+--- 示例：到达目标后冻结 ---
+[ReachAndFreeze]
+Duration=320
+Vector.TargetFLH=3000,0,3000
+Vector.Origin=Launcher
+Vector.ReachTarget=yes
+
+============================================================
+参考系（Origin 详细说明）
+============================================================
+
+FLH
+  F 轴 = 抛射体的 Velocity 方向（Techno 用 TurretFacing）
+  L 轴 = F 轴左侧 90°
+  原点 = 抛射体坐标 + OriginFLH 偏移（Fixed once at OnStart）
+  适用：物体自身朝向的位移（前进/侧移/升降）
+
+Launcher
+  F 轴 = 发射者 → 抛射体连线
+  L 轴 = F 轴左侧 90°
+  原点 = 发射者坐标（每帧刷新，除非 NoUpdate）
+  NoUpdate 默认 yes（锁定发射瞬间位置）
+
+Target
+  F 轴 = 目标 → 抛射体连线
+  L 轴 = F 轴左侧 90°
+  原点 = 目标坐标（优先 pBullet->Target，次选 Owner->Target）
+  每帧刷新，除非 NoUpdate
+
+Source
+  F 轴 = AE 来源单位 → 抛射体连线
+  L 轴 = F 轴左侧 90°
+  原点 = AE 来源单位坐标（每帧刷新，除非 NoUpdate）
+
+所有模式下 F/L 轴均只使用 XY 分量计算，Z 不纳入以避免倾斜坐标系。
+
+============================================================
+继承自 EffectData 的通用标签
+============================================================
+
+Duration=N
+  AE 持续时间（帧）。
+
+HoldDuration=yes/no
+  yes = Duration 到期后保持 AE 不销毁。
+  Duration=-1 默认 yes，Duration>0 需显式 no。
+  默认 yes。
+
+Next=AE_SECTION_NAME
+  当前 AE 结束后自动附加的下一个 AE。
+
+AttachOnceInTechnoType=yes/no
+  同类型单位只附加一次。
+
+Vector.Enable=yes/no
+  手动启用/禁用。默认自动判断（有位移参数时自动启用）。
+
+============================================================
+叠加规则
+============================================================
+多个带 Vector 效果的 AE 可同时附加到一个对象上。
+每个 Vector 独立计算位移向量，最终叠加后一次 SetLocation。
+Facing/Spin 等取第一个活跃 Vector 的值。
+
+============================================================
+测试 INI 示例（完整流程）
+============================================================
+
+[AAHeatSeeker2]
+AttachEffectTypes=VECTOR
+ROT=100
+
+[VECTOR]              ; 第一段：直线飞到目标附近
+Duration=35
+Vector.TargetFLH=700,0,600
+Vector.Origin=Target
+Vector.Force=yes
+Vector.ReachTarget=yes
+Next=CIRCLE
+
+[CIRCLE]              ; 第二段：绕目标画圆
+Duration=400
+Vector.CircleRadius=512
+Vector.CircleAnglePerFrame=5
+Vector.Origin=Target

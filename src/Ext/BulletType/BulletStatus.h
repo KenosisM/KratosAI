@@ -207,6 +207,7 @@ public:
 			// 位移向量
 			.Process(this->VectorForced)
 			.Process(this->_vectorResult)
+			.Process(this->_vectorStartPos)
 			// 碰撞引信
 			.Process(this->_proximity)
 			.Process(this->_activeProximity)
@@ -282,6 +283,7 @@ private:
 
 	// 向量位移
 	VectorResult _vectorResult{};
+	CoordStruct _vectorStartPos{};       // Force 模式起始位置快照
 
 	// 碰撞引信配置
 	ProximityData* _proximityData = nullptr;

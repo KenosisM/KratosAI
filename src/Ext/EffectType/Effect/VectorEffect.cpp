@@ -10,6 +10,10 @@
 #include <Ext/EffectType/AttachEffectScript.h>
 #include <Ext/BulletType/BulletStatus.h>
 
+
+// Vector: Freeze / Circle / MoveTo / Speed / ReachTarget
+// 基于 V1 VectorEffect.cpp 精简
+
 void VectorEffect::OnStart()
 {
 	if (pTechno && pTechno->WhatAmI() == AbstractType::Building)
@@ -18,387 +22,491 @@ void VectorEffect::OnStart()
 		return;
 	}
 
-	_initialLocation = pObject->GetCoords();
+	_active = true;
 	_elapsedFrames = 0;
 	_moveFrame = 0;
+	_currentAngle = 0.0;
+	_prevCirclePos = pObject->GetCoords();
+	_effectiveTimeStep = Data->TimeStep;
 
-	if (Data->TargetRandF.X != 0 || Data->TargetRandF.Y != 0
-		|| Data->TargetRandL.X != 0 || Data->TargetRandL.Y != 0
-		|| Data->TargetRandH.X != 0 || Data->TargetRandH.Y != 0)
+	_initialLocation = pObject->GetCoords();
+	_totalDuration = AE->GetDuration();
+
+	_randomTargetOffset.X = Random::RandomRanged(Data->TargetOffsetFMin, Data->TargetOffsetFMax);
+	_randomTargetOffset.Y = Random::RandomRanged(Data->TargetOffsetLMin, Data->TargetOffsetLMax);
+	_randomTargetOffset.Z = Random::RandomRanged(Data->TargetOffsetHMin, Data->TargetOffsetHMax);
+
+	// --- 初始速度 ---
+	_currentSpeed = 0.0;
+	if (Data->InitialSpeed >= 0)
 	{
-		_randomTargetOffset.X = Random::RandomRanged(Data->TargetRandF.X, Data->TargetRandF.Y);
-		_randomTargetOffset.Y = Random::RandomRanged(Data->TargetRandL.X, Data->TargetRandL.Y);
-		_randomTargetOffset.Z = Random::RandomRanged(Data->TargetRandH.X, Data->TargetRandH.Y);
+		_currentSpeed = static_cast<double>(Data->InitialSpeed);
 	}
-
-	if (pTechno)
+	else if (pTechno)
 	{
-		if (Data->StartSpeed > 0)
-		{
-			_currentSpeed = Data->StartSpeed;
-		}
+		TechnoTypeClass* pType = pTechno->GetTechnoType();
+		if (GetLocoType(pTechno) == LocoType::Jumpjet)
+			_currentSpeed = pType->JumpjetSpeed;
 		else
-		{
-			TechnoTypeClass* pType = pTechno->GetTechnoType();
-			if (GetLocoType(pTechno) == LocoType::Jumpjet)
-			{
-				_currentSpeed = pType->JumpjetSpeed;
-			}
-			else
-			{
-				_currentSpeed = pType->Speed;
-			}
-			if (_currentSpeed <= 0)
-			{
-				_currentSpeed = pType->Speed;
-			}
-		}
+			_currentSpeed = pType->Speed;
 	}
 	else if (pBullet)
 	{
-		if (Data->StartSpeed > 0)
-		{
-			_currentSpeed = Data->StartSpeed;
-		}
-		else
-		{
-			_currentSpeed = pBullet->Speed;
-		}
+		_currentSpeed = pBullet->Speed;
 	}
 
-	// 保存初始 Origin 位置（NoUpdate 模式用）
-	if (Data->OriginNoUpdate)
+	// --- Origin 初始化 ---
+	switch (Data->Origin)
 	{
-		switch (Data->Origin)
+	case VectorData::VectorOrigin::Target:
+		if (Data->OriginNoUpdate)
 		{
-		case VectorData::VectorOrigin::Target:
 			if (pTechno && pTechno->Target)
 				_initialOriginPos = pTechno->Target->GetCoords();
 			else if (pBullet)
 				_initialOriginPos = pBullet->TargetCoords;
-			break;
-		case VectorData::VectorOrigin::Launcher:
+		}
+		break;
+
+	case VectorData::VectorOrigin::Launcher:
+		if (Data->OriginNoUpdate)
+		{
 			if (pBullet && pBullet->Owner)
 				_initialOriginPos = pBullet->Owner->GetCoords();
 			else if (pTechno)
 				_initialOriginPos = pTechno->GetCoords();
-			break;
-		case VectorData::VectorOrigin::Source:
+		}
+		if (pBullet)
+			_pLauncher = pBullet->Owner;
+		else if (pTechno)
+			_pLauncher = pTechno;
+		break;
+
+	case VectorData::VectorOrigin::Source:
+		if (Data->OriginNoUpdate)
+		{
 			if (AE && AE->pSource)
 				_initialOriginPos = AE->pSource->GetCoords();
-			break;
-		default:
-			break;
 		}
-	}
-
-	switch (Data->Origin)
-	{
-	case VectorData::VectorOrigin::Target:
-		if (pTechno && pTechno->Target)
-		{
-			_initialTarget = pTechno->Target->GetCoords();
-		}
-		else if (pBullet)
-		{
-			_initialTarget = pBullet->TargetCoords;
-		}
-		break;
-	case VectorData::VectorOrigin::Launcher:
-		if (pBullet)
-		{
-			_pLauncher = pBullet->Owner;
-		}
-		else if (pTechno)
-		{
-			_pLauncher = pTechno;
-		}
-		break;
-	case VectorData::VectorOrigin::Source:
 		if (AE && AE->pSource)
-		{
 			_pSource = AE->pSource;
-		}
 		break;
+
 	case VectorData::VectorOrigin::FLH:
 		if (pTechno)
 		{
 			CoordStruct unitPos = pTechno->GetCoords();
-			DirStruct unitFacing = pTechno->PrimaryFacing.Current();
+			DirStruct unitFacing = pTechno->TurretFacing().Current();
+			_initialOriginPos = GetFLHAbsoluteCoords(unitPos, Data->OriginFLH, unitFacing);
+		}
+		else if (pBullet && pBullet->Owner)
+		{
+			CoordStruct unitPos = pBullet->Owner->GetCoords();
+			DirStruct unitFacing = pBullet->Owner->TurretFacing().Current();
 			_initialOriginPos = GetFLHAbsoluteCoords(unitPos, Data->OriginFLH, unitFacing);
 		}
 		break;
-	default:
+	}
+
+	// --- 锁定 FLH 旋转朝向（OnStart 时固定，避免炮塔追踪导致目标漂移） ---
+	switch (Data->Origin)
+	{
+	case VectorData::VectorOrigin::Launcher:
+	{
+		// F 轴 = Launcher → 抛射体/单位 连线方向，Launcher 为原点
+		if (pBullet && _pLauncher)
+		{
+			CoordStruct launcherPos = _pLauncher->GetCoords();
+			CoordStruct objPos = pBullet->GetCoords();
+			_facingRad = std::atan2(objPos.Y - launcherPos.Y, objPos.X - launcherPos.X);
+		}
+		else if (pTechno && _pLauncher)
+		{
+			CoordStruct launcherPos = _pLauncher->GetCoords();
+			CoordStruct objPos = pTechno->GetCoords();
+			_facingRad = std::atan2(objPos.Y - launcherPos.Y, objPos.X - launcherPos.X);
+		}
 		break;
 	}
 
-#ifdef DEBUG_AE
-	Debug::Log("Vector: [%s] Start, Pos=(%d,%d,%d), Speed=%d\n",
-		pObject->GetType()->ID, _initialLocation.X, _initialLocation.Y, _initialLocation.Z, _currentSpeed);
-#endif
+	case VectorData::VectorOrigin::Target:
+	{
+		// F 轴 = Target → 抛射体/单位 连线方向，Target 为原点
+		if (pTechno && pTechno->Target)
+		{
+			CoordStruct targetPos = pTechno->Target->GetCoords();
+			CoordStruct selfPos = pTechno->GetCoords();
+			_facingRad = std::atan2(selfPos.Y - targetPos.Y, selfPos.X - targetPos.X);
+		}
+		else if (pBullet)
+		{
+			CoordStruct bulletPos = pBullet->GetCoords();
+			CoordStruct targetPos = pBullet->TargetCoords;
+			_facingRad = std::atan2(bulletPos.Y - targetPos.Y, bulletPos.X - targetPos.X);
+		}
+		break;
+	}
+
+	case VectorData::VectorOrigin::Source:
+	{
+		// F 轴 = Source → 抛射体/单位当前位置（仅 XY，不纳入 Z 以避免倾斜坐标系）
+		if (pBullet && AE && AE->pSource)
+		{
+			CoordStruct srcPos = AE->pSource->GetCoords();
+			CoordStruct objPos = pBullet->GetCoords();
+			_facingRad = std::atan2(objPos.Y - srcPos.Y, objPos.X - srcPos.X);
+		}
+		else if (pTechno && AE && AE->pSource)
+		{
+			CoordStruct srcPos = AE->pSource->GetCoords();
+			CoordStruct objPos = pTechno->GetCoords();
+			_facingRad = std::atan2(objPos.Y - srcPos.Y, objPos.X - srcPos.X);
+		}
+		break;
+	}
+
+	default:
+	{
+		DirStruct facing;
+		if (pTechno)
+			facing = pTechno->TurretFacing().Current();
+		else if (pBullet && pBullet->Owner)
+			facing = pBullet->Owner->TurretFacing().Current();
+		_facingRad = facing.GetRadian();
+		break;
+	}
+	}
+}
+
+static double DegToRad(double deg) { return deg * M_PI / 180.0; }
+static double RadToDeg(double rad) { return rad * 180.0 / M_PI; }
+
+// FLH → 世界坐标旋转（Y 轴镜像，使用 OnStart 时锁定的朝向）
+static CoordStruct RotateFLH(const CoordStruct& flh, double facingRad)
+{
+	double cosA = std::cos(facingRad);
+	double sinA = std::sin(facingRad);
+	return CoordStruct{
+		static_cast<int>(flh.X * cosA - flh.Y * sinA),
+		static_cast<int>(-(flh.X * sinA + flh.Y * cosA)),
+		flh.Z
+	};
 }
 
 VectorResult VectorEffect::GetVectorResult()
 {
 	VectorResult result;
+
+	// Force 必须在闸门之前设，确保非运动帧也走 SetLocation（Freeze 等效）
+	result.Force = Data->Force;
+
+	// ========================================================================
+	// Freeze
+	// ========================================================================
 	if (Data->Freeze)
 	{
 		result.Freeze = true;
-		// 取第一个 Freeze VectorEffect 的初始位置作为冻结锚点
 		if (result.FrozenPos.IsEmpty())
-		{
 			result.FrozenPos = _initialLocation;
-		}
+		return result;
 	}
-	else
+
+	// ========================================================================
+	// TimeStep 闸门
+	// ========================================================================
+	if (!ShouldMoveThisFrame())
 	{
-		CoordStruct currentPos = pObject->GetCoords();
-		CoordStruct originPos = currentPos; // 默认原点为当前位置，后续根据 Origin 类型调整
+		_moveFrame++;
+		return result;
+	}
+
+	CoordStruct currentPos = pObject->GetCoords();
+
+	// ========================================================================
+	// 动态 F 轴：非 NoUpdate 时每帧根据当前坐标重新计算 FLH 朝向
+	// ========================================================================
+	double effectiveFacing = _facingRad;
+	if (!Data->OriginNoUpdate)
+	{
 		switch (Data->Origin)
 		{
-		case VectorData::VectorOrigin::World:
-		case VectorData::VectorOrigin::Realtime:
+		case VectorData::VectorOrigin::Source:
+			if (_pSource && !IsDeadOrInvisible(_pSource))
+			{
+				CoordStruct srcPos = _pSource->GetCoords();
+				effectiveFacing = std::atan2(currentPos.Y - srcPos.Y, currentPos.X - srcPos.X);
+			}
 			break;
 		case VectorData::VectorOrigin::Target:
-			originPos = Data->OriginNoUpdate ? _initialOriginPos : _initialTarget;
+			if (pTechno && pTechno->Target)
+			{
+				CoordStruct targetPos = pTechno->Target->GetCoords();
+				effectiveFacing = std::atan2(currentPos.Y - targetPos.Y, currentPos.X - targetPos.X);
+			}
+			else if (pBullet)
+			{
+				CoordStruct targetPos = pBullet->TargetCoords;
+				effectiveFacing = std::atan2(currentPos.Y - targetPos.Y, currentPos.X - targetPos.X);
+			}
 			break;
+
 		case VectorData::VectorOrigin::Launcher:
-			if (Data->OriginNoUpdate)
-				originPos = _initialOriginPos;
-			else if (_pLauncher && !IsDeadOrInvisible(_pLauncher))
-				originPos = _pLauncher->GetCoords();
-			break;
-		case VectorData::VectorOrigin::Source:
-			if (Data->OriginNoUpdate)
-				originPos = _initialOriginPos;
-			else if (_pSource && !IsDeadOrInvisible(_pSource))
-				originPos = _pSource->GetCoords();
-			break;
-		case VectorData::VectorOrigin::Self:
-			originPos = _initialLocation;
-			break;
-		case VectorData::VectorOrigin::FLH:
-			originPos = _initialOriginPos;
-			break;
-		default:
+			if (_pLauncher && !IsDeadOrInvisible(_pLauncher))
+			{
+				CoordStruct launcherPos = _pLauncher->GetCoords();
+				effectiveFacing = std::atan2(currentPos.Y - launcherPos.Y, currentPos.X - launcherPos.X);
+			}
 			break;
 		}
+	}
 
-		CoordStruct frameTargetFlh;
-		frameTargetFlh.X = Data->TargetFLH.X + _randomTargetOffset.X;
-		frameTargetFlh.Y = Data->TargetFLH.Y + _randomTargetOffset.Y;
-		frameTargetFlh.Z = Data->TargetFLH.Z + _randomTargetOffset.Z;
+	// ========================================================================
+	// Origin 坐标
+	// ========================================================================
+	CoordStruct originPos = currentPos;
 
-		// TargetFLH → 世界坐标（与 MoveTo 一致）
-		CoordStruct frameTargetDisp;
-		if (Data->Origin == VectorData::VectorOrigin::World)
+	switch (Data->Origin)
+	{
+	case VectorData::VectorOrigin::Target:
+		if (Data->OriginNoUpdate)
 		{
-			frameTargetDisp = frameTargetFlh;
+			originPos = _initialOriginPos;
+		}
+		else if (pTechno && pTechno->Target)
+		{
+			originPos = pTechno->Target->GetCoords();
 		}
 		else if (pBullet)
 		{
-			double vx = pBullet->Velocity.X;
-			double vy = pBullet->Velocity.Y;
-			double len = std::sqrt(vx * vx + vy * vy);
-			if (len > 1e-6)
-			{
-				double fwdX = vx / len;
-				double fwdY = vy / len;
-				frameTargetDisp.X = static_cast<int>(frameTargetFlh.X * fwdX - frameTargetFlh.Y * fwdY);
-				frameTargetDisp.Y = static_cast<int>(-(frameTargetFlh.X * fwdY + frameTargetFlh.Y * fwdX));
-				frameTargetDisp.Z = frameTargetFlh.Z;
-			}
+			// 优先取抛射体自身的实时目标（寻的弹会更新）
+			if (pBullet->Target)
+				originPos = pBullet->Target->GetCoords();
+			// 其次取发射者的当前目标
+			else if (pBullet->Owner && pBullet->Owner->Target)
+				originPos = pBullet->Owner->Target->GetCoords();
+			// 最后回退到自身位置（避免圆心锁死在初始坐标）
 			else
-			{
-				frameTargetDisp = frameTargetFlh;
-			}
+				originPos = currentPos;
+		}
+		break;
+	case VectorData::VectorOrigin::Launcher:
+		originPos = Data->OriginNoUpdate ? _initialOriginPos :
+			(_pLauncher && !IsDeadOrInvisible(_pLauncher) ? _pLauncher->GetCoords() : currentPos);
+		break;
+	case VectorData::VectorOrigin::Source:
+		originPos = Data->OriginNoUpdate ? _initialOriginPos :
+			(_pSource && !IsDeadOrInvisible(_pSource) ? _pSource->GetCoords() : currentPos);
+		break;
+	case VectorData::VectorOrigin::FLH:
+		originPos = _initialOriginPos;
+		break;
+	}
+
+	// ========================================================================
+	// 模式 C: Circle（独立圆周，圆心=Origin，三选二参数）
+	// ========================================================================
+	bool hasCircle = Data->CircleRadius > 0 || Data->CircleSpeed > 0 || Data->CircleAnglePerFrame > 0.0;
+	if (hasCircle)
+	{
+		// 三选二：缺半径用当前XY距离，缺速度用半径×角速度，缺角速度用速度/半径
+		double calcRadius = static_cast<double>(Data->CircleRadius);
+		if (calcRadius <= 0.0)
+		{
+			double tdx = currentPos.X - originPos.X;
+			double tdy = currentPos.Y - originPos.Y;
+			calcRadius = std::sqrt(tdx * tdx + tdy * tdy);
+		}
+
+		// 动态线速：首帧初始化，每帧叠加加速度
+		if (_elapsedFrames == 0)
+			_currentCircleSpeed = static_cast<double>(Data->CircleSpeed);
+		_currentCircleSpeed += Data->CircleSpeedAcceleration;
+		if (Data->CircleMaxSpeed != 0 && _currentCircleSpeed > Data->CircleMaxSpeed)
+			_currentCircleSpeed = static_cast<double>(Data->CircleMaxSpeed);
+		if (Data->CircleMinSpeed != 0 && _currentCircleSpeed < Data->CircleMinSpeed)
+			_currentCircleSpeed = static_cast<double>(Data->CircleMinSpeed);
+
+		// 角速度动态：首帧初始化，每帧叠加加速度
+		if (_elapsedFrames == 0)
+			_currentCircleAngle = Data->CircleAnglePerFrame;
+		_currentCircleAngle += Data->CircleAngleAcceleration;
+		if (Data->CircleMaxAngle != 0.0 && _currentCircleAngle > Data->CircleMaxAngle)
+			_currentCircleAngle = Data->CircleMaxAngle;
+		if (Data->CircleMinAngle != 0.0 && _currentCircleAngle < Data->CircleMinAngle)
+			_currentCircleAngle = Data->CircleMinAngle;
+
+		double speed = _currentCircleSpeed;
+		double angleStep = _currentCircleAngle;
+
+		if (speed <= 0.0 && angleStep > 0.0)
+			speed = calcRadius * DegToRad(angleStep);
+		else if (angleStep <= 0.0 && speed > 0.0)
+			angleStep = RadToDeg(speed / calcRadius);
+
+		// 旋转当前方向向量并按目标半径缩放
+		double dx = static_cast<double>(currentPos.X - originPos.X);
+		double dy = static_cast<double>(currentPos.Y - originPos.Y);
+		double currentDist = std::sqrt(dx * dx + dy * dy);
+		if (currentDist < 1.0) currentDist = 1.0;
+
+		// 动态半径：首帧初始化，每帧叠加增长率
+		if (_elapsedFrames == 0)
+		{
+			_currentCircleRadius = static_cast<double>(Data->CircleRadius);
+			if (_currentCircleRadius <= 0.0)
+				_currentCircleRadius = currentDist;
+		}
+		_currentCircleRadius += Data->CircleRadiusGrow;
+
+		double targetRadius = _currentCircleRadius;
+		// 钳位
+		if (Data->CircleMaxRadius > 0 && targetRadius > Data->CircleMaxRadius)
+			targetRadius = static_cast<double>(Data->CircleMaxRadius);
+		if (Data->CircleMinRadius > 0 && targetRadius < Data->CircleMinRadius)
+			targetRadius = static_cast<double>(Data->CircleMinRadius);
+
+		double rad = DegToRad(angleStep);
+		double cosA = std::cos(rad), sinA = std::sin(rad);
+
+		// 当前方向归一化 × 目标半径 → 旋转 → 新世界坐标
+		double ndx = (dx / currentDist * targetRadius);
+		double ndy = (dy / currentDist * targetRadius);
+		double rx = ndx * cosA - ndy * sinA;
+		double ry = ndx * sinA + ndy * cosA;
+
+		result.MoveDisp.X = originPos.X + static_cast<int>(rx) - currentPos.X;
+		result.MoveDisp.Y = originPos.Y + static_cast<int>(ry) - currentPos.Y;
+		result.MoveDisp.Z = 0;
+		result.Force = true;
+
+		// 到达边界时结束 AE
+		if (Data->CircleEndOnMaxRadius && Data->CircleMaxRadius > 0
+			&& _currentCircleRadius >= Data->CircleMaxRadius)
+		{
+			Deactivate();
+		}
+		if (Data->CircleEndOnMinRadius && Data->CircleMinRadius > 0
+			&& _currentCircleRadius <= Data->CircleMinRadius)
+		{
+			Deactivate();
+		}
+
+		AdvanceFrame();
+		return result;
+	}
+
+	// ========================================================================
+	// 模式 1: MoveTo（纯 FLH 位移 + GrowRate，每帧动态 FLH 朝向）
+	// ========================================================================
+	if (!Data->MoveTo.IsEmpty())
+	{
+		double moveFacing;
+		if (Data->AnglePerFrame != 0.0)
+		{
+			if (_elapsedFrames == 0)
+				_currentAngle = 0.0;
+			_currentAngle += Data->AnglePerFrame;
+			moveFacing = effectiveFacing + DegToRad(_currentAngle);
 		}
 		else if (pTechno)
-		{
-			DirStruct facing = pTechno->PrimaryFacing.Current();
-			double rad = facing.GetRadian();
-			double cosA = std::cos(rad);
-			double sinA = std::sin(rad);
-			frameTargetDisp.X = static_cast<int>(frameTargetFlh.X * cosA - frameTargetFlh.Y * sinA);
-			frameTargetDisp.Y = static_cast<int>(-(frameTargetFlh.X * sinA + frameTargetFlh.Y * cosA));
-			frameTargetDisp.Z = frameTargetFlh.Z;
-		}
+			moveFacing = pTechno->TurretFacing().Current().GetRadian();
+		else if (pBullet)
+			moveFacing = std::atan2(pBullet->Velocity.X, pBullet->Velocity.Y);
 		else
+			moveFacing = _facingRad;
+
+		CoordStruct moveFlh;
+		moveFlh.X = Data->MoveTo.X + static_cast<int>(Data->GrowRate.X * _elapsedFrames);
+		moveFlh.Y = Data->MoveTo.Y + static_cast<int>(Data->GrowRate.Y * _elapsedFrames);
+		moveFlh.Z = Data->MoveTo.Z + static_cast<int>(Data->GrowRate.Z * _elapsedFrames);
+
+		result.MoveDisp = RotateFLH(moveFlh, moveFacing);
+		result.Force = true;
+
+		AdvanceFrame();
+		return result;
+	}
+
+	// ========================================================================
+	// 以下为 TargetFLH 相关模式
+	// ========================================================================
+	bool hasTarget = Data->TargetFLH.X != 0 || Data->TargetFLH.Y != 0 || Data->TargetFLH.Z != 0;
+	if (!hasTarget)
+	{
+		AdvanceFrame();
+		return result;
+	}
+
+	// --- 目标世界坐标 ---
+	CoordStruct frameTargetFlh;
+	frameTargetFlh.X = Data->TargetFLH.X + _randomTargetOffset.X;
+	frameTargetFlh.Y = Data->TargetFLH.Y + _randomTargetOffset.Y;
+	frameTargetFlh.Z = Data->TargetFLH.Z + _randomTargetOffset.Z;
+
+	CoordStruct frameTargetDisp = RotateFLH(frameTargetFlh, effectiveFacing);
+	CoordStruct frameTarget;
+	frameTarget.X = originPos.X + frameTargetDisp.X;
+	frameTarget.Y = originPos.Y + frameTargetDisp.Y;
+	frameTarget.Z = originPos.Z + frameTargetDisp.Z;
+
+	// --- 方向向量 ---
+	CoordStruct dirVec;
+	dirVec.X = frameTarget.X - currentPos.X;
+	dirVec.Y = frameTarget.Y - currentPos.Y;
+	dirVec.Z = frameTarget.Z - currentPos.Z;
+	double dirLen = std::sqrt(static_cast<double>(dirVec.X * dirVec.X + dirVec.Y * dirVec.Y + dirVec.Z * dirVec.Z));
+
+	CoordStruct resultDisp{ 0, 0, 0 };
+
+	// ========================================================================
+	// 模式 2: ReachTarget（剩余帧数强制到达，每帧重算以支持目标移动）
+	// ========================================================================
+	if (Data->ReachTarget && _totalDuration > 0)
+	{
+		int remainingFrames = _totalDuration - _elapsedFrames;
+		if (remainingFrames <= 0)
 		{
-			frameTargetDisp = frameTargetFlh;
+			// 已超时，直接到达目标
+			resultDisp.X = frameTarget.X - currentPos.X;
+			resultDisp.Y = frameTarget.Y - currentPos.Y;
+			resultDisp.Z = frameTarget.Z - currentPos.Z;
 		}
+		else if (dirLen > 1e-6)
+		{
+			double adjustedSpeed = dirLen / remainingFrames;
+			resultDisp.X = static_cast<int>(dirVec.X / dirLen * adjustedSpeed);
+			resultDisp.Y = static_cast<int>(dirVec.Y / dirLen * adjustedSpeed);
+			resultDisp.Z = static_cast<int>(dirVec.Z / dirLen * adjustedSpeed);
+		}
+	}
+	// ========================================================================
+	// 模式 3: Speed（直线追踪 + 加速度）
+	// ========================================================================
+	else if (dirLen > 1e-6)
+	{
+		double speed = _currentSpeed;
 
-		CoordStruct frameTarget;
-		frameTarget.X = originPos.X + frameTargetDisp.X;
-		frameTarget.Y = originPos.Y + frameTargetDisp.Y;
-		frameTarget.Z = originPos.Z + frameTargetDisp.Z;
-
-		bool hasTarget = Data->TargetFLH.X != 0 || Data->TargetFLH.Y != 0 || Data->TargetFLH.Z != 0;
-
-		// --- 速度计算（加速度 + 振荡）---
-		int speed = _currentSpeed;
+		// 加速度
 		if (Data->Acceleration != 0)
 		{
 			speed += Data->Acceleration * _elapsedFrames;
 		}
-		if (Data->EndSpeed >= 0)
-		{
-			speed = std::clamp(speed, std::min(_currentSpeed, Data->EndSpeed), std::max(_currentSpeed, Data->EndSpeed));
-		}
-		if (Data->SpeedOscillation != 0 && Data->SpeedOscFreq != 0)
-		{
-			double phase = (_elapsedFrames * Data->SpeedOscFreq + Data->SpeedOscPhase) * M_PI / 180.0;
-			speed += static_cast<int>(Data->SpeedOscillation * std::sin(phase));
-		}
-		if (speed <= 0) speed = 1;
 
-		// --- MoveTo 振荡 ---
-		CoordStruct growOsc{};
-		if (Data->GrowOscFreqX != 0)
-		{
-			double phaseX = (_elapsedFrames * Data->GrowOscFreqX + Data->GrowOscPhaseX) * M_PI / 180.0;
-			growOsc.X = static_cast<int>(Data->GrowOscillationX * std::sin(phaseX));
-		}
-		if (Data->GrowOscFreqY != 0)
-		{
-			double phaseY = (_elapsedFrames * Data->GrowOscFreqY + Data->GrowOscPhaseY) * M_PI / 180.0;
-			growOsc.Y = static_cast<int>(Data->GrowOscillationY * std::sin(phaseY));
-		}
-		if (Data->GrowOscFreqZ != 0)
-		{
-			double phaseZ = (_elapsedFrames * Data->GrowOscFreqZ + Data->GrowOscPhaseZ) * M_PI / 180.0;
-			growOsc.Z = static_cast<int>(Data->GrowOscillationZ * std::sin(phaseZ));
-		}
+		// 钳位
+		if (Data->MinSpeed >= 0 && speed < Data->MinSpeed)
+			speed = static_cast<double>(Data->MinSpeed);
+		if (Data->MaxSpeed >= 0 && speed > Data->MaxSpeed)
+			speed = static_cast<double>(Data->MaxSpeed);
 
-		// --- MoveTo FLH 位移 ---
-		CoordStruct moveFlh{};
-		moveFlh.X = Data->MoveTo.X + static_cast<int>(Data->GrowRate.X * _moveFrame) + growOsc.X;
-		moveFlh.Y = Data->MoveTo.Y + static_cast<int>(Data->GrowRate.Y * _moveFrame) + growOsc.Y;
-		moveFlh.Z = Data->MoveTo.Z + static_cast<int>(Data->GrowRate.Z * _moveFrame) + growOsc.Z;
+		if (speed <= 0.0) speed = 1.0;
 
-		// FLH → 世界坐标（与游戏引擎 GetFLHAbsoluteCoords 一致，Y 轴镜像）
-		CoordStruct moveDisp;
-		if (Data->Origin == VectorData::VectorOrigin::World)
-		{
-			// World 模式下 MoveTo 已是世界坐标，不做旋转
-			moveDisp = moveFlh;
-		}
-		else if (pBullet)
-		{
-			double vx = pBullet->Velocity.X;
-			double vy = pBullet->Velocity.Y;
-			double len = std::sqrt(vx * vx + vy * vy);
-			if (len > 1e-6)
-			{
-				double fwdX = vx / len;
-				double fwdY = vy / len;
-				moveDisp.X = static_cast<int>(moveFlh.X * fwdX - moveFlh.Y * fwdY);
-				moveDisp.Y = static_cast<int>(-(moveFlh.X * fwdY + moveFlh.Y * fwdX));
-				moveDisp.Z = moveFlh.Z;
-			}
-			else
-			{
-				moveDisp = moveFlh;
-			}
-		}
-		else if (pTechno)
-		{
-			DirStruct facing = pTechno->PrimaryFacing.Current();
-			double rad = facing.GetRadian();
-			double cosA = std::cos(rad);
-			double sinA = std::sin(rad);
-			moveDisp.X = static_cast<int>(moveFlh.X * cosA - moveFlh.Y * sinA);
-			moveDisp.Y = static_cast<int>(-(moveFlh.X * sinA + moveFlh.Y * cosA));
-			moveDisp.Z = moveFlh.Z;
-		}
-		else
-		{
-			moveDisp = moveFlh;
-		}
-
-		// --- 波浪运动（垂直于运动方向的正弦偏移）---
-		CoordStruct waveDisp{};
-		if (Data->WaveAmplitude.X != 0 || Data->WaveAmplitude.Y != 0 || Data->WaveAmplitude.Z != 0)
-		{
-			double freqX = Data->WaveFrequency.X + Data->WaveFreqAcceleration.X * _elapsedFrames;
-			double freqY = Data->WaveFrequency.Y + Data->WaveFreqAcceleration.Y * _elapsedFrames;
-			double freqZ = Data->WaveFrequency.Z + Data->WaveFreqAcceleration.Z * _elapsedFrames;
-
-			double ampX = Data->WaveAmplitude.X;
-			double ampY = Data->WaveAmplitude.Y;
-			double ampZ = Data->WaveAmplitude.Z;
-			if (Data->WaveAmpOscillation != 0 && Data->WaveAmpOscFreq != 0)
-			{
-				double ampPhase = (_elapsedFrames * Data->WaveAmpOscFreq + Data->WaveAmpOscPhase) * M_PI / 180.0;
-				double ampOsc = Data->WaveAmpOscillation * std::sin(ampPhase);
-				ampX += ampOsc;
-				ampY += ampOsc;
-				ampZ += ampOsc;
-			}
-
-			waveDisp.X = static_cast<int>(ampX * std::sin((freqX * _elapsedFrames + Data->WavePhase.X) * M_PI / 180.0));
-			waveDisp.Y = static_cast<int>(ampY * std::sin((freqY * _elapsedFrames + Data->WavePhase.Y) * M_PI / 180.0));
-			waveDisp.Z = static_cast<int>(ampZ * std::sin((freqZ * _elapsedFrames + Data->WavePhase.Z) * M_PI / 180.0));
-		}
-
-		// --- 圆周旋转 ---
-		CoordStruct rotateDisp{};
-		if (Data->AnglePerFrame != 0 && Data->Radius != 0)
-		{
-			CoordStruct axis = GetRotateAxis(Data->RotateAxis);
-			double angle = Data->AnglePerFrame * _elapsedFrames;
-			CoordStruct offset = { Data->Radius, 0, 0 };
-			rotateDisp = RodriguesRotate(offset, axis, angle);
-			// 减去第一帧的偏移，使旋转从当前位置开始
-			CoordStruct firstFrame = RodriguesRotate(offset, axis, 0);
-			rotateDisp.X -= firstFrame.X;
-			rotateDisp.Y -= firstFrame.Y;
-			rotateDisp.Z -= firstFrame.Z;
-		}
-
-		// --- 朝目标飞行 + MoveTo 偏移 + 波浪 + 旋转 ---
-		CoordStruct nextPos;
-		if (hasTarget)
-		{
-			CoordStruct dirVec;
-			dirVec.X = frameTarget.X - currentPos.X;
-			dirVec.Y = frameTarget.Y - currentPos.Y;
-			dirVec.Z = frameTarget.Z - currentPos.Z;
-			double dirLen = std::sqrt(static_cast<double>(dirVec.X * dirVec.X + dirVec.Y * dirVec.Y + dirVec.Z * dirVec.Z));
-
-			// ReachTarget：到达目标后停止
-			if (Data->ReachTarget && dirLen <= speed)
-			{
-				nextPos = frameTarget;
-			}
-			else if (dirLen > 1e-6)
-			{
-				nextPos.X = currentPos.X + static_cast<int>(dirVec.X / dirLen * speed) + moveDisp.X + waveDisp.X + rotateDisp.X;
-				nextPos.Y = currentPos.Y + static_cast<int>(dirVec.Y / dirLen * speed) + moveDisp.Y + waveDisp.Y + rotateDisp.Y;
-				nextPos.Z = currentPos.Z + static_cast<int>(dirVec.Z / dirLen * speed) + moveDisp.Z + waveDisp.Z + rotateDisp.Z;
-			}
-			else
-			{
-				nextPos.X = currentPos.X + moveDisp.X + waveDisp.X + rotateDisp.X;
-				nextPos.Y = currentPos.Y + moveDisp.Y + waveDisp.Y + rotateDisp.Y;
-				nextPos.Z = currentPos.Z + moveDisp.Z + waveDisp.Z + rotateDisp.Z;
-			}
-		}
-		else
-		{
-			nextPos.X = currentPos.X + moveDisp.X + waveDisp.X + rotateDisp.X;
-			nextPos.Y = currentPos.Y + moveDisp.Y + waveDisp.Y + rotateDisp.Y;
-			nextPos.Z = currentPos.Z + moveDisp.Z + waveDisp.Z + rotateDisp.Z;
-		}
-
-		// 合并偏移量
-		result.MoveDisp.X += nextPos.X - currentPos.X;
-		result.MoveDisp.Y += nextPos.Y - currentPos.Y;
-		result.MoveDisp.Z += nextPos.Z - currentPos.Z;
-
-		_elapsedFrames += Data->FrameStep;
-		_moveFrame++;
+		resultDisp.X = static_cast<int>(dirVec.X / dirLen * speed);
+		resultDisp.Y = static_cast<int>(dirVec.Y / dirLen * speed);
+		resultDisp.Z = static_cast<int>(dirVec.Z / dirLen * speed);
 	}
 
+	result.MoveDisp = resultDisp;
+
+	AdvanceFrame();
 	return result;
 }
