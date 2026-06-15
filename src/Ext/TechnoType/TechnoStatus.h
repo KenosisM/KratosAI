@@ -416,6 +416,13 @@ public:
 
 	bool CaptureByBlackHole = false;
 	bool VectorForced = false;
+	bool VectorPendingFall = false;
+	double _spinRad = 0;
+	int _spinTime = 0;
+	bool _spinFlip = true;
+	double _turretRad = 0;
+	int _turretTime = 0;
+	bool _turretFlip = true;
 	bool Jumping = false;
 
 	// 冻结
@@ -497,6 +504,13 @@ public:
 
 			// 向量位移
 			.Process(this->VectorForced)
+			.Process(this->VectorPendingFall)
+			.Process(this->_spinRad)
+			.Process(this->_spinTime)
+			.Process(this->_spinFlip)
+			.Process(this->_turretRad)
+			.Process(this->_turretTime)
+			.Process(this->_turretFlip)
 			.Process(this->_vectorResult)
 			.Success();
 	};
@@ -574,6 +588,8 @@ private:
 	void OnUpdate_TargetLaser();
 	void OnUpdate_Transform();
 	void OnUpdate_Vector();
+	void OnUpdate_TurretSpin();
+	void OnUpdate_BodySpin();
 
 	void OnWarpUpdate_DestroySelf_Stand();
 

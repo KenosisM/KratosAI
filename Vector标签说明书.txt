@@ -42,7 +42,8 @@ Vector.OriginFLH=F,L,H
 
 Vector.OriginNoUpdate=yes/no
   yes = 原点锁定在获得 AE 瞬间的坐标，不跟随移动。
-  Origin=Launcher 时默认 yes，其余默认 no。
+  所有 Origin 默认 no（每帧动态刷新）。
+  显式设为 yes 才锁定。
 
 Vector.Force=yes/no
   yes = 彻底跳过引擎轨迹计算，Vector 直接 SetLocation 控制位置。
@@ -81,7 +82,7 @@ Vector.CircleMinSpeed=N
   线速度下限。0 = 不限（支持负值限幅）。
   默认 0。
 
-Vector.CircleAnglePerFrame=N
+Vector.CircleAnglePerStep=N
   角速度（°/step），正值逆时针、负值顺时针。
   未设时由半径和线速度自动推算。
   默认 0。
@@ -122,7 +123,7 @@ Vector.CircleEndOnMinRadius=yes/no
 [CircleAroundTarget]
 Duration=400
 Vector.CircleRadius=512
-Vector.CircleAnglePerFrame=5
+Vector.CircleAnglePerStep=5
 Vector.Origin=Target
 
 --- 示例：外扩螺旋 + 上限停止 ---
@@ -130,7 +131,7 @@ Vector.Origin=Target
 Duration=400
 Vector.CircleRadius=64
 Vector.CircleRadiusGrow=2
-Vector.CircleAnglePerFrame=5
+Vector.CircleAnglePerStep=5
 Vector.CircleMaxRadius=512
 Vector.CircleEndOnMaxRadius=yes
 Vector.Origin=Target
@@ -140,7 +141,7 @@ Vector.Origin=Target
 Duration=400
 Vector.CircleRadius=512
 Vector.CircleRadiusGrow=-2
-Vector.CircleAnglePerFrame=5
+Vector.CircleAnglePerStep=5
 Vector.CircleMinRadius=32
 Vector.CircleEndOnMinRadius=yes
 Vector.Origin=Target
@@ -160,7 +161,7 @@ Vector.GrowRate=F,L,H
   只计算运动帧（受 TimeStep 约束）。
   默认 0,0,0。
 
-Vector.AnglePerFrame=N
+Vector.AnglePerStep=N
   每帧自增角度（°/step）。叠加到当前 FLH 朝向上，使位移向量持续旋转。
   0 = 跟随物体当前朝向；非 0 = 画圆/螺旋。
   默认 0。
@@ -174,13 +175,13 @@ Vector.MoveTo=0,100,0
 [SelfCircle]
 Duration=400
 Vector.MoveTo=0,100,0
-Vector.AnglePerFrame=5
+Vector.AnglePerStep=5
 
 --- 示例：绕 Target 画圆（配合 Origin=Target）---
 [CircleTarget]
 Duration=400
 Vector.MoveTo=100,0,0
-Vector.AnglePerFrame=5
+Vector.AnglePerStep=5
 Vector.Origin=Target
 
 --- 示例：呼吸效果（位移逐渐缩小）---
@@ -227,6 +228,22 @@ Vector.MinSpeed=N
   最小速度钳位。-1 = 不限。允许设 0 为静止或负值为反向。
   默认 -1。
 
+Vector.ArcHeight=N
+  抛物线弧高（lepton）。仅 ReachTarget=yes 时生效。
+  正=先升后降（上凸），负=先降后升（下凹），0=直线（默认）。
+  弧顶相对起终点连线的最大垂直偏移。
+  默认 0。
+
+Vector.AllowFallingDestroy=yes/no
+  yes = 向量效果结束时，若单位在空中且超出指定高度，直接摔死。
+  no  = 结束时空单位从当前高度自由坠落。
+  默认 no。
+
+Vector.FallingDestroyHeight=N
+  致死高度（lepton）。AllowFallingDestroy=yes 时有效。
+  超出此高度则摔死，否则正常坠落。
+  默认 2 * LevelHeight（约 2 层高度）。
+
 --- 示例：恒速直线飞行 ---
 [FlyStraight]
 Duration=300
@@ -251,6 +268,15 @@ Vector.TargetFLH=3000,0,3000
 Vector.Origin=Launcher
 Vector.ReachTarget=yes
 
+--- 示例：抛物线飞行 ---
+[ParabolaFly]
+Duration=60
+Vector.TargetFLH=0,0,10
+Vector.Origin=Target
+Vector.ReachTarget=yes
+Vector.ArcHeight=2000
+Vector.Force=yes
+
 ============================================================
 参考系（Origin 详细说明）
 ============================================================
@@ -264,19 +290,19 @@ FLH
 Launcher
   F 轴 = 发射者 → 抛射体连线
   L 轴 = F 轴左侧 90°
-  原点 = 发射者坐标（每帧刷新，除非 NoUpdate）
-  NoUpdate 默认 yes（锁定发射瞬间位置）
+  原点 = 发射者坐标（每帧刷新，除非 OriginNoUpdate=yes）
+  适用：以发射者为基点的位移
 
 Target
   F 轴 = 目标 → 抛射体连线
   L 轴 = F 轴左侧 90°
-  原点 = 目标坐标（优先 pBullet->Target，次选 Owner->Target）
-  每帧刷新，除非 NoUpdate
+  原点 = 目标坐标（优先 pBullet->Target 实时坐标，次选 Owner->Target）
+  每帧刷新，除非 OriginNoUpdate=yes
 
 Source
   F 轴 = AE 来源单位 → 抛射体连线
   L 轴 = F 轴左侧 90°
-  原点 = AE 来源单位坐标（每帧刷新，除非 NoUpdate）
+  原点 = AE 来源单位坐标（每帧刷新，除非 OriginNoUpdate=yes）
 
 所有模式下 F/L 轴均只使用 XY 分量计算，Z 不纳入以避免倾斜坐标系。
 
@@ -327,5 +353,5 @@ Next=CIRCLE
 [CIRCLE]              ; 第二段：绕目标画圆
 Duration=400
 Vector.CircleRadius=512
-Vector.CircleAnglePerFrame=5
+Vector.CircleAnglePerStep=5
 Vector.Origin=Target

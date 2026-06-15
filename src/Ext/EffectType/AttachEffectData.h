@@ -28,6 +28,8 @@
 #include "Effect/StackData.h"
 #include "Effect/StandData.h"
 #include "Effect/VectorData.h"
+#include "Effect/TurretSpinData.h"
+#include "Effect/BodySpinData.h"
 #include "Effect/VampireData.h"
 // State Effects
 #include <Ext/StateType/State/AntiBulletData.h>
@@ -170,6 +172,8 @@ public:
 	EFFECT_VAR_DEFINE(Stack);
 	EFFECT_VAR_DEFINE(Stand);
 	EFFECT_VAR_DEFINE(Vector);
+	EFFECT_VAR_DEFINE(TurretSpin);
+	EFFECT_VAR_DEFINE(BodySpin);
 	EFFECT_VAR_DEFINE(Vampire);
 	// State Effects
 	EFFECT_VAR_DEFINE(AntiBullet);
@@ -213,6 +217,8 @@ public:
 		EFFECT_VAR_READ(Stack);
 		EFFECT_VAR_READ(Stand);
 		EFFECT_VAR_READ(Vector);
+		EFFECT_VAR_READ(TurretSpin);
+		EFFECT_VAR_READ(BodySpin);
 		EFFECT_VAR_READ(Vampire);
 		// State Effects
 		EFFECT_VAR_READ(AntiBullet);
@@ -240,6 +246,8 @@ public:
 		// 替身要放在第一位，状态类型会附加状态给替身，此时若替身没有初始化，整个AE都会被判定为失效
 		EFFECT_VAR_SCRIPT_NAME(Stand);
 		EFFECT_VAR_SCRIPT_NAME(Vector);
+		EFFECT_VAR_SCRIPT_NAME(TurretSpin);
+		EFFECT_VAR_SCRIPT_NAME(BodySpin);
 
 		EFFECT_VAR_SCRIPT_NAME(Animation);
 		EFFECT_VAR_SCRIPT_NAME(AttackBeacon);
@@ -307,6 +315,8 @@ public:
 			EFFECT_VAR_PROCESS(Stack)
 			EFFECT_VAR_PROCESS(Stand)
 			EFFECT_VAR_PROCESS(Vector)
+			EFFECT_VAR_PROCESS(TurretSpin)
+			EFFECT_VAR_PROCESS(BodySpin)
 			EFFECT_VAR_PROCESS(Vampire)
 			// State Effects
 			EFFECT_VAR_PROCESS(AntiBullet)

@@ -19,6 +19,8 @@
 #include <Ext/EffectType/Effect/CounterEffect.h>
 #include <Ext/EffectType/Effect/StandEffect.h>
 #include <Ext/EffectType/Effect/VectorEffect.h>
+#include <Ext/EffectType/Effect/TurretSpinEffect.h>
+#include <Ext/EffectType/Effect/BodySpinEffect.h>
 #include <Ext/BulletType/BulletStatus.h>
 #include <Ext/TechnoType/TechnoStatus.h>
 #include <Ext/TechnoType/UploadAttachData.h>
@@ -253,6 +255,9 @@ VectorResult AttachEffect::MarginVectorOffset()
 					result.MoveDisp.Z += tempResult.MoveDisp.Z;
 					result.Freeze |= tempResult.Freeze;
 					result.Force |= tempResult.Force;
+					result.AllowFallingDestroy |= tempResult.AllowFallingDestroy;
+					if (tempResult.FallingDestroyHeight > result.FallingDestroyHeight)
+						result.FallingDestroyHeight = tempResult.FallingDestroyHeight;
 					if (tempResult.Freeze && !tempResult.FrozenPos.IsEmpty())
 					{
 						result.FrozenPos = tempResult.FrozenPos;

@@ -198,12 +198,14 @@ void TechnoStatus::OnUpdate()
 		OnUpdate_BalloonTransporter();
 		OnUpdate_BlackHole();
 		OnUpdate_Vector();
+		OnUpdate_BodySpin();
 		OnUpdate_Deselect();
 		OnUpdate_Freeze();
 		OnUpdate_Paintball();
 		OnUpdate_Passenger();
 		OnUpdate_TargetLaser();
 		OnUpdate_GiftBox(); // 礼盒会删除对象，所以放最后
+		OnUpdate_TurretSpin(); // 炮塔旋转最后执行，避免引擎瞄准覆盖
 	}
 }
 

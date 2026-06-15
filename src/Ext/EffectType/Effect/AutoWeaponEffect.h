@@ -31,6 +31,7 @@ public:
 	EFFECT_SCRIPT(AutoWeapon);
 
 	static void SetupFakeTargetToBullet(int index, int burst, BulletClass*& pBullet, AbstractClass*& pTarget);
+	static void SetupBulletAtProjectile(int index, int burst, BulletClass*& pBullet, AbstractClass*& pTarget);
 
 	virtual void Clean() override
 	{

@@ -40,7 +40,7 @@ public:
 
 	CoordStruct MoveTo{};
 	CoordStruct GrowRate{};             // 每帧 FLH 增量（呼吸/螺旋/振幅）
-	double AnglePerFrame = 0.0;         // MoveTo 模式角度自增（°/step）
+	double AnglePerStep = 0.0;         // MoveTo 模式角度自增（°/step）
 
 	// ========================================================================
 	// Circle 模式（圆周，独立于 MoveTo）
@@ -53,7 +53,7 @@ public:
 	int CircleSpeedAcceleration = 0;   // 线速度每步加速度
 	int CircleMaxSpeed = 0;            // 线速度上限，0=不限
 	int CircleMinSpeed = 0;            // 线速度下限，0=不限
-	double CircleAnglePerFrame = 0.0;  // 角速度（°/step），0=不由它推算
+	double CircleAnglePerStep = 0.0;  // 角速度（°/step），0=不由它推算
 	double CircleAngleAcceleration = 0.0; // 角速度每步加速度
 	double CircleMaxAngle = 0.0;     // 角速度上限，0=不限
 	double CircleMinAngle = 0.0;     // 角速度下限，0=不限
@@ -85,6 +85,9 @@ public:
 	// ========================================================================
 
 	bool ReachTarget = false;           // 与 TargetFLH 配合使用
+	int ArcHeight = 0;                  // ReachTarget 弧高（lepton），0=直线，正=上凸
+	bool AllowFallingDestroy = false;   // 向量结束时摔死
+	int FallingDestroyHeight = 2 * Unsorted::LevelHeight;   // 摔死高度
 
 	// ========================================================================
 	// 内部
@@ -115,9 +118,6 @@ public:
 		else Origin = VectorOrigin::FLH;
 
 		OriginFLH = reader->Get(title + "OriginFLH", OriginFLH);
-		// Origin=Launcher 时 NoUpdate 默认 yes，锁定发射者坐标
-		if (Origin == VectorOrigin::Launcher)
-			OriginNoUpdate = true;
 		OriginNoUpdate = reader->Get(title + "OriginNoUpdate", OriginNoUpdate);
 		Force = reader->Get(title + "Force", Force);
 		Freeze = reader->Get(title + "Freeze", Freeze);
@@ -125,7 +125,7 @@ public:
 		// --- MoveTo ---
 		MoveTo = reader->Get(title + "MoveTo", MoveTo);
 		GrowRate = reader->Get(title + "GrowRate", GrowRate);
-		AnglePerFrame = reader->Get(title + "AnglePerFrame", 0.0);
+		AnglePerStep = reader->Get(title + "AnglePerStep", 0.0);
 
 		// --- Circle ---
 		CircleRadius = reader->Get(title + "CircleRadius", -1);
@@ -133,7 +133,7 @@ public:
 		CircleSpeedAcceleration = reader->Get(title + "CircleSpeedAcceleration", 0);
 		CircleMaxSpeed = reader->Get(title + "CircleMaxSpeed", 0);
 		CircleMinSpeed = reader->Get(title + "CircleMinSpeed", 0);
-		CircleAnglePerFrame = reader->Get(title + "CircleAnglePerFrame", 0.0);
+		CircleAnglePerStep = reader->Get(title + "CircleAnglePerStep", 0.0);
 		CircleAngleAcceleration = reader->Get(title + "CircleAngleAcceleration", 0.0);
 		CircleMaxAngle = reader->Get(title + "CircleMaxAngle", 0.0);
 		CircleMinAngle = reader->Get(title + "CircleMinAngle", 0.0);
@@ -152,6 +152,9 @@ public:
 		ParseMinMax(targetOffsetLStr, TargetOffsetLMin, TargetOffsetLMax);
 		ParseMinMax(targetOffsetHStr, TargetOffsetHMin, TargetOffsetHMax);
 		ReachTarget = reader->Get(title + "ReachTarget", ReachTarget);
+		ArcHeight = reader->Get(title + "ArcHeight", 0);
+		AllowFallingDestroy = reader->Get(title + "AllowFallingDestroy", AllowFallingDestroy);
+		FallingDestroyHeight = reader->Get(title + "FallingDestroyHeight", FallingDestroyHeight);
 
 		// --- 速度 ---
 		InitialSpeed = reader->Get(title + "InitialSpeed", -1);
@@ -160,7 +163,7 @@ public:
 		Acceleration = reader->Get(title + "Acceleration", Acceleration);
 
 		Enable = !MoveTo.IsEmpty() || !TargetFLH.IsEmpty() || Force || Freeze
-			|| (CircleRadius > 0) || (CircleSpeed > 0) || (CircleAnglePerFrame > 0.0);
+			|| (CircleRadius > 0) || (CircleSpeed > 0) || (CircleAnglePerStep > 0.0);
 	}
 
 private:
@@ -194,13 +197,13 @@ private:
 
 			.Process(this->MoveTo)
 			.Process(this->GrowRate)
-			.Process(this->AnglePerFrame)
+			.Process(this->AnglePerStep)
 			.Process(this->CircleRadius)
 			.Process(this->CircleSpeed)
 			.Process(this->CircleSpeedAcceleration)
 			.Process(this->CircleMaxSpeed)
 			.Process(this->CircleMinSpeed)
-			.Process(this->CircleAnglePerFrame)
+			.Process(this->CircleAnglePerStep)
 			.Process(this->CircleAngleAcceleration)
 			.Process(this->CircleMaxAngle)
 			.Process(this->CircleMinAngle)
@@ -218,6 +221,9 @@ private:
 			.Process(this->TargetOffsetHMin)
 			.Process(this->TargetOffsetHMax)
 			.Process(this->ReachTarget)
+			.Process(this->ArcHeight)
+			.Process(this->AllowFallingDestroy)
+			.Process(this->FallingDestroyHeight)
 
 			.Process(this->InitialSpeed)
 			.Process(this->MaxSpeed)

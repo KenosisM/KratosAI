@@ -199,6 +199,8 @@ VectorResult VectorEffect::GetVectorResult()
 
 	// Force 必须在闸门之前设，确保非运动帧也走 SetLocation（Freeze 等效）
 	result.Force = Data->Force;
+	result.AllowFallingDestroy = Data->AllowFallingDestroy;
+	result.FallingDestroyHeight = Data->FallingDestroyHeight;
 
 	// ========================================================================
 	// Freeze
@@ -305,7 +307,7 @@ VectorResult VectorEffect::GetVectorResult()
 	// ========================================================================
 	// 模式 C: Circle（独立圆周，圆心=Origin，三选二参数）
 	// ========================================================================
-	bool hasCircle = Data->CircleRadius > 0 || Data->CircleSpeed > 0 || Data->CircleAnglePerFrame > 0.0;
+	bool hasCircle = Data->CircleRadius > 0 || Data->CircleSpeed > 0 || Data->CircleAnglePerStep > 0.0;
 	if (hasCircle)
 	{
 		// 三选二：缺半径用当前XY距离，缺速度用半径×角速度，缺角速度用速度/半径
@@ -328,7 +330,7 @@ VectorResult VectorEffect::GetVectorResult()
 
 		// 角速度动态：首帧初始化，每帧叠加加速度
 		if (_elapsedFrames == 0)
-			_currentCircleAngle = Data->CircleAnglePerFrame;
+			_currentCircleAngle = Data->CircleAnglePerStep;
 		_currentCircleAngle += Data->CircleAngleAcceleration;
 		if (Data->CircleMaxAngle != 0.0 && _currentCircleAngle > Data->CircleMaxAngle)
 			_currentCircleAngle = Data->CircleMaxAngle;
@@ -401,11 +403,11 @@ VectorResult VectorEffect::GetVectorResult()
 	if (!Data->MoveTo.IsEmpty())
 	{
 		double moveFacing;
-		if (Data->AnglePerFrame != 0.0)
+		if (Data->AnglePerStep != 0.0)
 		{
 			if (_elapsedFrames == 0)
 				_currentAngle = 0.0;
-			_currentAngle += Data->AnglePerFrame;
+			_currentAngle += Data->AnglePerStep;
 			moveFacing = effectiveFacing + DegToRad(_currentAngle);
 		}
 		else if (pTechno)
@@ -430,12 +432,6 @@ VectorResult VectorEffect::GetVectorResult()
 	// ========================================================================
 	// 以下为 TargetFLH 相关模式
 	// ========================================================================
-	bool hasTarget = Data->TargetFLH.X != 0 || Data->TargetFLH.Y != 0 || Data->TargetFLH.Z != 0;
-	if (!hasTarget)
-	{
-		AdvanceFrame();
-		return result;
-	}
 
 	// --- 目标世界坐标 ---
 	CoordStruct frameTargetFlh;
@@ -477,6 +473,19 @@ VectorResult VectorEffect::GetVectorResult()
 			resultDisp.X = static_cast<int>(dirVec.X / dirLen * adjustedSpeed);
 			resultDisp.Y = static_cast<int>(dirVec.Y / dirLen * adjustedSpeed);
 			resultDisp.Z = static_cast<int>(dirVec.Z / dirLen * adjustedSpeed);
+
+			// 抛物线弧高修正 Z
+			if (Data->ArcHeight != 0)
+			{
+				double t = static_cast<double>(_elapsedFrames) / _totalDuration;
+				double tNext = static_cast<double>(_elapsedFrames + 1) / _totalDuration;
+				double z0 = _initialLocation.Z;
+				double z1 = frameTarget.Z;
+				double h = Data->ArcHeight;
+				double zCur = z0 + (z1 - z0) * t + 4.0 * h * t * (1.0 - t);
+				double zNext = z0 + (z1 - z0) * tNext + 4.0 * h * tNext * (1.0 - tNext);
+				resultDisp.Z = static_cast<int>(zNext - zCur);
+			}
 		}
 	}
 	// ========================================================================

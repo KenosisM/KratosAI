@@ -9,7 +9,7 @@
 
 void TechnoStatus::VectorCancel()
 {
-	if (VectorForced && !IsBuilding() && !IsDeadOrInvisible(pTechno))
+	if (!IsBuilding() && !IsDeadOrInvisible(pTechno))
 	{
 		FootClass* pFoot = abstract_cast<FootClass*, true>(pTechno);
 		pFoot->Locomotor->Unlock();
@@ -18,13 +18,18 @@ void TechnoStatus::VectorCancel()
 		{
 			pFoot->ForceMission(Mission::Guard);
 		}
-		// 摔死
-		int fallingDestroyHeight = _vectorResult.AllowFallingDestroy ? _vectorResult.FallingDestroyHeight : 0;
+		// 坠落：取当前高度对地差值或 AllowFallingDestroy 指定高度
+		CellClass* pCell = MapClass::Instance->TryGetCellAt(pTechno->GetCoords());
+		int heightAboveGround = pCell ? (pTechno->GetCoords().Z - pCell->GetCoordsWithBridge().Z) : 0;
+		int fallingDestroyHeight = _vectorResult.AllowFallingDestroy
+			? _vectorResult.FallingDestroyHeight
+			: heightAboveGround;
 		FallingExceptAircraft(pTechno, fallingDestroyHeight, false);
 	}
 	VectorForced = false;
 	_vectorResult = {};
 }
+
 
 void TechnoStatus::OnUpdate_Vector()
 {
@@ -34,11 +39,13 @@ void TechnoStatus::OnUpdate_Vector()
 	bool wasVectorForced = VectorForced;
 
 	_vectorResult = AEManager()->MarginVectorOffset();
-	VectorForced = !_vectorResult.MoveDisp.IsEmpty();
 
-	if (VectorForced)
+	if (!_vectorResult.MoveDisp.IsEmpty())
 	{
+		VectorForced = true;
+		VectorPendingFall = false;
 		CoordStruct location = pTechno->GetCoords();
+
 		if (IsDeadOrInvisible(pTechno))
 		{
 			VectorCancel();
@@ -109,7 +116,6 @@ void TechnoStatus::OnUpdate_Vector()
 						pTechno->PrimaryFacing.SetDesired(facingDir);
 						if (IsJumpjet())
 						{
-							// JJ朝向是单独的Facing
 							if (JumpjetLocomotionClass* jjLoco = dynamic_cast<JumpjetLocomotionClass*>(pFoot->Locomotor.get()))
 							{
 								jjLoco->LocomotionFacing.SetDesired(facingDir);
@@ -117,19 +123,23 @@ void TechnoStatus::OnUpdate_Vector()
 						}
 						else if (IsAircraft())
 						{
-							// 飞机使用的炮塔的Facing
 							pTechno->SecondaryFacing.SetDesired(facingDir);
 						}
 					}
 				}
 			}
-			
 		}
 	}
 	else if (wasVectorForced)
 	{
-		// 从 Force 变为 Unforced，说明 Vector 效果结束了，执行取消逻辑
+		// 延后 1 帧判定坠落，等待 Next= 链条衔接
+		VectorPendingFall = true;
+		VectorForced = false;
+	}
+	else if (VectorPendingFall)
+	{
 		VectorCancel();
+		VectorPendingFall = false;
 	}
 }
 

@@ -81,6 +81,8 @@
     <ClCompile Include="src\Ext\EffectType\Effect\StandEffect.cpp" />
     <ClCompile Include="src\Ext\EffectType\Effect\VampireEffect.cpp" />
     <ClCompile Include="src\Ext\EffectType\Effect\VectorEffect.cpp" />
+    <ClCompile Include="src\Ext\EffectType\Effect\TurretSpinEffect.cpp" />
+    <ClCompile Include="src\Ext\EffectType\Effect\BodySpinEffect.cpp" />
     <ClCompile Include="src\Ext\EffectType\State\StateEffect.cpp" />
     <ClCompile Include="src\Ext\EffectType\State\StateEffectScript.cpp" />
     <ClCompile Include="src\Ext\Helper\CastEx.cpp" />
@@ -150,6 +152,8 @@
     <ClCompile Include="src\Ext\TechnoType\Status\TargetLaser.cpp" />
     <ClCompile Include="src\Ext\TechnoType\Status\Transform.cpp" />
     <ClCompile Include="src\Ext\TechnoType\Status\Vampire.cpp" />
+    <ClCompile Include="src\Ext\TechnoType\Status\BodySpin.cpp" />
+    <ClCompile Include="src\Ext\TechnoType\Status\TurretSpin.cpp" />
     <ClCompile Include="src\Ext\TechnoType\Status\Vector.cpp" />
     <ClCompile Include="src\Ext\TechnoType\Spawn.cpp" />
     <ClCompile Include="src\Ext\TechnoType\SupportSpawns.cpp" />
@@ -306,6 +310,10 @@
     <ClInclude Include="src\Ext\EffectType\Effect\VampireEffect.h" />
     <ClInclude Include="src\Ext\EffectType\Effect\VectorData.h" />
     <ClInclude Include="src\Ext\EffectType\Effect\VectorEffect.h" />
+    <ClInclude Include="src\Ext\EffectType\Effect\TurretSpinData.h" />
+    <ClInclude Include="src\Ext\EffectType\Effect\TurretSpinEffect.h" />
+    <ClInclude Include="src\Ext\EffectType\Effect\BodySpinData.h" />
+    <ClInclude Include="src\Ext\EffectType\Effect\BodySpinEffect.h" />
     <ClInclude Include="src\Ext\EffectType\State\StateEffect.h" />
     <ClInclude Include="src\Ext\EffectType\State\StateEffectScript.h" />
     <ClInclude Include="src\Ext\Helper\CastEx.h" />
