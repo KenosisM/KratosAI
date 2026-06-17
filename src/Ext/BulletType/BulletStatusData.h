@@ -13,7 +13,7 @@ public:
 	bool IsDetonate = false; // 已损毁
 	bool IsHarmless = false; // 无害
 	bool SkipAE = false;	 // 爆炸不赋予AE
-	TimerStruct DetonateTimer; // 引爆计时器
+	CDTimerClass DetonateTimer; // 引爆计时器
 
 	void Read(INIBufferReader* ini)
 	{
