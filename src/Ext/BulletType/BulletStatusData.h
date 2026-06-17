@@ -13,6 +13,7 @@ public:
 	bool IsDetonate = false; // 已损毁
 	bool IsHarmless = false; // 无害
 	bool SkipAE = false;	 // 爆炸不赋予AE
+	TimerStruct DetonateTimer; // 引爆计时器
 
 	void Read(INIBufferReader* ini)
 	{
@@ -27,12 +28,16 @@ public:
 	/// @brief 直接摧毁
 	/// @param harmless 无害
 	/// @param skipAE 不赋予AE
-	void Detonate(bool harmless = false, bool skipAE = false)
+	void Detonate(bool harmless = false, bool skipAE = false, int delay = 0)
 	{
 		this->Health = -1;
 		this->IsDetonate = true;
 		this->IsHarmless = harmless;
 		this->SkipAE = skipAE;
+		if (delay > 0)
+		{
+			this->DetonateTimer.Start(delay);
+		}
 	}
 
 	/// @brief 收到伤害

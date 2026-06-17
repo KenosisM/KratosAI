@@ -9,6 +9,8 @@ class ProximityData : public INIConfig
 public:
 	// 碰撞引信
 	bool Force = false;
+	int Delay = 0;
+
 	bool Blade = false;
 	int Arm = 128;
 	int ZOffset = Unsorted::LevelHeight;
@@ -28,6 +30,7 @@ public:
 	virtual void Read(INIBufferReader* reader) override
 	{
 		Force = reader->Get("Proximity.Force", Force);
+		Delay = reader->Get("Proximity.Delay", Delay);
 		Blade = reader->Get("Proximity.Blade", Blade);
 		Arm = reader->Get("Proximity.Arm", Arm);
 		ZOffset = reader->Get("Proximity.ZOffset", ZOffset);

@@ -236,21 +236,26 @@ void BulletStatus::OnUpdate()
 	// 生命检查
 	if (life.IsDetonate)
 	{
-		if (!life.IsHarmless)
+		// 延迟引爆
+		if (!life.DetonateTimer.InProgress())
 		{
-			pBullet->Detonate(location);
+			// 引爆
+			if (!life.IsHarmless)
+			{
+				pBullet->Detonate(location);
+			}
+			pBullet->UnInit();
+			//重要，击杀自己后中断所有后续循环
+			Break();
+			return;
 		}
-		pBullet->UnInit();
-		//重要，击杀自己后中断所有后续循环
-		Break();
-		return;
 	}
 	if (life.Health <= 0)
 	{
 		life.IsDetonate = true;
 	}
 	// 其他逻辑
-	if (!IsDeadOrInvisible(pBullet, this))
+	if (!IsDeadOrInvisible(pBullet, this) || life.DetonateTimer.InProgress())
 	{
 		OnUpdate_BlackHole();
 		OnUpdate_Vector();

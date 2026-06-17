@@ -160,10 +160,21 @@ bool BulletStatus::ManualDetonation(CoordStruct sourcePos, bool KABOOM, Abstract
 
 	if (KABOOM)
 	{
-		// 抛射体原地爆炸
-		pBullet->Detonate(sourcePos);
-		pBullet->Limbo();
-		pBullet->UnInit();
+		if (!life.IsDetonate)
+		{
+			// 直接引爆，或者如果有延迟的话就先进入引爆状态，等到延迟结束时再真正引爆
+			if (data->Delay > 0)
+			{
+				life.Detonate(false, false, data->Delay);
+			}
+			else
+			{
+				// 抛射体原地爆炸
+				pBullet->Detonate(sourcePos);
+				pBullet->Limbo();
+				pBullet->UnInit();
+			}
+		}
 	}
 	else if (pTarget)
 	{
