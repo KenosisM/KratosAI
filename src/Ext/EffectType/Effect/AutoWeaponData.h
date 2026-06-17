@@ -19,6 +19,7 @@ public:
 	int WeaponIndex = -1; // 使用单位自身的武器
 	std::vector<std::string> WeaponTypes{}; // 武器类型
 	int RandomTypesNum = 0; // 随机使用几个武器
+	std::vector<int> RandomWeights; // 随机从列表中选区类型，对应列表中每个类型的权重值
 	CoordStruct FireFLH = CoordStruct::Empty; // 开火相对位置
 	CoordStruct TargetFLH = CoordStruct::Empty; // 目标相对位置
 	CoordStruct MoveTo = CoordStruct::Empty; // 以开火位置为坐标0点，计算TargetFLH
@@ -30,6 +31,7 @@ public:
 		ClearIfGetNone(WeaponTypes);
 
 		RandomTypesNum = reader->Get(title + "RandomTypesNum", RandomTypesNum);
+		RandomWeights = reader->GetList(title + "RandomWeights", RandomWeights);
 		FireFLH = reader->Get(title + "FireFLH", FireFLH);
 		TargetFLH = reader->Get(title + "TargetFLH", TargetFLH);
 		MoveTo = reader->Get(title + "MoveTo", MoveTo);
@@ -50,6 +52,7 @@ public:
 			.Process(this->WeaponIndex)
 			.Process(this->WeaponTypes)
 			.Process(this->RandomTypesNum)
+			.Process(this->RandomWeights)
 			.Process(this->FireFLH)
 			.Process(this->TargetFLH)
 			.Process(this->MoveTo)

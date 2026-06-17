@@ -332,13 +332,24 @@ void AutoWeaponEffect::OnUpdate()
 			// 随机发射武器
 			if (randomNum > 0)
 			{
-				int max = (int)data.WeaponTypes.size();
+				// 计算权重
+				int maxValue = 0;
+				std::map<Point2D, int> targetPad = MakeTargetPad(data.RandomWeights, data.WeaponTypes.size(), maxValue);
+				// 算出随机值，确认位置，取得序号，选出武器
 				for (int i = 0; i < randomNum; i++)
 				{
-					int index = Random::RandomRanged(0, max - 1);
+					int index = Hit(targetPad, maxValue);
+					// 选出的武器
 					std::string weaponType = data.WeaponTypes[index];
 					weaponTypes.push_back(weaponType);
 				}
+				// int max = (int)data.WeaponTypes.size();
+				// for (int i = 0; i < randomNum; i++)
+				// {
+				// 	int index = Random::RandomRanged(0, max - 1);
+				// 	std::string weaponType = data.WeaponTypes[index];
+				// 	weaponTypes.push_back(weaponType);
+				// }
 			}
 			else
 			{
