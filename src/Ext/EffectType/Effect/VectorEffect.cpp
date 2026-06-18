@@ -30,7 +30,7 @@ void VectorEffect::OnStart()
 	_effectiveTimeStep = Data->TimeStep;
 
 	_initialLocation = pObject->GetCoords();
-	_totalDuration = AE->GetDuration();
+	_totalDuration = AE->GetDuration() / _effectiveTimeStep;
 
 	_randomTargetOffset.X = Random::RandomRanged(Data->TargetOffsetFMin, Data->TargetOffsetFMax);
 	_randomTargetOffset.Y = Random::RandomRanged(Data->TargetOffsetLMin, Data->TargetOffsetLMax);
