@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <string>
 #include <vector>
@@ -45,6 +45,7 @@ public:
 
 	int LockDuration = 0; // 锁定时间
 	bool Feedback = false; // 反噬
+	bool FeedbackToSourceTarget = false; // 反噬到发射者的攻击目标
 
 	double ToTechnoChance = 0; // 新目标是单位的概率
 	bool ForceRetarget = false; // 一定重置目标
@@ -75,6 +76,7 @@ public:
 
 		LockDuration = reader->Get(title + "LockDuration", LockDuration);
 		Feedback = reader->Get(title + "Feedback", Feedback);
+		FeedbackToSourceTarget = reader->Get(title + "FeedbackToSourceTarget", FeedbackToSourceTarget);
 
 		ToTechnoChance = reader->GetChance(title + "ToTechnoChance", ToTechnoChance);
 		ForceRetarget = reader->Get(title + "ForceRetarget", ForceRetarget);
@@ -97,7 +99,7 @@ public:
 		}
 		FullAirspace = reader->Get(title + "FullAirspace", FullAirspace);
 
-		Enable = Chance > 0 && (Feedback || RangeMax > 0);
+		Enable = Chance > 0 && (Feedback || FeedbackToSourceTarget || RangeMax > 0);
 	}
 
 #pragma region save/load
@@ -109,6 +111,7 @@ public:
 			.Process(this->Rate)
 			.Process(this->LockDuration)
 			.Process(this->Feedback)
+			.Process(this->FeedbackToSourceTarget)
 			.Process(this->ToTechnoChance)
 			.Process(this->ForceRetarget)
 			.Process(this->NoOwner)
