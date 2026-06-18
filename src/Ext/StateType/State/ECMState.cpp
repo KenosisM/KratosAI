@@ -1,4 +1,4 @@
-﻿#include "ECMState.h"
+#include "ECMState.h"
 
 #include <Ext/Helper/Finder.h>
 #include <Ext/Helper/FLH.h>
@@ -78,10 +78,32 @@ void ECMState::OnUpdate()
 			if (Bingo(Data.Chance))
 			{
 				BulletStatus* status = GetBulletStatus();
-				if (Data.Feedback)
+			if (Data.Feedback)
+			{
+				// 忽悠炮，艹他
+				TechnoClass* pOwner = status->pSource;
+				if (Data.FeedbackToSourceTarget && pOwner)
 				{
-					// 忽悠炮，艹他
-					TechnoClass* pOwner = status->pSource;
+					AbstractClass* pOwnerTarget = pOwner->Target;
+					TechnoClass* pOwnerTargetTechno = nullptr;
+					CastToTechno(pOwnerTarget, pOwnerTargetTechno);
+					if (pOwnerTargetTechno && !IsDeadOrInvisible(pOwnerTargetTechno))
+					{
+						pBullet->SetTarget(pOwnerTargetTechno);
+						pBullet->TargetCoords = pOwnerTargetTechno->GetCoords();
+					}
+					else if (pOwnerTarget)
+					{
+						pBullet->SetTarget(pOwnerTarget);
+						pBullet->TargetCoords = pOwnerTarget->GetCoords();
+					}
+					else
+					{
+						pBullet->TargetCoords = pBullet->SourceCoords;
+					}
+				}
+				else
+				{
 					pBullet->SetTarget(pOwner);
 					if (pOwner)
 					{
@@ -91,8 +113,9 @@ void ECMState::OnUpdate()
 					{
 						pBullet->TargetCoords = pBullet->SourceCoords;
 					}
-					pBullet->Owner = nullptr;
 				}
+				pBullet->Owner = nullptr;
+			}
 				else
 				{
 					AbstractClass* pTarget = pBullet->Target;
