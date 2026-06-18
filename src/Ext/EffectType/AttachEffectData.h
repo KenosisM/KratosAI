@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <algorithm>
 #include <string>
@@ -133,6 +133,8 @@ public:
 
 	bool DiscardOnEntry = false; // 离开地图则失效
 	bool DiscardOnTransform = true; // 发生类型改变时失效
+	bool DiscardOnUndeploying = false; // 是否在建筑反部署时直接结束
+	bool DiscardOnSelling = false; // 是否在建筑出售时直接结束
 	bool PenetratesIronCurtain = false; // 弹头附加，影响铁幕
 	bool FromTransporter = true; // 弹头附加，乘客附加时，视为载具
 	bool ReceiverOwn = false; // 弹头附加，属于被赋予对象
@@ -376,6 +378,8 @@ public:
 
 			DiscardOnEntry = reader->Get("DiscardOnEntry", DiscardOnEntry);
 			DiscardOnTransform = reader->Get("DiscardOnTransform", DiscardOnTransform);
+			DiscardOnUndeploying = reader->Get("DiscardOnUndeploying", DiscardOnUndeploying);
+			DiscardOnSelling = reader->Get("DiscardOnSelling", DiscardOnSelling);
 			PenetratesIronCurtain = reader->Get("PenetratesIronCurtain", PenetratesIronCurtain);
 			FromTransporter = reader->Get("FromTransporter", FromTransporter);
 			ReceiverOwn = reader->Get("ReceiverOwn", ReceiverOwn);
@@ -423,6 +427,8 @@ public:
 
 			.Process(this->DiscardOnEntry)
 			.Process(this->DiscardOnTransform)
+			.Process(this->DiscardOnUndeploying)
+			.Process(this->DiscardOnSelling)
 			.Process(this->PenetratesIronCurtain)
 			.Process(this->FromTransporter)
 			.Process(this->ReceiverOwn)

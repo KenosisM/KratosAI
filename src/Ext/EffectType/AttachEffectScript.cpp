@@ -304,6 +304,24 @@ bool AttachEffectScript::IsAlive()
 		{
 			Deactivate();
 		}
+		if (auto const pBuilding = abstract_cast<BuildingClass*, true>(pTechno))
+		{
+			if (pBuilding->CurrentMission == Mission::Selling)
+			{
+				// 有 Focus 表示正在取消部署，否则是直接出售
+				if (pBuilding->Focus)
+				{
+					if (AEData.DiscardOnUndeploying)
+					{
+						Deactivate();
+					}
+				}
+				else if (AEData.DiscardOnSelling)
+				{
+					Deactivate();
+				}
+			}
+		}
 	}
 	return IsActive();
 }
