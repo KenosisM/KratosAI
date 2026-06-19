@@ -365,6 +365,16 @@ VectorResult VectorEffect::GetVectorResult()
 				targetPos = pBullet->TargetCoords;
 			else if (pTechno && pTechno->Target)
 				targetPos = pTechno->Target->GetCoords();
+			else if (pTechno)
+			{
+				FootClass* pFoot = abstract_cast<FootClass*>(pTechno);
+				if (pFoot && pFoot->Destination)
+					targetPos = pFoot->Destination->GetCoords();
+				else if (pTechno->Focus)
+					targetPos = pTechno->Focus->GetCoords();
+				else
+					break;
+			}
 			else
 				break;
 			mainFacingDir = Point2Dir(targetPos, currentPos); // 官方API，不得修改
