@@ -1,4 +1,4 @@
-﻿#include "../TechnoStatus.h"
+#include "../TechnoStatus.h"
 
 #include <Ext/Helper/Status.h>
 
@@ -13,7 +13,7 @@ DestroyAnimData* TechnoStatus::GetDestroyAnimData()
 
 void TechnoStatus::OnUpdate_Freeze()
 {
-	Freezing = Freeze->IsAlive() || GetDestroyAnimData()->Wreck; // 我是残骸
+	Freezing = Freeze->IsAlive() || GetDestroyAnimData()->Wreck || VectorFreezeActive; // 我是残骸
 	if (Freezing)
 	{
 		if (!_cantMoveFlag)

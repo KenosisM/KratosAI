@@ -38,14 +38,29 @@ void BulletStatus::OnUpdateEnd_Vector(CoordStruct& sourcePos)
 
 	if (VectorForced)
 	{
-		// Force 模式：直接 SetLocation，彻底跳过引擎轨迹计算
-		// 用 OnUpdate 快照的起始位置 + Vector 计算出的位移 = 引擎干预前的正确位置
-		CoordStruct desiredPos;
-		desiredPos.X = _vectorStartPos.X + _vectorResult.MoveDisp.X;
-		desiredPos.Y = _vectorStartPos.Y + _vectorResult.MoveDisp.Y;
-		desiredPos.Z = _vectorStartPos.Z + _vectorResult.MoveDisp.Z;
+		// Force=yes：暴力挪移，纯 Vector 控制位置
+		CoordStruct desiredPos = _vectorStartPos + _vectorResult.MoveDisp;
 		pBullet->SetLocation(desiredPos);
 		pBullet->SourceCoords = desiredPos;
 		sourcePos = desiredPos;
+
+		// 成熟机制，别乱动：弹体 Force 挪移纯靠 SetLocation
+		// SyncFacing=yes：黑洞同款 GetBulletVelocity，弹体面朝移动方向
+		// SyncFacing=no：不碰 Velocity，引擎默认指向攻击目标
+		if (_vectorResult.AllowRotateUnit && !_vectorResult.MoveDisp.IsEmpty())
+		{
+			pBullet->Velocity = GetBulletVelocity(_vectorStartPos, desiredPos);
+		}
+	}
+	else if (!_vectorResult.MoveDisp.IsEmpty())
+	{
+		// Force=no：引擎轨迹 + Vector 位移叠加，原版引擎也介入
+		CoordStruct enginePos = pBullet->GetCoords();
+		enginePos.X += _vectorResult.MoveDisp.X;
+		enginePos.Y += _vectorResult.MoveDisp.Y;
+		enginePos.Z += _vectorResult.MoveDisp.Z;
+		pBullet->SetLocation(enginePos);
+		pBullet->SourceCoords = enginePos;
+		sourcePos = enginePos;
 	}
 }
