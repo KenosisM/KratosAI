@@ -10,18 +10,10 @@ void BroadcastEffect::FindAndAttach(BroadcastEntity data, HouseClass* pHouse)
 	CoordStruct location = pObject->GetCoords();
 	ObjectClass* pSource = AE->pSource;
 	HouseClass* pSourceHouse = AE->pSourceHouse;
-	CoordStruct projectileLocation{};
 	if (AEData.ReceiverOwn || !pSource || !pSourceHouse)
 	{
 		pSource = pObject;
 		pSourceHouse = pHouse;
-	}
-	// 广播持有者是抛射体：来源改为发射者（满足 pSource 必须是 TechnoClass 约束），坐标另传
-	if (pBullet)
-	{
-		pSource = pBullet->Owner;
-		pSourceHouse = pHouse;
-		projectileLocation = pObject->GetCoords();
 	}
 	// 搜索单位
 	if (Data->AffectTechno)
@@ -30,7 +22,7 @@ void BroadcastEffect::FindAndAttach(BroadcastEntity data, HouseClass* pHouse)
 		FindTechnoOnMark([&](TechnoClass* pTarget, AttachEffect* aeManager)
 			{
 				// 赋予AE
-				aeManager->Attach(data.Types, data.AttachChances, false, pSource, pSourceHouse, projectileLocation);
+				aeManager->Attach(data.Types, data.AttachChances, false, pSource, pSourceHouse);
 				attachCount++;
 				if (Data->MaxAttachTechno > 0 && attachCount >= Data->MaxAttachTechno)
 				{
@@ -46,7 +38,7 @@ void BroadcastEffect::FindAndAttach(BroadcastEntity data, HouseClass* pHouse)
 		FindBulletOnMark([&](BulletClass* pTarget, AttachEffect* aeManager)
 			{
 				// 赋予AE
-				aeManager->Attach(data.Types, data.AttachChances, false, pSource, pSourceHouse, projectileLocation);
+				aeManager->Attach(data.Types, data.AttachChances, false, pSource, pSourceHouse);
 				attachCount++;
 				if (Data->MaxAttachBullet > 0 && attachCount >= Data->MaxAttachBullet)
 				{
