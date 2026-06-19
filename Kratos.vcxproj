@@ -76,6 +76,7 @@
     <ClCompile Include="src\Ext\EffectType\Effect\ImmuneEffect.cpp" />
     <ClCompile Include="src\Ext\EffectType\Effect\InfoEffect.cpp" />
     <ClCompile Include="src\Ext\EffectType\Effect\MarkEffect.cpp" />
+    <ClCompile Include="src\Ext\EffectType\Effect\PassengerEnterEffect.cpp" />
     <ClCompile Include="src\Ext\EffectType\Effect\RevengeEffect.cpp" />
     <ClCompile Include="src\Ext\EffectType\Effect\StackEffect.cpp" />
     <ClCompile Include="src\Ext\EffectType\Effect\StandEffect.cpp" />
@@ -299,6 +300,8 @@
     <ClInclude Include="src\Ext\EffectType\Effect\InfoEffect.h" />
     <ClInclude Include="src\Ext\EffectType\Effect\MarkData.h" />
     <ClInclude Include="src\Ext\EffectType\Effect\MarkEffect.h" />
+    <ClInclude Include="src\Ext\EffectType\Effect\PassengerEnterData.h" />
+    <ClInclude Include="src\Ext\EffectType\Effect\PassengerEnterEffect.h" />
     <ClInclude Include="src\Ext\EffectType\Effect\OffsetData.h" />
     <ClInclude Include="src\Ext\EffectType\Effect\RevengeData.h" />
     <ClInclude Include="src\Ext\EffectType\Effect\RevengeEffect.h" />

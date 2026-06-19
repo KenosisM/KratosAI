@@ -24,6 +24,7 @@
 #include "Effect/ImmuneData.h"
 #include "Effect/InfoData.h"
 #include "Effect/MarkData.h"
+#include "Effect/PassengerEnterData.h"
 #include "Effect/RevengeData.h"
 #include "Effect/StackData.h"
 #include "Effect/StandData.h"
@@ -168,6 +169,7 @@ public:
 	EFFECT_VAR_DEFINE(Immune);
 	EFFECT_VAR_DEFINE(Info);
 	EFFECT_VAR_DEFINE(Mark);
+	EFFECT_VAR_DEFINE(PassengerEnter);
 	EFFECT_VAR_DEFINE(Revenge);
 	EFFECT_VAR_DEFINE(Stack);
 	EFFECT_VAR_DEFINE(Stand);
@@ -213,6 +215,7 @@ public:
 		EFFECT_VAR_READ(Immune);
 		EFFECT_VAR_READ(Info);
 		EFFECT_VAR_READ(Mark);
+		EFFECT_VAR_READ(PassengerEnter);
 		EFFECT_VAR_READ(Revenge);
 		EFFECT_VAR_READ(Stack);
 		EFFECT_VAR_READ(Stand);
@@ -265,6 +268,7 @@ public:
 		EFFECT_VAR_SCRIPT_NAME(Immune);
 		EFFECT_VAR_SCRIPT_NAME(Info);
 		EFFECT_VAR_SCRIPT_NAME(Mark);
+		EFFECT_VAR_SCRIPT_NAME(PassengerEnter);
 		EFFECT_VAR_SCRIPT_NAME(Revenge);
 		EFFECT_VAR_SCRIPT_NAME(Stack);
 		EFFECT_VAR_SCRIPT_NAME(Vampire);
@@ -310,8 +314,9 @@ public:
 			EFFECT_VAR_PROCESS(Host)
 			EFFECT_VAR_PROCESS(Immune)
 			EFFECT_VAR_PROCESS(Info)
-			EFFECT_VAR_PROCESS(Mark)
-			EFFECT_VAR_PROCESS(Revenge)
+		EFFECT_VAR_PROCESS(Mark)
+		EFFECT_VAR_PROCESS(PassengerEnter)
+		EFFECT_VAR_PROCESS(Revenge)
 			EFFECT_VAR_PROCESS(Stack)
 			EFFECT_VAR_PROCESS(Stand)
 			EFFECT_VAR_PROCESS(Vector)

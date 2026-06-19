@@ -24,6 +24,8 @@
 #include <Ext/BulletType/BulletStatus.h>
 #include <Ext/TechnoType/TechnoStatus.h>
 #include <Ext/TechnoType/UploadAttachData.h>
+#include <Ext/EffectType/Effect/PassengerEnterData.h>
+#include <Ext/EffectType/Effect/PassengerEnterEffect.h>
 #include <Ext/WeaponType/FeedbackAttachData.h>
 
 #include <Ext/StateType/State/AntiBulletData.h>
@@ -829,6 +831,25 @@ void AttachEffect::AttachUploadAE()
 			CheckAndAttachUploadAE(abstract_cast<TechnoClass*>(pPassenger));
 		} while ((pPassenger = pPassenger->NextObject) != nullptr);
 	}
+	// 清理已离开乘客附加的AE
+	ForeachChild([&](Component* c) {
+		auto ae = dynamic_cast<AttachEffectScript*>(c);
+		if (ae && ae->FromPassenger && ae->pSource)
+		{
+			bool found = false;
+			if (IsBuilding() && pTechno->BunkerLinkedItem == ae->pSource)
+				found = true;
+			if (!found && pTechno->Passengers.NumPassengers > 0)
+			{
+				ObjectClass* pPass = pTechno->Passengers.FirstPassenger;
+				do {
+					if (pPass == ae->pSource) { found = true; break; }
+				} while ((pPass = pPass->NextObject) != nullptr);
+			}
+			if (!found)
+				ae->TimeToDie();
+		}
+	});
 }
 
 void AttachEffect::CheckAndAttachUploadAE(TechnoClass* pPassenger)
@@ -862,6 +883,15 @@ void AttachEffect::CheckAndAttachUploadAE(TechnoClass* pPassenger)
 				{
 					Attach(e.AttachEffects, {}, false, pPassenger, nullptr, CoordStruct::Empty, -1, e.SourceIsPassenger);
 				}
+			}
+		}
+		// 查找乘客身上的 PassengerEnter AE 效果，赋予载具
+		if (PassengerEnterEffect* pe = GetScript<TechnoExt, PassengerEnterEffect>(pPassenger))
+		{
+			if (pe->IsAlive() && pe->Data->Enable && this->IsOnMark(*pe->Data))
+			{
+				TechnoClass* pSrc = pe->Data->SourceIsPassenger ? pPassenger : pTechno;
+				Attach(pe->Data->AttachEffects, {}, false, pSrc, nullptr, CoordStruct::Empty, -1, true);
 			}
 		}
 	}
