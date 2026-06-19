@@ -1,4 +1,4 @@
-﻿#include "TechnoStatus.h"
+#include "TechnoStatus.h"
 
 #include <Ext/Common/CommonStatus.h>
 #include <Ext/Common/FireSuperManager.h>
@@ -214,6 +214,7 @@ void TechnoStatus::OnUpdateEnd()
 	if (!_isDead && !IsDeadOrInvisible(pTechno))
 	{
 		this->_lastMission = pTechno->CurrentMission;
+		OnUpdateEnd_Vector();
 	}
 }
 

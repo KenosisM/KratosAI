@@ -1,4 +1,4 @@
-﻿#include "../TechnoStatus.h"
+#include "../TechnoStatus.h"
 
 #include <JumpjetLocomotionClass.h>
 
@@ -13,6 +13,14 @@ void TechnoStatus::VectorCancel()
 	{
 		FootClass* pFoot = abstract_cast<FootClass*, true>(pTechno);
 		pFoot->Locomotor->Unlock();
+		// 恢复原 Locomotor
+		if (dynamic_cast<JumpjetLocomotionClass*>(pFoot->Locomotor.get()))
+		{
+			if (_vectorSavedLocomotor != GUID{})
+				LocomotionClass::ChangeLocomotorTo(pFoot, _vectorSavedLocomotor);
+			else
+				pFoot->Locomotor->Unlock();
+		}
 		// 恢复可控制
 		if (_lostControl)
 		{
@@ -23,10 +31,12 @@ void TechnoStatus::VectorCancel()
 		int heightAboveGround = pCell ? (pTechno->GetCoords().Z - pCell->GetCoordsWithBridge().Z) : 0;
 		int fallingDestroyHeight = _vectorResult.AllowFallingDestroy
 			? _vectorResult.FallingDestroyHeight
-			: heightAboveGround;
+			: 0; // AllowFallingDestroy=no 时不判死，自然坠落
 		FallingExceptAircraft(pTechno, fallingDestroyHeight, false);
 	}
 	VectorForced = false;
+	VectorFreezeActive = false;
+	_vectorDesiredPos = CoordStruct::Empty;
 	_vectorResult = {};
 }
 
@@ -38,12 +48,39 @@ void TechnoStatus::OnUpdate_Vector()
 
 	bool wasVectorForced = VectorForced;
 
+	// 纠正上一帧引擎自主运动造成的偏离（下一帧开头强行搬回Vector计算的位置）
+	if (wasVectorForced && !_vectorDesiredPos.IsEmpty())
+	{
+		CoordStruct currentPos = pTechno->GetCoords();
+		if (currentPos != _vectorDesiredPos)
+		{
+			bool onBridge = pTechno->OnBridge;
+			pTechno->UpdatePlacement(PlacementType::Remove);
+			pTechno->OnBridge = onBridge;
+			pTechno->SetLocation(_vectorDesiredPos);
+			pTechno->UpdatePlacement(PlacementType::Put);
+		}
+	}
+
 	_vectorResult = AEManager()->MarginVectorOffset();
 
-	if (!_vectorResult.MoveDisp.IsEmpty())
+	if (!_vectorResult.MoveDisp.IsEmpty() || _vectorResult.Freeze)
 	{
 		VectorForced = true;
 		VectorPendingFall = false;
+		if (_vectorResult.Freeze)
+			VectorFreezeActive = true;
+
+		// 首次进入 Vector 控制：切换 Locomotor 为 Jumpjet（允许地面单位浮空）
+		if (!wasVectorForced)
+		{
+			FootClass* pFoot = abstract_cast<FootClass*>(pTechno);
+			if (pFoot && !dynamic_cast<JumpjetLocomotionClass*>(pFoot->Locomotor.get()) && !IsAircraft())
+			{
+				_vectorSavedLocomotor = pTechno->GetTechnoType()->Locomotor;
+				LocomotionClass::ChangeLocomotorTo(pFoot, LocomotionClass::CLSIDs::Jumpjet);
+			}
+		}
 		CoordStruct location = pTechno->GetCoords();
 
 		if (IsDeadOrInvisible(pTechno))
@@ -60,8 +97,21 @@ void TechnoStatus::OnUpdate_Vector()
 			ForceStopMoving(pFoot);
 			// 计算下一个坐标点
 			CoordStruct nextPos = location + _vectorResult.MoveDisp;
-			CoordStruct nextCellPos = CoordStruct::Empty;
 			bool onBridge = pTechno->OnBridge;
+			if (VectorForced)
+			{
+				// Force 模式：跳过路径校验，直接 SetLocation（允许高空/穿墙等非地面位）
+				_vectorDesiredPos = nextPos;
+				pTechno->UpdatePlacement(PlacementType::Remove);
+				pTechno->OnBridge = onBridge;
+				pTechno->SetLocation(nextPos);
+				pTechno->UpdatePlacement(PlacementType::Put);
+				MapClass::Instance->RevealArea2(&nextPos, pTechno->LastSightRange, pTechno->Owner, false, false, false, true, 0);
+				MapClass::Instance->RevealArea2(&nextPos, pTechno->LastSightRange, pTechno->Owner, false, false, false, true, 1);
+			}
+			else
+			{
+			CoordStruct nextCellPos = CoordStruct::Empty;
 			PassError passError = CanMoveTo(location, nextPos, _vectorResult.CanPassBuilding, nextCellPos, onBridge);
 			switch (passError)
 			{
@@ -85,13 +135,15 @@ void TechnoStatus::OnUpdate_Vector()
 				// 卡在地表
 				nextPos.Z = nextCellPos.Z;
 				break;
-			}
-			// 被黑洞吸走
-			pTechno->UpdatePlacement(PlacementType::Remove);
-			// 是否在桥上
-			pTechno->OnBridge = onBridge;
-			pTechno->SetLocation(nextPos);
-			pTechno->UpdatePlacement(PlacementType::Put);
+			} // switch
+				_vectorDesiredPos = nextPos;
+				// 被黑洞吸走
+				pTechno->UpdatePlacement(PlacementType::Remove);
+				// 是否在桥上
+				pTechno->OnBridge = onBridge;
+				pTechno->SetLocation(nextPos);
+				pTechno->UpdatePlacement(PlacementType::Put);
+			} // else (非 Force 模式)
 			// 移除黑幕
 			MapClass::Instance->RevealArea2(&nextPos, pTechno->LastSightRange, pTechno->Owner, false, false, false, true, 0);
 			MapClass::Instance->RevealArea2(&nextPos, pTechno->LastSightRange, pTechno->Owner, false, false, false, true, 1);
@@ -100,34 +152,28 @@ void TechnoStatus::OnUpdate_Vector()
 			{
 				abstract_cast<InfantryClass*, true>(pTechno)->PlayAnim(Sequence::Crawl);
 			}
-			// 设置翻滚
-			if (_vectorResult.AllowRotateUnit)
+			// 成熟机制，别乱动：单位 SyncFacing 朝向同步
+		if (_vectorResult.AllowRotateUnit)
+		{
+			CoordStruct p1 = nextPos;
+			CoordStruct p2 = location;
+			p1.Z = 0;
+			p2.Z = 0;
+			if (p1.DistanceFrom(p2) > 0)
 			{
-				// 设置朝向
-				if (_lastMission == Mission::Move || _lastMission == Mission::AttackMove || pTechno->GetTechnoType()->ConsideredAircraft || !pTechno->IsInAir())
+				DirStruct facingDir = Point2Dir(location, nextPos); // 官方API，不得修改
+				pTechno->PrimaryFacing.SetDesired(facingDir);
+				if (IsJumpjet())
 				{
-					CoordStruct p1 = nextPos;
-					CoordStruct p2 = location;
-					p1.Z = 0;
-					p2.Z = 0;
-					if (p1.DistanceFrom(p2) >= Unsorted::LeptonsPerCell * 0.5)
-					{
-						DirStruct facingDir = Point2Dir(nextPos, location);
-						pTechno->PrimaryFacing.SetDesired(facingDir);
-						if (IsJumpjet())
-						{
-							if (JumpjetLocomotionClass* jjLoco = dynamic_cast<JumpjetLocomotionClass*>(pFoot->Locomotor.get()))
-							{
-								jjLoco->LocomotionFacing.SetDesired(facingDir);
-							}
-						}
-						else if (IsAircraft())
-						{
-							pTechno->SecondaryFacing.SetDesired(facingDir);
-						}
-					}
+					if (JumpjetLocomotionClass* jjLoco = dynamic_cast<JumpjetLocomotionClass*>(pFoot->Locomotor.get()))
+						jjLoco->LocomotionFacing.SetDesired(facingDir);
+				}
+				else if (IsAircraft())
+				{
+					pTechno->SecondaryFacing.SetDesired(facingDir);
 				}
 			}
+		}
 		}
 	}
 	else if (wasVectorForced)
@@ -140,6 +186,22 @@ void TechnoStatus::OnUpdate_Vector()
 	{
 		VectorCancel();
 		VectorPendingFall = false;
+	}
+}
+
+void TechnoStatus::OnUpdateEnd_Vector()
+{
+	if (VectorForced && !IsBuilding() && !IsDeadOrInvisible(pTechno) && !_vectorDesiredPos.IsEmpty())
+	{
+		CoordStruct currentPos = pTechno->GetCoords();
+		if (currentPos != _vectorDesiredPos)
+		{
+			bool onBridge = pTechno->OnBridge;
+			pTechno->UpdatePlacement(PlacementType::Remove);
+			pTechno->OnBridge = onBridge;
+			pTechno->SetLocation(_vectorDesiredPos);
+			pTechno->UpdatePlacement(PlacementType::Put);
+		}
 	}
 }
 

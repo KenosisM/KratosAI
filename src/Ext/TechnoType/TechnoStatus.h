@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <algorithm>
 #include <string>
@@ -417,6 +417,9 @@ public:
 	bool CaptureByBlackHole = false;
 	bool VectorForced = false;
 	bool VectorPendingFall = false;
+	bool VectorFreezeActive = false;
+	CoordStruct _vectorDesiredPos{};
+	GUID _vectorSavedLocomotor{}; // Vector 接管时保存的原 Locomotor
 	double _spinRad = 0;
 	int _spinTime = 0;
 	bool _spinFlip = true;
@@ -505,6 +508,9 @@ public:
 			// 向量位移
 			.Process(this->VectorForced)
 			.Process(this->VectorPendingFall)
+			.Process(this->VectorFreezeActive)
+			.Process(this->_vectorDesiredPos)
+			.Process(this->_vectorSavedLocomotor)
 			.Process(this->_spinRad)
 			.Process(this->_spinTime)
 			.Process(this->_spinFlip)
@@ -588,6 +594,7 @@ private:
 	void OnUpdate_TargetLaser();
 	void OnUpdate_Transform();
 	void OnUpdate_Vector();
+	void OnUpdateEnd_Vector();
 	void OnUpdate_TurretSpin();
 	void OnUpdate_BodySpin();
 
