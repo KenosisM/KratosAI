@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <string>
 #include <vector>
@@ -30,6 +30,7 @@ public:
 		EffectScript::Clean();
 
 		_count.clear();
+		_delayTimer = 0;
 	}
 
 	virtual void OnUpdate() override;
@@ -40,6 +41,7 @@ public:
 	bool Serialize(T& stream) {
 		return stream
 			.Process(this->_count)
+			.Process(this->_delayTimer)
 			.Success();
 	};
 
@@ -60,4 +62,5 @@ private:
 
 	// 计数器触发次数
 	std::map<int, int> _count{};
+	int _delayTimer = 0;
 };

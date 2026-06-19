@@ -1,4 +1,4 @@
-﻿#include "CountTriggerEffect.h"
+#include "CountTriggerEffect.h"
 
 #include <Ext/Helper/Finder.h>
 #include <Ext/Helper/FLH.h>
@@ -188,7 +188,15 @@ void CountTriggerEffect::OnUpdate()
 {
 	if (!AE->OwnerIsDead())
 	{
-		Watch();
+		if (Data->Delay <= 0)
+		{
+			Watch();
+		}
+		else if (++_delayTimer >= Data->Delay)
+		{
+			_delayTimer = 0;
+			Watch();
+		}
 	}
 }
 
@@ -196,6 +204,14 @@ void CountTriggerEffect::OnWarpUpdate()
 {
 	if (!AE->OwnerIsDead())
 	{
-		Watch();
+		if (Data->Delay <= 0)
+		{
+			Watch();
+		}
+		else if (++_delayTimer >= Data->Delay)
+		{
+			_delayTimer = 0;
+			Watch();
+		}
 	}
 }

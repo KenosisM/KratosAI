@@ -1,4 +1,4 @@
-﻿#include "StackEffect.h"
+#include "StackEffect.h"
 
 #include <Ext/Helper/Finder.h>
 #include <Ext/Helper/FLH.h>
@@ -207,7 +207,15 @@ void StackEffect::OnUpdate()
 {
 	if (!AE->OwnerIsDead())
 	{
-		Watch();
+		if (Data->Delay <= 0)
+		{
+			Watch();
+		}
+		else if (++_delayTimer >= Data->Delay)
+		{
+			_delayTimer = 0;
+			Watch();
+		}
 	}
 }
 
@@ -215,6 +223,14 @@ void StackEffect::OnWarpUpdate()
 {
 	if (!AE->OwnerIsDead())
 	{
-		Watch();
+		if (Data->Delay <= 0)
+		{
+			Watch();
+		}
+		else if (++_delayTimer >= Data->Delay)
+		{
+			_delayTimer = 0;
+			Watch();
+		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <string>
 #include <vector>
@@ -187,6 +187,8 @@ public:
 
 	std::vector<CountTriggerEntity> Actions{}; // 触发效果列表
 
+	int Delay = 0;
+
 	virtual void Read(INIBufferReader* reader) override
 	{
 		Read(reader, "CountTrigger.");
@@ -217,6 +219,8 @@ public:
 			}
 		}
 
+		Delay = reader->Get(title + "Delay", Delay);
+
 		Enable = IsNotNone(Watch) && !Actions.empty();
 	}
 
@@ -227,7 +231,7 @@ public:
 		return stream
 			.Process(this->Watch)
 			.Process(this->Actions)
-
+			.Process(this->Delay)
 			.Success();
 	};
 

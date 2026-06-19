@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <string>
 #include <vector>
@@ -30,6 +30,7 @@ public:
 		EffectScript::Clean();
 
 		_count = 0;
+		_delayTimer = 0;
 	}
 
 	virtual void OnUpdate() override;
@@ -40,6 +41,7 @@ public:
 	bool Serialize(T& stream) {
 		return stream
 			.Process(this->_count)
+			.Process(this->_delayTimer)
 			.Success();
 	};
 
@@ -59,4 +61,5 @@ private:
 	bool CanActive(int stacks, int level, Condition condition);
 
 	int _count = 0;
+	int _delayTimer = 0;
 };

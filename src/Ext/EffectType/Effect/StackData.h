@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <string>
 #include <vector>
@@ -101,6 +101,8 @@ public:
 	bool RemoveAll = true;
 	bool RemoveSkipNext = false;
 
+	int Delay = 0;
+
 	virtual void Read(INIBufferReader* reader) override
 	{
 		Read(reader, "Stack.");
@@ -137,6 +139,8 @@ public:
 		RemoveAll = reader->Get(title + "RemoveAll", RemoveAll);
 		RemoveSkipNext = reader->Get(title + "RemoveSkipNext", RemoveSkipNext);
 
+		Delay = reader->Get(title + "Delay", Delay);
+
 		Enable = (!Watch.empty() || WatchMission != Mission::None) && (Attach || Remove);
 	}
 
@@ -166,6 +170,7 @@ public:
 			.Process(this->RemoveLevel)
 			.Process(this->RemoveAll)
 			.Process(this->RemoveSkipNext)
+			.Process(this->Delay)
 			.Success();
 	};
 
