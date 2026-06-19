@@ -60,7 +60,7 @@ Run `RunAres.bat` to start the game.
 
 开发者 (Developers)
 ------------
-* [艾木魁](https://space.bilibili.com/194846) (M.Kenosis) - 主策划
+* [艾木魁](https://space.bilibili.com/194846) (M.Kenosis) - 主策划&Vibe开发者
 * [双杀步枪](https://space.bilibili.com/276838) (ChrisLv_CN) - 开发者
 * [冲冲冲14782](https://space.bilibili.com/149326956/) - 测试
 
