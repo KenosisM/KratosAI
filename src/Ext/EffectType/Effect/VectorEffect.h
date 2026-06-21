@@ -143,4 +143,5 @@ public:
 	int _movementFrames = 0;              // 有效运动帧数（不含 InitialDelay/TimeStep 跳帧）
 	double _arcRotation = 0.0;           // 弧面旋转角（OnStart 解析，仅 ReachTarget）
 	int _arcHeight = 0;                 // 弧高（OnStart 解析随机后写入）
+	double _arcPeakPercent = 0.5;        // 弧高点比率 0..1（OnStart 解析随机后写入）
 };

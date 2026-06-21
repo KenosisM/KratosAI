@@ -154,6 +154,8 @@ public:
 	bool ReachTarget = false;           // 与 TargetFLH 配合使用
 	int ReachTargetEarlyEnd = 0;        // 提前结束 AE 的帧数，0=禁用，>0 时提前 N 帧交还引擎
 	int ArcHeight = 0;                  // ReachTarget 弧高（lepton），0=直线，正=上凸
+	double ArcPeakPercent = 50.0;       // 弧高点所在 Duration 百分比（0-100），默认50=中点
+	Point2D ArcPeakRandomPercent{ 0, 0 };// 随机弧高百分比范围 (Min, Max)
 	int ArcRandomHeightMin = 0;         // 随机弧高下限
 	int ArcRandomHeightMax = 0;         // 随机弧高上限
 	double ArcRotation = 0.0;           // 弧面旋转角（°），0=默认朝上，顺时针
@@ -330,6 +332,8 @@ public:
 		ReachTarget = reader->Get(title + "ReachTarget", ReachTarget);
 		ReachTargetEarlyEnd = reader->Get(title + "ReachTargetEarlyEnd", ReachTargetEarlyEnd);
 		ArcHeight = reader->Get(title + "ArcHeight", 0);
+		ArcPeakPercent = reader->Get(title + "ArcPeakPercent", ArcPeakPercent);
+		ArcPeakRandomPercent = reader->Get(title + "ArcPeakRandomPercent", ArcPeakRandomPercent);
 		std::string arcRandomHeightStr = reader->Get(title + "ArcRandomHeight", std::string{ "" });
 		ParseMinMax(arcRandomHeightStr, ArcRandomHeightMin, ArcRandomHeightMax);
 		ArcRotation = reader->Get(title + "ArcRotation", 0.0);
@@ -475,6 +479,8 @@ private:
 			.Process(this->ReachTarget)
 			.Process(this->ReachTargetEarlyEnd)
 			.Process(this->ArcHeight)
+			.Process(this->ArcPeakPercent)
+			.Process(this->ArcPeakRandomPercent)
 			.Process(this->ArcRandomHeightMin)
 			.Process(this->ArcRandomHeightMax)
 			.Process(this->ArcRotation)

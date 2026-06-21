@@ -45,6 +45,12 @@ void VectorEffect::OnStart()
 	if (Data->ArcRandomHeightMax > Data->ArcRandomHeightMin)
 		_arcHeight = Random::RandomRanged(Data->ArcRandomHeightMin, Data->ArcRandomHeightMax);
 
+	_arcPeakPercent = Data->ArcPeakPercent / 100.0;
+	if (Data->ArcPeakRandomPercent.X < Data->ArcPeakRandomPercent.Y)
+		_arcPeakPercent = Random::RandomRanged(Data->ArcPeakRandomPercent.X, Data->ArcPeakRandomPercent.Y) / 100.0;
+	if (_arcPeakPercent <= 0.0) _arcPeakPercent = 0.5;
+	if (_arcPeakPercent >= 1.0) _arcPeakPercent = 0.5;
+
 	// --- 初始速度 ---
 	_currentSpeed = 0.0;
 	if (Data->InitialSpeed >= 0)
@@ -365,16 +371,6 @@ VectorResult VectorEffect::GetVectorResult()
 				targetPos = pBullet->TargetCoords;
 			else if (pTechno && pTechno->Target)
 				targetPos = pTechno->Target->GetCoords();
-			else if (pTechno)
-			{
-				FootClass* pFoot = abstract_cast<FootClass*>(pTechno);
-				if (pFoot && pFoot->Destination)
-					targetPos = pFoot->Destination->GetCoords();
-				else if (pTechno->Focus)
-					targetPos = pTechno->Focus->GetCoords();
-				else
-					break;
-			}
 			else
 				break;
 			mainFacingDir = Point2Dir(targetPos, currentPos); // 官方API，不得修改
@@ -964,8 +960,9 @@ VectorResult VectorEffect::GetVectorResult()
 				double t = static_cast<double>(_movementFrames - 1) / effectiveDuration;
 				double tNext = static_cast<double>(_movementFrames) / effectiveDuration;
 				double h = _arcHeight;
-				double deflPrev = 4.0 * h * t * (1.0 - t);
-				double deflNext = 4.0 * h * tNext * (1.0 - tNext);
+				double peakScale = 1.0 / (_arcPeakPercent * (1.0 - _arcPeakPercent));
+				double deflPrev = peakScale * h * t * (1.0 - t);
+				double deflNext = peakScale * h * tNext * (1.0 - tNext);
 				double delta = deflNext - deflPrev;
 
 				if (_arcRotation == 0.0)
