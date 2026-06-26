@@ -954,24 +954,33 @@ VectorResult VectorEffect::GetVectorResult()
 			resultDisp.Y = static_cast<int>(dirVec.Y / dirLen * adjustedSpeed);
 			resultDisp.Z = static_cast<int>(dirVec.Z / dirLen * adjustedSpeed);
 
-			// 抛物线弧高（支持 ArcRotation 旋转弧面）
+			// 抛物线弧高（基于初始位置，支持 ArcPeakPercent / ArcRotation）
 			if (_arcHeight != 0)
 			{
-				double t = static_cast<double>(_movementFrames - 1) / effectiveDuration;
-				double tNext = static_cast<double>(_movementFrames) / effectiveDuration;
-				double h = _arcHeight;
-				double peakScale = 1.0 / (_arcPeakPercent * (1.0 - _arcPeakPercent));
-				double deflPrev = peakScale * h * t * (1.0 - t);
-				double deflNext = peakScale * h * tNext * (1.0 - tNext);
-				double delta = deflNext - deflPrev;
-
-				if (_arcRotation == 0.0)
+				double t = static_cast<double>(_movementFrames) / effectiveDuration;
+				double arcOffset;
+				if (t <= _arcPeakPercent)
 				{
-					resultDisp.Z += static_cast<int>(delta);
+					double u = t / _arcPeakPercent;
+					arcOffset = _arcHeight * u * (2.0 - u);
 				}
 				else
 				{
-					// D = start→target 方向
+					double u = (t - _arcPeakPercent) / (1.0 - _arcPeakPercent);
+					arcOffset = _arcHeight * (1.0 - u * u);
+				}
+				double baseX = _initialLocation.X + (frameTarget.X - _initialLocation.X) * t;
+				double baseY = _initialLocation.Y + (frameTarget.Y - _initialLocation.Y) * t;
+				double baseZ = _initialLocation.Z + (frameTarget.Z - _initialLocation.Z) * t;
+
+				if (_arcRotation == 0.0)
+				{
+					resultDisp.X = static_cast<int>(baseX - currentPos.X);
+					resultDisp.Y = static_cast<int>(baseY - currentPos.Y);
+					resultDisp.Z = static_cast<int>(baseZ + arcOffset - currentPos.Z);
+				}
+				else
+				{
 					double dx = frameTarget.X - _initialLocation.X;
 					double dy = frameTarget.Y - _initialLocation.Y;
 					double dz = frameTarget.Z - _initialLocation.Z;
@@ -979,30 +988,29 @@ VectorResult VectorEffect::GetVectorResult()
 					if (dLen > 1e-6)
 					{
 						double dnx = dx / dLen, dny = dy / dLen, dnz = dz / dLen;
-						// 默认弧面法向 = 世界朝上垂直于 D 的分量
 						double upDotD = dnz;
 						double px = -dnx * upDotD, py = -dny * upDotD, pz = 1.0 - dnz * upDotD;
 						double pLen = std::sqrt(px * px + py * py + pz * pz);
 						if (pLen < 1e-6)
 						{
-							// D 接近垂直，用水平朝北
 							px = 1.0 - dnx * dnx; py = -dny * dnx; pz = -dnz * dnx;
 							pLen = std::sqrt(px * px + py * py + pz * pz);
 						}
 						double pnx = px / pLen, pny = py / pLen, pnz = pz / pLen;
-						// 绕 D 旋转 P
 						double rad = Math::deg2rad(_arcRotation);
 						double c = std::cos(rad), s = std::sin(rad);
 						double rx = pnx * c + (dny * pnz - dnz * pny) * s;
 						double ry = pny * c + (dnz * pnx - dnx * pnz) * s;
 						double rz = pnz * c + (dnx * pny - dny * pnx) * s;
-						resultDisp.X += static_cast<int>(rx * delta);
-						resultDisp.Y += static_cast<int>(ry * delta);
-						resultDisp.Z += static_cast<int>(rz * delta);
+						resultDisp.X = static_cast<int>(baseX + rx * arcOffset - currentPos.X);
+						resultDisp.Y = static_cast<int>(baseY + ry * arcOffset - currentPos.Y);
+						resultDisp.Z = static_cast<int>(baseZ + rz * arcOffset - currentPos.Z);
 					}
 					else
 					{
-						resultDisp.Z += static_cast<int>(delta);
+						resultDisp.X = static_cast<int>(baseX - currentPos.X);
+						resultDisp.Y = static_cast<int>(baseY - currentPos.Y);
+						resultDisp.Z = static_cast<int>(baseZ + arcOffset - currentPos.Z);
 					}
 				}
 			}
