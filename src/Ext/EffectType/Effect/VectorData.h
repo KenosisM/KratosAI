@@ -24,7 +24,7 @@ public:
 
 	int TimeStep = 1;
 	int DisabledFrames = 0;              // 首帧快照后冻结 N 帧，不计入运动时间
-	bool SyncFacing = true;              // yes=抛射体朝运动方向/单位转动，no=抛射体朝目标
+	bool SyncFacing = false;             // yes=抛射体朝运动方向/单位转动，no=抛射体朝目标
 	bool OriginIsOnWorld = false;        // yes=OriginFLH用世界FLH(朝北)，不使用单位/弹体朝向
 	bool OriginIsOnBody = false;          // yes=单位取车身PrimaryFacing，无视炮塔TurretFacing
 
@@ -333,11 +333,11 @@ public:
 		ReachTargetEarlyEnd = reader->Get(title + "ReachTargetEarlyEnd", ReachTargetEarlyEnd);
 		ArcHeight = reader->Get(title + "ArcHeight", 0);
 		ArcPeakPercent = reader->Get(title + "ArcPeakPercent", ArcPeakPercent);
-		ArcPeakRandomPercent = reader->Get(title + "ArcPeakRandomPercent", ArcPeakRandomPercent);
-		std::string arcRandomHeightStr = reader->Get(title + "ArcRandomHeight", std::string{ "" });
+		ArcPeakRandomPercent = reader->Get(title + "RandomArcPeakPercent", ArcPeakRandomPercent);
+		std::string arcRandomHeightStr = reader->Get(title + "RandomArcHeight", std::string{ "" });
 		ParseMinMax(arcRandomHeightStr, ArcRandomHeightMin, ArcRandomHeightMax);
 		ArcRotation = reader->Get(title + "ArcRotation", 0.0);
-		std::string arcRandomRotationStr = reader->Get(title + "ArcRandomRotation", std::string{ "" });
+		std::string arcRandomRotationStr = reader->Get(title + "RandomArcRotation", std::string{ "" });
 		ParseMinMaxDouble(arcRandomRotationStr, ArcRandomRotationMin, ArcRandomRotationMax);
 		AllowFallingDestroy = reader->Get(title + "AllowFallingDestroy", AllowFallingDestroy);
 		FallingDestroyHeight = reader->Get(title + "FallingDestroyHeight", FallingDestroyHeight);

@@ -453,7 +453,7 @@ VectorResult VectorEffect::GetVectorResult()
 	// ========================================================================
 	// 成熟机制，别乱动 — 模式 C: Circle（独立圆周，圆心=Origin，三选二参数）
 	// ========================================================================
-	bool hasCircle = Data->CircleRadius > 0 || Data->CircleSpeed != 0 || Data->CircleAnglePerStep > 0.0
+	bool hasCircle = Data->CircleRadius > 0 || Data->CircleSpeed != 0 || Data->InitialSpeed >= 0 || Data->CircleAnglePerStep > 0.0
 		|| (Data->CircleRandomRadiusMax > Data->CircleRandomRadiusMin)
 		|| (Data->CircleRandomAngleMax > Data->CircleRandomAngleMin);
 	if (hasCircle)
@@ -468,9 +468,11 @@ VectorResult VectorEffect::GetVectorResult()
 		}
 
 		// 动态线速：首帧初始化，每帧叠加加速度
+		// InitialSpeed/Acceleration 覆盖 CircleSpeed/CircleSpeedAcceleration
 		if (_elapsedFrames == 0)
-			_currentCircleSpeed = static_cast<double>(Data->CircleSpeed);
-		_currentCircleSpeed += Data->CircleSpeedAcceleration;
+			_currentCircleSpeed = Data->InitialSpeed >= 0 ? static_cast<double>(Data->InitialSpeed) : static_cast<double>(Data->CircleSpeed);
+		double circleAccel = Data->Acceleration != 0 ? Data->Acceleration : Data->CircleSpeedAcceleration;
+		_currentCircleSpeed += circleAccel;
 		if (Data->CircleMaxSpeed != 0 && _currentCircleSpeed > Data->CircleMaxSpeed)
 			_currentCircleSpeed = static_cast<double>(Data->CircleMaxSpeed);
 		if (Data->CircleMinSpeed != 0 && _currentCircleSpeed < Data->CircleMinSpeed)
@@ -514,7 +516,7 @@ VectorResult VectorEffect::GetVectorResult()
 
 		// 圆心移动：Vector.Origin.* 系统
 		if (!Data->OriginMoveTo.IsEmpty() || !Data->OriginTargetFLH.IsEmpty()
-			|| Data->OriginCircleRadius >= 0 || Data->OriginCircleSpeed != 0 || Data->OriginCircleAnglePerStep != 0)
+			|| Data->OriginCircleRadius >= 0 || Data->OriginCircleSpeed != 0 || Data->OriginInitialSpeed >= 0 || Data->OriginCircleAnglePerStep != 0)
 		{
 			// 基座：默认 originPos，OriginOrigin 可替换为独立参考系
 			CoordStruct baseCenter = originPos;
@@ -565,7 +567,7 @@ VectorResult VectorEffect::GetVectorResult()
 				_originOffset = circleCenter - baseCenter;
 				// Circle 初始化
 				_originCircleRadius = Data->OriginCircleRadius;
-				_originCircleSpeed = Data->OriginCircleSpeed;
+				_originCircleSpeed = Data->OriginInitialSpeed >= 0 ? Data->OriginInitialSpeed : Data->OriginCircleSpeed;
 				_originCircleAngle = 0.0; // 初始相位
 				// 随机
 				if (Data->OriginCircleRandomRadiusMax > Data->OriginCircleRandomRadiusMin)
@@ -697,8 +699,8 @@ VectorResult VectorEffect::GetVectorResult()
 				if (Data->OriginCircleMinRadius > 0 && tr < Data->OriginCircleMinRadius) tr = Data->OriginCircleMinRadius;
 				// 角步长：优先线速度/半径推算，否则用固定角速度
 				double angleStep = Data->OriginCircleAnglePerStep;
-				if (Data->OriginCircleSpeed != 0 && tr > 0)
-					angleStep = Math::rad2deg(Data->OriginCircleSpeed / tr);
+				if (_originCircleSpeed != 0 && tr > 0)
+					angleStep = Math::rad2deg(_originCircleSpeed / tr);
 				// Lissajous=yes: 累积大角旋转（增减边震荡），no: 每帧仅增量旋转（平滑行星）
 				_originCircleAngle += angleStep;
 				double r = Data->OriginLissajous ? Math::deg2rad(_originCircleAngle) : Math::deg2rad(angleStep);
@@ -737,7 +739,7 @@ VectorResult VectorEffect::GetVectorResult()
 	if (_prevCircleCenter.X || _prevCircleCenter.Y || _prevCircleCenter.Z)
 	{
 		centerDelta = circleCenter - _prevCircleCenter;
-		if (!Data->OriginLissajous && (Data->OriginCircleRadius >= 0 || Data->OriginCircleSpeed != 0 || Data->OriginCircleAnglePerStep != 0.0))
+		if (!Data->OriginLissajous && (Data->OriginCircleRadius >= 0 || Data->OriginCircleSpeed != 0 || Data->OriginInitialSpeed >= 0 || Data->OriginCircleAnglePerStep != 0.0))
 			useCenterTracking = true;
 	}
 	_prevCircleCenter = circleCenter;
