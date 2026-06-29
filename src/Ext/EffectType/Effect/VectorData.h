@@ -140,7 +140,7 @@ public:
 	int TargetOffsetHMin = 0;
 	int TargetOffsetHMax = 0;
 
-	int InitialSpeed = -1;              // -1 = 读取单位 Speed
+	int LinearSpeed = -1;              // -1 = 读取单位 Speed
 	int RandomSpeedMin = 0;             // Speed 模式随机速度下限
 	int RandomSpeedMax = 0;             // Speed 模式随机速度上限
 	int MaxSpeed = -1;                  // -1 = 不限
@@ -343,15 +343,16 @@ public:
 		FallingDestroyHeight = reader->Get(title + "FallingDestroyHeight", FallingDestroyHeight);
 
 		// --- 速度 ---
-		InitialSpeed = reader->Get(title + "InitialSpeed", -1);
+		LinearSpeed = reader->Get(title + "LinearSpeed", -1);
 		std::string randomSpeedStr = reader->Get(title + "RandomSpeed", std::string{ "" });
 		ParseMinMax(randomSpeedStr, RandomSpeedMin, RandomSpeedMax);
 		MaxSpeed = reader->Get(title + "MaxSpeed", -1);
 		MinSpeed = reader->Get(title + "MinSpeed", -1);
 		Acceleration = reader->Get(title + "Acceleration", Acceleration);
 
-		Enable = !MoveTo.IsEmpty() || !TargetFLH.IsEmpty() || Freeze || ReachTarget
-			|| (CircleRadius > 0) || (CircleSpeed != 0) || (CircleAnglePerStep > 0.0)
+		Enable = !MoveTo.IsEmpty() || Freeze || ReachTarget
+			|| (LinearSpeed >= 0)
+			|| (CircleRadius > 0) || (CircleAnglePerStep > 0.0)
 			|| (CircleRandomRadiusMax > CircleRandomRadiusMin)
 			|| (CircleRandomAngleMax > CircleRandomAngleMin)
 			|| (CircleRandomAngleMax2 > CircleRandomAngleMin2);
@@ -489,7 +490,7 @@ private:
 			.Process(this->AllowFallingDestroy)
 			.Process(this->FallingDestroyHeight)
 
-			.Process(this->InitialSpeed)
+			.Process(this->LinearSpeed)
 			.Process(this->RandomSpeedMin)
 			.Process(this->RandomSpeedMax)
 			.Process(this->MaxSpeed)

@@ -26,9 +26,7 @@ void TechnoStatus::VectorCancel()
 		{
 			pFoot->ForceMission(Mission::Guard);
 		}
-		// 坠落：取当前高度对地差值或 AllowFallingDestroy 指定高度
-		CellClass* pCell = MapClass::Instance->TryGetCellAt(pTechno->GetCoords());
-		int heightAboveGround = pCell ? (pTechno->GetCoords().Z - pCell->GetCoordsWithBridge().Z) : 0;
+		// 坠落
 		int fallingDestroyHeight = _vectorResult.AllowFallingDestroy
 			? _vectorResult.FallingDestroyHeight
 			: 0; // AllowFallingDestroy=no 时不判死，自然坠落

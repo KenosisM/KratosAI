@@ -53,9 +53,9 @@ void VectorEffect::OnStart()
 
 	// --- 初始速度 ---
 	_currentSpeed = 0.0;
-	if (Data->InitialSpeed >= 0)
+	if (Data->LinearSpeed >= 0)
 	{
-		_currentSpeed = static_cast<double>(Data->InitialSpeed);
+		_currentSpeed = static_cast<double>(Data->LinearSpeed);
 	}
 	else if (pTechno)
 	{
@@ -453,7 +453,7 @@ VectorResult VectorEffect::GetVectorResult()
 	// ========================================================================
 	// 成熟机制，别乱动 — 模式 C: Circle（独立圆周，圆心=Origin，三选二参数）
 	// ========================================================================
-	bool hasCircle = Data->CircleRadius > 0 || Data->CircleSpeed != 0 || Data->InitialSpeed >= 0 || Data->CircleAnglePerStep > 0.0
+	bool hasCircle = Data->CircleRadius > 0 || Data->CircleAnglePerStep > 0.0
 		|| (Data->CircleRandomRadiusMax > Data->CircleRandomRadiusMin)
 		|| (Data->CircleRandomAngleMax > Data->CircleRandomAngleMin);
 	if (hasCircle)
@@ -468,9 +468,18 @@ VectorResult VectorEffect::GetVectorResult()
 		}
 
 		// 动态线速：首帧初始化，每帧叠加加速度
-		// InitialSpeed/Acceleration 覆盖 CircleSpeed/CircleSpeedAcceleration
 		if (_elapsedFrames == 0)
-			_currentCircleSpeed = Data->InitialSpeed >= 0 ? static_cast<double>(Data->InitialSpeed) : static_cast<double>(Data->CircleSpeed);
+		{
+			_currentCircleSpeed = static_cast<double>(Data->CircleSpeed);
+			// 无速度参数时，兜底取抛射体/单位自身速度
+			if (_currentCircleSpeed <= 0.0)
+			{
+				if (pBullet)
+					_currentCircleSpeed = pBullet->Speed;
+				else if (pTechno)
+					_currentCircleSpeed = pTechno->GetTechnoType()->Speed;
+			}
+		}
 		double circleAccel = Data->Acceleration != 0 ? Data->Acceleration : Data->CircleSpeedAcceleration;
 		_currentCircleSpeed += circleAccel;
 		if (Data->CircleMaxSpeed != 0 && _currentCircleSpeed > Data->CircleMaxSpeed)
@@ -1017,11 +1026,15 @@ VectorResult VectorEffect::GetVectorResult()
 				}
 			}
 		}
+		result.MoveDisp = resultDisp;
+		AdvanceFrame();
+		return result;
 	}
+
 	// ========================================================================
-	// 成熟机制，别乱动 — 模式 3: Speed（直线追踪 + 加速度）
+	// 模式5: Speed（直线追踪 + 加速度）
 	// ========================================================================
-	else if (dirLen > 1e-6)
+	if (Data->LinearSpeed >= 0)
 	{
 		double speed = _currentSpeed;
 
@@ -1037,13 +1050,18 @@ VectorResult VectorEffect::GetVectorResult()
 		if (Data->MaxSpeed >= 0 && speed > Data->MaxSpeed)
 			speed = static_cast<double>(Data->MaxSpeed);
 
-		resultDisp.X = static_cast<int>(dirVec.X / dirLen * speed);
-		resultDisp.Y = static_cast<int>(dirVec.Y / dirLen * speed);
-		resultDisp.Z = static_cast<int>(dirVec.Z / dirLen * speed);
+		if (dirLen > 1e-6)
+		{
+			resultDisp.X = static_cast<int>(dirVec.X / dirLen * speed);
+			resultDisp.Y = static_cast<int>(dirVec.Y / dirLen * speed);
+			resultDisp.Z = static_cast<int>(dirVec.Z / dirLen * speed);
+		}
+		result.MoveDisp = resultDisp;
+		AdvanceFrame();
+		return result;
 	}
 
-	result.MoveDisp = resultDisp;
-
+	// 没命中任何模式，返回空
 	AdvanceFrame();
 	return result;
 }
