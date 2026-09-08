@@ -29,6 +29,8 @@ void CountTriggerEffect::Watch()
 			action_idx++;
 			if (CanActive(counter->CountNum, entity.Range))
 			{
+				// 命中时，按计数器数值缓存本次动作执行次数，后续修改计数不影响本次执行
+				int times = entity.TriggerNumTimes ? (int)counter->CountNum : 1;
 				// 操作计数
 				if (entity.Num != 0)
 				{
@@ -103,8 +105,11 @@ void CountTriggerEffect::Watch()
 							pSourceHouse = counter->AE->pSourceHouse;
 							break;
 						}
-						// 附加AE
-						aeManager->Attach(entity.AttachEffects, entity.AttachChances, false, pSource, pSourceHouse);
+						// 附加AE，按计数器数值执行N次，能否附加由AE自身判断
+						for (int i = 0; i < times; i++)
+						{
+							aeManager->Attach(entity.AttachEffects, entity.AttachChances, false, pSource, pSourceHouse);
+						}
 					}
 				}
 				// 移除AE
@@ -124,39 +129,43 @@ void CountTriggerEffect::Watch()
 
 					if (aeManager)
 					{
-						if (!entity.RemoveEffects.empty())
+						// 移除AE，按计数器数值执行N次，能否移除由AE自身判断
+						for (int i = 0; i < times; i++)
 						{
-							if (!entity.RemoveEffectsLevel.empty())
+							if (!entity.RemoveEffects.empty())
 							{
-								// 移除指定的层数
-								std::map<std::string, int> aeTypes;
-								int idx = 0;
-								int count = entity.RemoveEffects.size();
-								for (std::string removeAE : entity.RemoveEffects)
+								if (!entity.RemoveEffectsLevel.empty())
 								{
-									int level = -1;
-									if (idx < count)
+									// 移除指定的层数
+									std::map<std::string, int> aeTypes;
+									int idx = 0;
+									int count = entity.RemoveEffects.size();
+									for (std::string removeAE : entity.RemoveEffects)
 									{
-										level = entity.RemoveEffectsLevel[idx];
+										int level = -1;
+										if (idx < count)
+										{
+											level = entity.RemoveEffectsLevel[idx];
+										}
+										if (level > 0)
+										{
+											aeTypes[removeAE] = level;
+										}
 									}
-									if (level > 0)
+									if (!aeTypes.empty())
 									{
-										aeTypes[removeAE] = level;
+										aeManager->DetachByName(aeTypes, entity.RemoveEffectsSkipNext);
 									}
 								}
-								if (!aeTypes.empty())
+								else
 								{
-									aeManager->DetachByName(aeTypes, entity.RemoveEffectsSkipNext);
+									aeManager->DetachByName(entity.RemoveEffects, entity.RemoveEffectsSkipNext);
 								}
 							}
-							else
+							if (!entity.RemoveEffectsWithMarks.empty())
 							{
-								aeManager->DetachByName(entity.RemoveEffects, entity.RemoveEffectsSkipNext);
+								aeManager->DetachByMarks(entity.RemoveEffectsWithMarks, entity.RemoveEffectsSkipNext);
 							}
-						}
-						if (!entity.RemoveEffectsWithMarks.empty())
-						{
-							aeManager->DetachByMarks(entity.RemoveEffectsWithMarks, entity.RemoveEffectsSkipNext);
 						}
 					}
 				}

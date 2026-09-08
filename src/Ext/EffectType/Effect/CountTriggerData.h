@@ -75,6 +75,9 @@ public:
 	bool RemoveEffectsSkipNext = false;
 	CountTriggerWho RemoveWho = CountTriggerWho::ME;
 
+	// 触发时，将附加/移除动作按计数器当前数值执行N次
+	bool TriggerNumTimes = false;
+
 	virtual void Read(INIBufferReader* reader, std::string title)
 	{
 		Range = reader->Get(title + "Range", Range);
@@ -132,6 +135,7 @@ public:
 		Remove = !RemoveEffects.empty() || !RemoveEffectsWithMarks.empty();
 		RemoveEffectsSkipNext = reader->Get(title + "RemoveEffectsSkipNext", RemoveEffectsSkipNext);
 		RemoveWho = reader->Get(title + "RemoveWho", RemoveWho);
+		TriggerNumTimes = reader->Get(title + "TriggerNumTimes", TriggerNumTimes);
 
 		Enable = Num != 0 || NumType != CounterType::Number || ResetNum || RemoveCounter || Attach || Remove;
 	}
@@ -163,6 +167,7 @@ public:
 			.Process(this->RemoveEffectsWithMarks)
 			.Process(this->RemoveEffectsSkipNext)
 			.Process(this->RemoveWho)
+			.Process(this->TriggerNumTimes)
 
 			.Success();
 	};
