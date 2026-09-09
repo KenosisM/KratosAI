@@ -107,6 +107,27 @@ TechnoStatus* StandEffect::SetupStandStatus()
 		}
 		status->SetupStand(*Data, pMaster);
 		status->MyMasterIsSpawned = masterIsSpawned;
+		// 额外附加AE
+		AttachEffect* standAEM = nullptr;
+		if (TryGetAEManager(pStand, standAEM))
+		{
+			if (!Data->AttachEffects.empty())
+			{
+				standAEM->Attach(Data->AttachEffects, {}, false, pStand, pStand->Owner);
+			}
+			if (!Data->AttachEffectsFromMaster.empty() && pMaster)
+			{
+				standAEM->Attach(Data->AttachEffectsFromMaster, {}, false, pMaster, pMaster->Owner);
+			}
+			if (!Data->AttachEffectsFromSource.empty() && AE->pSource)
+			{
+				standAEM->Attach(Data->AttachEffectsFromSource, {}, false, AE->pSource, AE->pSourceHouse);
+			}
+			if (!Data->AttachEffectsFromSpawnOwner.empty() && masterIsSpawned && pMaster)
+			{
+				standAEM->Attach(Data->AttachEffectsFromSpawnOwner, {}, false, pMaster, pMaster->Owner);
+			}
+		}
 	}
 	return status;
 }

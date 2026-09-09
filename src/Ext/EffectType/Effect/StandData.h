@@ -92,6 +92,11 @@ public:
 	bool CabinHead = false; // 插入车厢前端
 	int CabinGroup = -1; // 车厢分组
 
+	std::vector<std::string> AttachEffects{}; // 生成时附加效果
+	std::vector<std::string> AttachEffectsFromMaster{}; // 生成时附加来自使者的AE
+	std::vector<std::string> AttachEffectsFromSource{}; // 生成时附加来自AE来源的AE
+	std::vector<std::string> AttachEffectsFromSpawnOwner{}; // 生成时附加来自子机发射者的AE
+
 	virtual void Read(INIBufferReader* reader) override
 	{
 		Read(reader, "Stand.");
@@ -157,7 +162,11 @@ public:
 			IsTrain = reader->Get(title + "IsTrain", IsTrain);
 			CabinHead = reader->Get(title + "CabinHead", CabinHead);
 			CabinGroup = reader->Get(title + "CabinGroup", CabinGroup);
-		}
+
+			AttachEffects = reader->GetList(title + "AttachEffects", AttachEffects);
+			AttachEffectsFromMaster = reader->GetList(title + "AttachEffectsFromMaster", AttachEffectsFromMaster);
+			AttachEffectsFromSource = reader->GetList(title + "AttachEffectsFromSource", AttachEffectsFromSource);
+			AttachEffectsFromSpawnOwner = reader->GetList(title + "AttachEffectsFromSpawnOwner", AttachEffectsFromSpawnOwner);
 	}
 
 #pragma region save/load
@@ -214,6 +223,10 @@ public:
 			.Process(this->CabinHead) // 插入车厢前端
 			.Process(this->CabinGroup) // 车厢分组
 
+			.Process(this->AttachEffects) // 生成时附加效果
+			.Process(this->AttachEffectsFromMaster) // 生成时附加来自使者的AE
+			.Process(this->AttachEffectsFromSource) // 生成时附加来自AE来源的AE
+			.Process(this->AttachEffectsFromSpawnOwner) // 生成时附加来自子机发射者的AE
 
 			.Success();
 	};
