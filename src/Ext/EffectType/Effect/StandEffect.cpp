@@ -109,7 +109,7 @@ TechnoStatus* StandEffect::SetupStandStatus()
 		status->MyMasterIsSpawned = masterIsSpawned;
 		// 额外附加AE
 		AttachEffect* standAEM = nullptr;
-		if (TryGetAEManager(pStand, standAEM))
+		if (Data->Attach && TryGetAEManager(pStand, standAEM))
 		{
 			if (!Data->AttachEffects.empty())
 			{

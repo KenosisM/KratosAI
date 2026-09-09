@@ -92,6 +92,7 @@ public:
 	bool CabinHead = false; // 插入车厢前端
 	int CabinGroup = -1; // 车厢分组
 
+	bool Attach = false; // 生成时附加效果
 	std::vector<std::string> AttachEffects{}; // 生成时附加效果
 	std::vector<std::string> AttachEffectsFromMaster{}; // 生成时附加来自使者的AE
 	std::vector<std::string> AttachEffectsFromSource{}; // 生成时附加来自AE来源的AE
@@ -164,9 +165,15 @@ public:
 			CabinGroup = reader->Get(title + "CabinGroup", CabinGroup);
 
 			AttachEffects = reader->GetList(title + "AttachEffects", AttachEffects);
+			ClearIfGetNone(AttachEffects);
 			AttachEffectsFromMaster = reader->GetList(title + "AttachEffectsFromMaster", AttachEffectsFromMaster);
+			ClearIfGetNone(AttachEffectsFromMaster);
 			AttachEffectsFromSource = reader->GetList(title + "AttachEffectsFromSource", AttachEffectsFromSource);
+			ClearIfGetNone(AttachEffectsFromSource);
 			AttachEffectsFromSpawnOwner = reader->GetList(title + "AttachEffectsFromSpawnOwner", AttachEffectsFromSpawnOwner);
+			ClearIfGetNone(AttachEffectsFromSpawnOwner);
+			Attach = !AttachEffects.empty() || !AttachEffectsFromMaster.empty() || !AttachEffectsFromSource.empty() || !AttachEffectsFromSpawnOwner.empty();
+		}
 	}
 
 #pragma region save/load
