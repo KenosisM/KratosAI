@@ -23,10 +23,9 @@ void CountTriggerEffect::Watch()
 	CounterEffect* counter = (it != AE->AEManager->Counters.end()) ? it->second : nullptr;
 	if (counter && counter->IsAlive())
 	{
-		int action_idx = 0;
-		for (CountTriggerEntity& entity : Data->Actions)
+		// key：0 = 无序号触发器（与 CountTrigger0 同槽），i = CountTrigger<i>；map 升序遍历
+		for (auto& [actionIdx, entity] : Data->Actions)
 		{
-			action_idx++;
 			if (CanActive(counter->CountNum, entity.Range))
 			{
 				// 命中时，按计数器数值缓存本次动作执行次数，后续修改计数不影响本次执行
@@ -177,9 +176,9 @@ void CountTriggerEffect::Watch()
 				if (entity.TriggeredTimes > 0)
 				{
 					// 触发成功，计数
-					_count[action_idx]++;
+					_count[actionIdx]++;
 					// 检查触发次数
-					if (_count[action_idx] >= entity.TriggeredTimes)
+					if (_count[actionIdx] >= entity.TriggeredTimes)
 					{
 						Deactivate();
 						AE->TimeToDie();
