@@ -1,4 +1,4 @@
-#include "AutoWeaponEffect.h"
+﻿#include "AutoWeaponEffect.h"
 
 #include <Ext/Helper/Finder.h>
 #include <Ext/Helper/FLH.h>
@@ -379,11 +379,6 @@ void AutoWeaponEffect::End(CoordStruct location)
 {
 	Deactivate();
 	AE->TimeToDie();
-}
-
-void AutoWeaponEffect::OnRemove()
-{
-	End(CoordStruct::Empty);
 }
 
 void AutoWeaponEffect::OnReceiveDamageDestroy()

@@ -44,8 +44,6 @@ public:
 
 	virtual void OnUpdate() override;
 
-	virtual void OnRemove() override;
-
 	virtual void OnReceiveDamageDestroy() override;
 
 	virtual void OnDetonate(CoordStruct* pCoords, bool& skip) override;
