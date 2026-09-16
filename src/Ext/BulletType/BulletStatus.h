@@ -61,7 +61,7 @@ public:
 		pSource = nullptr;
 		pSourceHouse = nullptr;
 
-		// 爆炸时给发射者附加的 AE（配置在弹体 INI 段，Awake 时读取）
+		// 移除时给发射者附加的 AE（配置在弹体 INI 段，Awake 时读取）
 		AttachToOwnerOnExplode.clear();
 		AttachToOwnerOnExplodeChances.clear();
 
@@ -127,6 +127,9 @@ public:
 
 	virtual void OnDetonate(CoordStruct* pCoords, bool& skip) override;
 
+	// 弹体以任何方式移除时（爆炸 / 寿命耗尽 / 被反导打掉 / 无害处置 / 强制移除）给发射者附加 AE
+	virtual void OnUnInit() override;
+
 	// TODO Add new State
 	// 状态机
 	STATE_VAR_DEFINE(BlackHole);
@@ -159,7 +162,7 @@ public:
 	TechnoClass* pSource = nullptr;
 	HouseClass* pSourceHouse = nullptr;
 
-	// 弹体爆炸时给发射者附加的 AE 清单与成功率，写在弹体 INI 段：
+	// 弹体移除时给发射者附加的 AE 清单与成功率，写在弹体 INI 段：
 	//   AttachToOwnerOnExplode=AE甲,AE乙
 	//   AttachToOwnerOnExplodeChances=70%,100%
 	// 与"弹体一生成就贴给自己"的 AttachEffectTypes 互不相干，两条线各写各的。
