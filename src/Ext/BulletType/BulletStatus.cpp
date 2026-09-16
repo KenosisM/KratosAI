@@ -129,37 +129,6 @@ void BulletStatus::Destroy()
 	EventSystems::General.RemoveHandler(Events::ObjectUnInitEvent, this, &BulletStatus::OnTechnoDelete);
 }
 
-void BulletStatus::OnUnInit()
-{
-	// 弹体消失的收尾：不管是炸掉、飞完寿命自己消失，还是被反导打掉，最终都要走到这里，
-	// 所以"消失时给发射者附加 AE"挂在这一个点上就能覆盖全部消失方式。
-	// 没配清单的弹体直接返回，绝大多数弹体走这条路。
-	if (AttachToOwnerOnExplode.empty())
-	{
-		return;
-	}
-	// 读档重载、关卡结束清场引发的销毁不算"消失"，跳过，免得凭空多贴一份。
-	if (Common::IsLoadGame || Common::IsScenarioClear)
-	{
-		return;
-	}
-	// 发射者已经没了（发射者销毁时，弹体手里记的发射者会被清空）或本来就没有（地图脚本直接生成的弹体）→ 不贴。
-	if (!pSource || IsDeadOrInvisible(pSource))
-	{
-		return;
-	}
-	AttachEffect* ownerAEM = nullptr;
-	if (!TryGetAEManager<TechnoExt>(pSource, ownerAEM))
-	{
-		return;
-	}
-	// 来源记发射者自己（弹体此后消失不影响这份 AE）；
-	// 不传附加位置：既不会被当成"来自弹头附加"，也不影响 ECM / 泵 这类会看附加位置的 AE。
-	ownerAEM->Attach(AttachToOwnerOnExplode, AttachToOwnerOnExplodeChances, false, pSource, pSourceHouse);
-	Debug::Log("抛射体[%s]消失，给发射者[%s]%d 附加 AE [%d 条]\n",
-		pBullet->GetType()->ID, pSource->GetType()->ID, pSource, (int)AttachToOwnerOnExplode.size());
-}
-
 void BulletStatus::TakeDamage(int damage, bool eliminate, bool harmless, bool checkInterceptable)
 {
 	if (!checkInterceptable || life.Interceptable)
@@ -323,6 +292,22 @@ void BulletStatus::OnDetonate(CoordStruct* pCoords, bool& skip)
 	{
 		pTemp->UnInit();
 	}
+
+	// 弹体爆炸（命中 / 寿命耗尽 / 被反导打掉 / 潜地 / 近炸 / 自毁）→ 按弹体 INI 清单给发射者附加 AE。
+	// 放在 skip 判定之外：被反导打掉的弹体 skip 会被置真，那种爆炸同样要贴。
+	// 清单为空 = 该弹体没配这条标签，绝大多数弹体在这里直接跳过。
+	if (!AttachToOwnerOnExplode.empty()
+		&& !Common::IsLoadGame && !Common::IsScenarioClear          // 读档重载 / 关卡清场不是爆炸，跳过
+		&& pSource && !IsDeadOrInvisible(pSource))                  // 发射者已死（记录会被清空）或本来没有 → 不贴
+	{
+		AttachEffect* ownerAEM = nullptr;
+		if (TryGetAEManager<TechnoExt>(pSource, ownerAEM))
+		{
+			// 来源记发射者自己；不传附加位置：避免被打上"来自弹头附加"标记，也不影响 ECM / 泵 的爆心判定
+			ownerAEM->Attach(AttachToOwnerOnExplode, AttachToOwnerOnExplodeChances, false, pSource, pSourceHouse);
+		}
+	}
+
 	if (!skip)
 	{
 		if ((skip = OnDetonate_AntiBullet(pCoords)) == true)
