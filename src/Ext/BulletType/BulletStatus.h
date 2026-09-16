@@ -61,6 +61,10 @@ public:
 		pSource = nullptr;
 		pSourceHouse = nullptr;
 
+		// 消失时给发射者附加的 AE（配置在弹体 INI 段，Awake 时读取）
+		AttachToOwnerOnExplode.clear();
+		AttachToOwnerOnExplodeChances.clear();
+
 		// 生命值和伤害值
 		life = {};
 		damage = {};
@@ -123,6 +127,9 @@ public:
 
 	virtual void OnDetonate(CoordStruct* pCoords, bool& skip) override;
 
+	// 弹体消失时（不管是被引爆、寿命耗尽还是被反导打掉，最终都要走销毁）给发射者附加 AE
+	virtual void OnUnInit() override;
+
 	// TODO Add new State
 	// 状态机
 	STATE_VAR_DEFINE(BlackHole);
@@ -154,6 +161,13 @@ public:
 
 	TechnoClass* pSource = nullptr;
 	HouseClass* pSourceHouse = nullptr;
+
+	// 弹体消失时给发射者附加的 AE 清单与成功率，写在弹体 INI 段：
+	//   AttachToOwnerOnExplode=AE甲,AE乙
+	//   AttachToOwnerOnExplodeChances=70%,100%
+	// 与"弹体一生成就贴给自己"的 AttachEffectTypes 互不相干，两条线各写各的。
+	std::vector<std::string> AttachToOwnerOnExplode{};
+	std::vector<double> AttachToOwnerOnExplodeChances{};
 
 	// 生命值和伤害值
 	BulletLife life{};
